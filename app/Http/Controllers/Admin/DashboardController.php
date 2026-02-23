@@ -427,34 +427,31 @@ class DashboardController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8',
-            'role' => 'required|in:staff,driver',
+            'role' => 'required|in:staff,driver,admin',
             'permissions' => 'nullable|array',
-            'profile_photo_base64' => 'nullable|string',
+            'photo' => 'nullable|image|max:2048', // Max 2MB
             // New demographic fields
             'phone_number' => 'nullable|string|max:20',
             'gender' => 'nullable|in:Male,Female',
             'dob' => 'nullable|date',
             'pob' => 'nullable|string|max:255',
-            'current_address' => 'nullable|string',
-            'bio' => 'nullable|string',
+            'current_address' => 'nullable|string|max:500',
+            'bio' => 'nullable|string|max:1000',
         ]);
 
-        // 2. Handle the Base64 Cropped Image
+        // 2. Handle Photo Upload
         $imagePath = null;
-        if ($request->filled('profile_photo_base64')) {
+        if ($request->hasFile('photo')) {
+            $imagePath = $request->file('photo')->store('profile-photos', 'public');
+        } elseif ($request->filled('profile_photo_base64')) {
+            // Fallback to base64 if provided
             try {
-                // Decode the base64 string
                 $image_parts = explode(";base64,", $request->profile_photo_base64);
                 $image_base64 = base64_decode($image_parts[1]);
-                
-                // Generate a random file name
                 $fileName = 'profile-photos/' . \Illuminate\Support\Str::uuid() . '.png';
-                
-                // Save to storage
                 \Illuminate\Support\Facades\Storage::disk('public')->put($fileName, $image_base64);
                 $imagePath = $fileName;
             } catch (\Exception $e) {
-                // If cropping fails, continue without image
                 $imagePath = null;
             }
         }
@@ -467,6 +464,7 @@ class DashboardController extends Controller
             'role' => $data['role'],
             'permissions' => $data['permissions'] ?? [],
             'status' => 'active',
+            'avatar' => $imagePath,
             'profile_photo_path' => $imagePath,
             // New demographic fields
             'phone_number' => $data['phone_number'] ?? null,
@@ -476,9 +474,14 @@ class DashboardController extends Controller
             'current_address' => $data['current_address'] ?? null,
             'bio' => $data['bio'] ?? null,
         ]);
-        
+
         // 4. Log the action
-        \App\Models\ActivityLog::log('Created', 'Staff Profile', "Created new account for: {$user->name}");
+        \App\Models\ActivityLog::create([
+            'user_id' => auth()->id(),
+            'module' => 'Staff',
+            'action' => 'Created',
+            'description' => "Created new account for: {$user->name}",
+        ]);
 
         // 5. Redirect to the list with a success message
         return redirect()->route('admin.staff.index')->with('success', 'New team member added successfully!');
@@ -499,39 +502,85 @@ class DashboardController extends Controller
     public function updateStaff(Request $request, $id)
     {
         $user = \App\Models\User::findOrFail($id);
-        
+
         // Bouncer Check: Prevent staff from modifying admin accounts
         if ($user->role === 'admin' && auth()->user()->role !== 'admin') {
             abort(403, 'Unauthorized: You do not have permission to modify Super Admin accounts.');
         }
 
+        // Bouncer Check: Prevent staff from assigning admin role to others
+        if ($request->role === 'admin' && auth()->user()->role !== 'admin') {
+            abort(403, 'Unauthorized: Only Super Admins can assign the Super Admin role.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'role' => 'required|in:staff,driver',
+            'role' => 'required|in:staff,driver,admin',
+            'phone_number' => 'nullable|string|max:20',
+            'gender' => 'nullable|string|in:Male,Female',
+            'dob' => 'nullable|date',
+            'pob' => 'nullable|string|max:255',
+            'current_address' => 'nullable|string|max:500',
+            'bio' => 'nullable|string|max:1000',
             'password' => 'nullable|string|min:8',
             'permissions' => 'nullable|array',
+            'photo' => 'nullable|image|max:2048', // Max 2MB
             // Note: Email is NOT validated here because it's disabled in the form
         ]);
 
         // Update basic info
         $user->name = $validated['name'];
         $user->role = $validated['role'];
+        
+        // Update additional fields
+        $user->phone_number = $validated['phone_number'] ?? null;
+        $user->gender = $validated['gender'] ?? null;
+        $user->dob = $validated['dob'] ?? null;
+        $user->pob = $validated['pob'] ?? null;
+        $user->current_address = $validated['current_address'] ?? null;
+        $user->bio = $validated['bio'] ?? null;
 
         // OVERWRITE PERMISSIONS - If no checkboxes checked, default to empty array
         $user->permissions = $request->permissions ?? [];
+
+        // Handle Profile Photo Upload
+        if ($request->hasFile('photo')) {
+            // Delete old photo if it exists
+            if ($user->avatar) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->avatar);
+            }
+            if ($user->profile_photo_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo_path);
+            }
+            
+            // Store new photo
+            $path = $request->file('photo')->store('profile-photos', 'public');
+            $user->avatar = $path;
+            $user->profile_photo_path = $path;
+        }
 
         // Did the SuperAdmin type a new password?
         if ($request->filled('password')) {
             $user->password = \Illuminate\Support\Facades\Hash::make($validated['password']);
 
             // Log this high-security action!
-            \App\Models\ActivityLog::log('Updated', 'Staff Security', "SuperAdmin performed an emergency password reset for: {$user->name}");
+            \App\Models\ActivityLog::create([
+                'user_id' => auth()->id(),
+                'module' => 'Staff',
+                'action' => 'password_reset',
+                'description' => "SuperAdmin performed an emergency password reset for: {$user->name}",
+            ]);
         }
 
         $user->save();
 
-        // Log the permission change!
-        \App\Models\ActivityLog::log('Updated', 'Staff Profile', "Updated roles/permissions for: {$user->name}");
+        // Log the profile update!
+        \App\Models\ActivityLog::create([
+            'user_id' => auth()->id(),
+            'module' => 'Staff',
+            'action' => 'Updated',
+            'description' => "Updated profile information for: {$user->name}",
+        ]);
 
         return redirect()->route('admin.staff.index')->with('success', 'Staff member updated successfully!' . ($request->filled('password') ? ' Password has been reset.' : ''));
     }
@@ -539,58 +588,68 @@ class DashboardController extends Controller
     public function deactivateStaff($id)
     {
         $user = \App\Models\User::findOrFail($id);
-        
-        // Bouncer Check: Prevent staff from deactivating admin accounts
-        if ($user->role === 'admin' && auth()->user()->role !== 'admin') {
-            abort(403, 'Unauthorized: You do not have permission to deactivate Super Admin accounts.');
-        }
-        
+        $authUser = auth()->user();
+
+        // Only the original Super Admin (ID 1 or admin@grocery.com) can deactivate admins
+        $isOriginalAdmin = ($authUser->id === 1 || $authUser->email === 'admin@grocery.com');
+
         // Prevent deactivating yourself
-        if ($user->id === auth()->id()) {
+        if ($user->id === $authUser->id) {
             return redirect()->back()->with('error', 'You cannot deactivate your own account!');
         }
-        
-        // Prevent deactivating other admins
-        if ($user->role === 'admin') {
-            return redirect()->back()->with('error', 'Super Admin accounts cannot be deactivated.');
+
+        // Prevent non-original-admins from deactivating Super Admins
+        if ($user->role === 'admin' && !$isOriginalAdmin) {
+            return redirect()->back()->with('error', 'Only the original Super Admin can deactivate other Admin accounts.');
         }
 
         // Toggle logic: if active -> disabled, if disabled -> active
         $user->status = ($user->status === 'active' || $user->status === null) ? 'disabled' : 'active';
         $user->save();
-        
-        $action = ($user->status === 'disabled') ? 'Deactivated' : 'Reactivated';
-        
-        // Log this action!
-        \App\Models\ActivityLog::log('Updated', 'Staff Security', "{$action} account for: {$user->name}");
 
-        return redirect()->back()->with('success', "Account has been {$user->status} successfully.");
+        $action = ($user->status === 'disabled') ? 'Deactivated' : 'Reactivated';
+
+        // Log this action!
+        \App\Models\ActivityLog::create([
+            'user_id' => $authUser->id,
+            'module' => 'Staff',
+            'action' => 'Updated',
+            'description' => "{$action} account for: {$user->name}",
+        ]);
+
+        return redirect()->back()->with('success', "{$user->name} has been {$action}.");
     }
 
     public function deleteStaff($id)
     {
         $user = \App\Models\User::findOrFail($id);
-        
-        // Bouncer Check: Prevent staff from deleting admin accounts
-        if ($user->role === 'admin' && auth()->user()->role !== 'admin') {
-            abort(403, 'Unauthorized: You do not have permission to delete Super Admin accounts.');
-        }
-        
+
+        // Get the authenticated user
+        $authUser = auth()->user();
+
+        // Only the original Super Admin (ID 1 or admin@grocery.com) can delete other admins
+        $isOriginalAdmin = ($authUser->id === 1 || $authUser->email === 'admin@grocery.com');
+
         // Prevent deleting yourself
-        if ($user->id === auth()->id()) {
+        if ($user->id === $authUser->id) {
             return redirect()->back()->with('error', 'You cannot delete your own account!');
         }
-        
-        // Prevent deleting other admins
-        if ($user->role === 'admin') {
-            return redirect()->back()->with('error', 'Super Admin accounts cannot be deleted.');
+
+        // Prevent non-original-admins from deleting Super Admins
+        if ($user->role === 'admin' && !$isOriginalAdmin) {
+            return redirect()->back()->with('error', 'Only the original Super Admin can delete other Admin accounts.');
         }
 
         $userName = $user->name;
         $user->delete();
-        
+
         // Log this action!
-        \App\Models\ActivityLog::log('Deleted', 'Staff Security', "Permanently deleted account: {$userName}");
+        \App\Models\ActivityLog::create([
+            'user_id' => $authUser->id,
+            'module' => 'Staff',
+            'action' => 'Deleted',
+            'description' => "Permanently deleted account: {$userName}",
+        ]);
 
         return redirect()->route('admin.staff.index')->with('success', 'Staff member permanently removed.');
     }
@@ -601,16 +660,20 @@ class DashboardController extends Controller
     public function changeRole(Request $request, $id)
     {
         $user = \App\Models\User::findOrFail($id);
-        
-        // Bouncer Check: Prevent staff from changing admin roles
-        if ($user->role === 'admin' && auth()->user()->role !== 'admin') {
-            abort(403, 'Unauthorized: You do not have permission to change Super Admin roles.');
+        $authUser = auth()->user();
+
+        // Only the original Super Admin (ID 1 or admin@grocery.com) can change admin roles
+        $isOriginalAdmin = ($authUser->id === 1 || $authUser->email === 'admin@grocery.com');
+
+        // Prevent non-original-admins from changing Super Admin roles
+        if ($user->role === 'admin' && !$isOriginalAdmin) {
+            return redirect()->back()->with('error', 'Only the original Super Admin can change other Admin roles.');
         }
-        
+
         $oldRole = $user->role;
 
         $validated = $request->validate([
-            'new_role' => 'required|in:staff,driver',
+            'new_role' => 'required|in:staff,driver,admin',
             'reason' => 'nullable|string|max:500',
         ]);
 

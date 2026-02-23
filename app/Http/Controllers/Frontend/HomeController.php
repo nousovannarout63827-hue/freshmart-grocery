@@ -334,12 +334,14 @@ class HomeController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
-            'phone' => 'required|string|max:20',
+            'phone' => 'required|regex:/^[0-9]{10,15}$/|max:20',
             'address' => 'required|string|max:500',
             'city' => 'required|string|max:255',
             'postal_code' => 'required|string|max:20',
             'payment_method' => 'required|in:cash,card',
             'shipping_cost' => 'nullable|numeric|min:0|max:100',
+        ], [
+            'phone.regex' => 'Phone number must contain only digits (10-15 digits).',
         ]);
 
         $cart = session()->get('cart', []);

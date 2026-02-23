@@ -212,17 +212,19 @@
                         </button>
                     </form>
 
-                    <!-- Cart -->
-                    <a href="{{ route('cart') }}" class="relative group">
-                        <div class="w-11 h-11 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center text-white shadow-lg shadow-primary-500/30 group-hover:shadow-primary-500/50 transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                        </div>
-                        <span id="cart-count" class="absolute -top-1 -right-1 w-5 h-5 bg-accent-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg">
-                            {{ count(session('cart', [])) }}
-                        </span>
-                    </a>
+                    <!-- Cart (Only for Guests and Customers) -->
+                    @if(!auth()->check() || auth()->user()->role === 'customer')
+                        <a href="{{ route('cart') }}" class="relative group">
+                            <div class="w-11 h-11 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center text-white shadow-lg shadow-primary-500/30 group-hover:shadow-primary-500/50 transition">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                            </div>
+                            <span id="cart-count" class="absolute -top-1 -right-1 w-5 h-5 bg-accent-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg">
+                                {{ count(session('cart', [])) }}
+                            </span>
+                        </a>
+                    @endif
 
                     <!-- Auth -->
                     @auth
@@ -238,14 +240,16 @@
                             </button>
                             <div class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
                                 <div class="py-2">
-                                    @if(auth()->user()->isAdmin() || auth()->user()->isStaff() || auth()->user()->isDriver())
-                                        <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2.5 hover:bg-primary-50 text-gray-700 hover:text-primary-600 transition">Dashboard</a>
-                                    @endif
-                                    @if(auth()->user()->isCustomer())
+                                    @if(auth()->user()->role !== 'customer')
+                                        <p class="text-xs text-gray-400 px-4 py-2 uppercase font-medium">Staff Mode Active</p>
+                                        <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2.5 hover:bg-green-50 text-green-600 font-medium transition">
+                                            💻 Go to Dashboard &rarr;
+                                        </a>
+                                    @else
                                         <a href="{{ route('customer.orders') }}" class="block px-4 py-2.5 hover:bg-primary-50 text-gray-700 hover:text-primary-600 transition">My Orders</a>
+                                        <a href="{{ route('customer.profile.edit') }}" class="block px-4 py-2.5 hover:bg-primary-50 text-gray-700 hover:text-primary-600 transition">Edit Profile</a>
+                                        <a href="{{ route('customer.profile') }}" class="block px-4 py-2.5 hover:bg-primary-50 text-gray-700 hover:text-primary-600 transition">Profile Dashboard</a>
                                     @endif
-                                    <a href="{{ route('customer.profile.edit') }}" class="block px-4 py-2.5 hover:bg-primary-50 text-gray-700 hover:text-primary-600 transition">Edit Profile</a>
-                                    <a href="{{ route('customer.profile') }}" class="block px-4 py-2.5 hover:bg-primary-50 text-gray-700 hover:text-primary-600 transition">Profile Dashboard</a>
                                     <hr class="my-2">
                                     <form action="{{ route('logout') }}" method="POST">
                                         @csrf
@@ -309,14 +313,16 @@
                             <p class="text-sm text-gray-600 mb-2">Signed in as: <span class="font-semibold">{{ auth()->user()->name ?? 'User' }}</span></p>
                             <p class="text-xs text-gray-400 uppercase font-medium">{{ auth()->user()->role ?? 'Customer' }}</p>
                         </div>
-                        @if(auth()->user()->isAdmin() || auth()->user()->isStaff() || auth()->user()->isDriver())
-                            <a href="{{ route('admin.dashboard') }}" class="block w-full px-4 py-3 bg-primary-600 text-white rounded-xl font-medium text-center hover:bg-primary-700 transition mb-2">Dashboard</a>
-                        @endif
-                        @if(auth()->user()->isCustomer())
+                        @if(auth()->user()->role !== 'customer')
+                            <p class="text-xs text-gray-400 px-4 py-2 mb-2 uppercase font-medium">Staff Mode Active</p>
+                            <a href="{{ route('admin.dashboard') }}" class="block w-full px-4 py-3 bg-green-600 text-white rounded-xl font-medium text-center hover:bg-green-700 transition mb-2">
+                                💻 Go to Dashboard &rarr;
+                            </a>
+                        @else
                             <a href="{{ route('customer.orders') }}" class="block w-full px-4 py-3 bg-primary-600 text-white rounded-xl font-medium text-center hover:bg-primary-700 transition mb-2">My Orders</a>
+                            <a href="{{ route('customer.profile.edit') }}" class="block w-full px-4 py-3 border-2 border-primary-600 text-primary-600 rounded-xl font-medium text-center hover:bg-primary-50 transition mb-2">Edit Profile</a>
+                            <a href="{{ route('customer.profile') }}" class="block w-full px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium text-center hover:bg-gray-200 transition mb-2">Profile Dashboard</a>
                         @endif
-                        <a href="{{ route('customer.profile.edit') }}" class="block w-full px-4 py-3 border-2 border-primary-600 text-primary-600 rounded-xl font-medium text-center hover:bg-primary-50 transition mb-2">Edit Profile</a>
-                        <a href="{{ route('customer.profile') }}" class="block w-full px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium text-center hover:bg-gray-200 transition mb-2">Profile Dashboard</a>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
                             <button type="submit" class="w-full px-4 py-3 bg-red-600 text-white rounded-xl font-medium text-center hover:bg-red-700 transition">Logout</button>

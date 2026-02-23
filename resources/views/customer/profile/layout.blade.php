@@ -71,7 +71,8 @@
 
     <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="flex flex-col lg:flex-row gap-8">
-            <!-- Sidebar -->
+            <!-- Sidebar (Only for Customers) -->
+            @if(auth()->check() && auth()->user()->role === 'customer')
             <aside class="lg:w-64 flex-shrink-0">
                 <div class="bg-white rounded-2xl border border-gray-100 p-6 sticky top-24">
                     <!-- Profile Card -->
@@ -87,7 +88,7 @@
                         <h3 class="font-semibold text-gray-900">{{ $user->name }}</h3>
                         <p class="text-sm text-gray-500">{{ $user->email }}</p>
                     </div>
-                    
+
                     <!-- Navigation -->
                     <nav class="space-y-1">
                         <a href="{{ route('customer.profile') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl {{ request()->routeIs('customer.profile') ? 'bg-primary-50 text-primary-600' : 'text-gray-600 hover:bg-gray-50' }} transition">
@@ -117,9 +118,27 @@
                     </nav>
                 </div>
             </aside>
+            @endif
 
             <!-- Main Content -->
             <main class="flex-1">
+                @if(auth()->check() && auth()->user()->role !== 'customer')
+                    <!-- Staff Quick Access Banner -->
+                    <div class="bg-green-50 border border-green-200 rounded-2xl p-6 mb-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-2xl">
+                                💻
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-semibold text-green-800">Staff Mode Active</h3>
+                                <p class="text-sm text-green-600">You are viewing the customer area as {{ auth()->user()->role }}.</p>
+                            </div>
+                            <a href="{{ route('admin.dashboard') }}" class="px-6 py-3 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition whitespace-nowrap">
+                                Back to Dashboard &rarr;
+                            </a>
+                        </div>
+                    </div>
+                @endif
                 @yield('profile-content')
             </main>
         </div>

@@ -48,9 +48,13 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
-                                <input type="tel" name="phone" required 
+                                <input type="tel" name="phone" required
+                                       pattern="[0-9]{10,15}"
+                                       inputmode="numeric"
+                                       oninput="this.value = this.value.replace(/[^0-9]/g, '')"
                                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
-                                       placeholder="(555) 123-4567">
+                                       placeholder="1234567890">
+                                <p class="text-xs text-gray-500 mt-1">Enter numbers only (10-15 digits)</p>
                             </div>
                         </div>
                     </div>

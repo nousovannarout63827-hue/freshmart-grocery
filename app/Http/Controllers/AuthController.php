@@ -25,7 +25,7 @@ class AuthController extends Controller
         // 2. Attempt to log the user in (and check if they clicked "Remember me")
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $user = Auth::user();
-            
+
             // Check if the account is suspended
             if ($user->status === 'suspended') {
                 Auth::logout();
@@ -46,7 +46,17 @@ class AuthController extends Controller
             // Security best practice: prevent session fixation attacks
             $request->session()->regenerate();
 
-            // 3. The Magic: Check the role and redirect!
+            // 3. Set session variables for role tracking
+            $request->session()->put([
+                'user_role' => $user->role,
+                'user_type' => $this->getUserType($user->role),
+                'login_time' => now(),
+                'user_id' => $user->id,
+                'user_name' => $user->name,
+                'user_email' => $user->email,
+            ]);
+
+            // 4. The Magic: Check the role and redirect!
             return $this->authenticated($request, Auth::user());
         }
 
@@ -54,6 +64,20 @@ class AuthController extends Controller
         return redirect('/login')->withErrors([
             'email' => 'The provided credentials do not match our records.',
         ])->withInput($request->only('email')); // Keeps the email so they don't have to retype it!
+    }
+
+    /**
+     * Get user type based on role.
+     */
+    protected function getUserType($role)
+    {
+        return match($role) {
+            'admin', 'super_user' => 'admin',
+            'driver' => 'driver',
+            'staff' => 'staff',
+            'customer' => 'customer',
+            default => 'customer',
+        };
     }
 
     /**
@@ -119,6 +143,16 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        // Log logout action before destroying session
+        if (auth()->check()) {
+            \App\Models\ActivityLog::create([
+                'user_id' => auth()->id(),
+                'module' => 'Auth',
+                'action' => 'Logged Out',
+                'description' => auth()->user()->name . ' logged out',
+            ]);
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

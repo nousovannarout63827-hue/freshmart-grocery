@@ -56,15 +56,15 @@
                     <div>
                         <form action="{{ route('admin.profile.photo') }}" method="POST" enctype="multipart/form-data" id="photo-form">
                             @csrf
-                            <input type="file" name="photo" id="photo-input" accept="image/*" style="display: none;" onchange="this.form.submit()">
-                            <label for="photo-input" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: #10b981; color: white; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
+                            <input type="file" name="photo" id="photo-input" accept="image/*" style="display: none;" onchange="submitPhotoForm(this)">
+                            <label for="photo-input" id="upload-btn" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: #10b981; color: white; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">
                                 <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
                                 </svg>
                                 Upload Photo
                             </label>
                         </form>
-                        <p style="font-size: 12px; color: #94a3b8; margin: 8px 0 0 0;">Allowed: JPEG, PNG, GIF • Max 2MB</p>
+                        <p id="upload-status" style="font-size: 12px; color: #94a3b8; margin: 8px 0 0 0;">Allowed: JPEG, PNG, GIF • Max 2MB</p>
                     </div>
                 </div>
             </div>
@@ -186,26 +186,74 @@
 </div>
 
 <script>
-    // Photo preview on selection
-    document.getElementById('photo-input').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file && file.type.match('image.*')) {
-            if (file.size > 2 * 1024 * 1024) {
-                alert('File size exceeds 2MB. Please choose a smaller image.');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const preview = document.getElementById('profile-preview');
-                if (preview.tagName === 'IMG') {
-                    preview.src = e.target.result;
-                } else {
-                    preview.outerHTML = '<img id="profile-preview" src="' + e.target.result + '" alt="Preview" style="width: 100px; height: 100px; border-radius: 16px; object-fit: cover; border: 4px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">';
-                }
-            }
-            reader.readAsDataURL(file);
+    // Submit photo form with AJAX
+    function submitPhotoForm(input) {
+        const file = input.files[0];
+        const statusEl = document.getElementById('upload-status');
+        const uploadBtn = document.getElementById('upload-btn');
+        
+        if (!file) return;
+        
+        // Validate file type
+        if (!file.type.match('image.*')) {
+            statusEl.style.color = '#ef4444';
+            statusEl.textContent = '❌ Please select an image file (JPEG, PNG, GIF)';
+            return;
         }
-    });
+        
+        // Validate file size (2MB max)
+        if (file.size > 2 * 1024 * 1024) {
+            statusEl.style.color = '#ef4444';
+            statusEl.textContent = '❌ File size exceeds 2MB. Please choose a smaller image.';
+            return;
+        }
+        
+        // Show loading state
+        statusEl.style.color = '#3b82f6';
+        statusEl.textContent = '⏳ Uploading...';
+        uploadBtn.style.pointerEvents = 'none';
+        uploadBtn.style.opacity = '0.6';
+        
+        const form = document.getElementById('photo-form');
+        const formData = new FormData(form);
+        
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update preview
+                const preview = document.getElementById('profile-preview');
+                if (preview) {
+                    preview.src = data.photo_url + '?t=' + new Date().getTime();
+                }
+                statusEl.style.color = '#10b981';
+                statusEl.textContent = '✅ Photo uploaded successfully!';
+                setTimeout(() => {
+                    statusEl.style.color = '#94a3b8';
+                    statusEl.textContent = 'Allowed: JPEG, PNG, GIF • Max 2MB';
+                }, 3000);
+            } else {
+                statusEl.style.color = '#ef4444';
+                statusEl.textContent = '❌ ' + (data.message || 'Upload failed');
+            }
+        })
+        .catch(error => {
+            console.error('Upload error:', error);
+            statusEl.style.color = '#ef4444';
+            statusEl.textContent = '❌ Upload failed. Please try again.';
+        })
+        .finally(() => {
+            uploadBtn.style.pointerEvents = 'auto';
+            uploadBtn.style.opacity = '1';
+            input.value = ''; // Reset file input
+        });
+    }
 </script>
 @endsection

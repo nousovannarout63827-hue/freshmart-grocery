@@ -18,7 +18,7 @@
 
     {{-- Filter Bar --}}
     <div style="background: white; border-radius: 16px; padding: 20px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <form action="{{ route('admin.activity_logs.index') }}" method="GET" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+        <form action="{{ route('admin.activity_logs.index') }}" method="GET" style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-end;">
 
             <div style="flex: 0 0 120px;">
                 <label style="display: block; font-size: 10px; font-weight: 700; color: #64748b; margin-bottom: 6px; text-transform: uppercase;">📅 Date</label>

@@ -45,13 +45,17 @@ class ProfileController extends Controller
 
         // Handle Photo Upload
         if ($request->hasFile('photo')) {
-            // 1. Delete old photo if it exists
+            // 1. Delete old photo if it exists (check both avatar and profile_photo_path)
+            if ($user->avatar) {
+                Storage::disk('public')->delete($user->avatar);
+            }
             if ($user->profile_photo_path) {
                 Storage::disk('public')->delete($user->profile_photo_path);
             }
-            // 2. Store new photo
+            // 2. Store new photo in 'avatar' column (primary field)
             $path = $request->file('photo')->store('profile-photos', 'public');
-            $user->profile_photo_path = $path;
+            $user->avatar = $path;
+            $user->profile_photo_path = $path; // Also update secondary field for compatibility
         }
 
         $user->name = $request->name;
@@ -59,6 +63,14 @@ class ProfileController extends Controller
         $user->phone_number = $request->phone;
         $user->current_address = $request->current_address;
         $user->save();
+
+        // Log the activity
+        ActivityLog::create([
+            'user_id' => $user->id,
+            'module' => 'Profile',
+            'action' => 'profile_updated',
+            'description' => 'Updated profile information',
+        ]);
 
         return back()->with('success', 'Profile information updated successfully!');
     }
@@ -91,22 +103,36 @@ class ProfileController extends Controller
 
         $user = auth()->user();
 
-        // 1. Delete old photo if it exists
+        // 1. Delete old photo if it exists (check both fields)
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
         if ($user->profile_photo_path) {
             Storage::disk('public')->delete($user->profile_photo_path);
         }
 
-        // 2. Store new photo
+        // 2. Store new photo in both fields for compatibility
         $path = $request->file('photo')->store('profile-photos', 'public');
+        $user->avatar = $path;
         $user->profile_photo_path = $path;
         $user->save();
 
         // Log the activity
         ActivityLog::create([
             'user_id' => $user->id,
+            'module' => 'Profile',
             'action' => 'profile_photo_updated',
             'description' => 'Updated profile photo',
         ]);
+
+        // Return JSON for AJAX requests
+        if ($request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile photo updated successfully!',
+                'photo_url' => asset('storage/' . $path),
+            ]);
+        }
 
         return back()->with('success', 'Profile photo updated successfully!');
     }

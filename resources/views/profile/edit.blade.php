@@ -35,46 +35,51 @@
     @endif
 
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 25px;">
-        
+
         {{-- Profile Information Card --}}
         <div class="profile-card" style="background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
             <div class="card-header" style="background: white; border-bottom: 1px solid #f1f5f9; padding: 20px 25px;">
                 <h2 style="font-size: 18px; font-weight: 900; color: #1e293b; margin: 0;">👤 Profile Information</h2>
             </div>
             <div class="card-body" style="padding: 30px 25px;">
-                <form action="{{ route('admin.profile.update') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')
-
-                    {{-- Profile Photo Upload --}}
-                    <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 25px;">
-                        <div style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; border: 3px solid #e2e8f0; flex-shrink: 0;">
-                            @if($user->avatar ?? $user->profile_photo_path)
-                                <img src="{{ asset('storage/' . ($user->avatar ?? $user->profile_photo_path)) }}" alt="{{ $user->name }}" style="width: 100%; height: 100%; object-fit: cover;">
-                            @else
-                                <div style="width: 100%; height: 100%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 36px; color: #94a3b8; font-weight: 800;">
-                                    {{ strtoupper(substr($user->name, 0, 1)) }}
-                                </div>
-                            @endif
-                        </div>
-                        <div>
-                            <label for="photo-upload" class="btn-upload" 
+                
+                {{-- Profile Photo Upload Form (Separate) --}}
+                <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px solid #f1f5f9;">
+                    <div style="width: 100px; height: 100px; border-radius: 50%; overflow: hidden; border: 3px solid #e2e8f0; flex-shrink: 0;">
+                        @if($user->avatar || $user->profile_photo_path)
+                            <img id="profile-preview" src="{{ asset('storage/' . ($user->avatar ?? $user->profile_photo_path)) }}" alt="{{ $user->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        @else
+                            <div id="profile-preview" style="width: 100%; height: 100%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 36px; color: #94a3b8; font-weight: 800;">
+                                {{ strtoupper(substr($user->name, 0, 1)) }}
+                            </div>
+                        @endif
+                    </div>
+                    <div>
+                        <form action="{{ route('admin.profile.photo') }}" method="POST" enctype="multipart/form-data" id="photo-form">
+                            @csrf
+                            <label for="photo-upload" class="btn-upload" id="upload-label"
                                    style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-block;"
                                    onmouseover="this.style.background='#2563eb';"
                                    onmouseout="this.style.background='#3b82f6';">
                                 📸 Change Photo
                             </label>
-                            <input type="file" name="photo" id="photo-upload" style="display: none;" accept="image/*" onchange="this.form.submit()">
-                            <p style="font-size: 12px; color: #94a3b8; margin: 8px 0 0;">Click to choose image. Max 2MB.</p>
-                        </div>
+                            <input type="file" name="photo" id="photo-upload" style="display: none;" accept="image/*" onchange="submitPhotoForm(this);">
+                        </form>
+                        <p id="upload-status" style="font-size: 12px; color: #94a3b8; margin: 8px 0 0;">Click to choose image. Max 2MB.</p>
                     </div>
+                </div>
+
+                {{-- Profile Update Form --}}
+                <form action="{{ route('admin.profile.update') }}" method="POST">
+                    @csrf
+                    @method('PUT')
 
                     {{-- Full Name --}}
                     <div style="margin-bottom: 20px;">
                         <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">
                             Full Name
                         </label>
-                        <input type="text" name="name" value="{{ old('name', $user->name) }}" 
+                        <input type="text" name="name" value="{{ old('name', $user->name) }}"
                                style="width: 100%; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; box-sizing: border-box;"
                                onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)';"
                                onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';"
@@ -86,14 +91,14 @@
                         <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px;">
                             Email Address
                         </label>
-                        <input type="email" name="email" value="{{ old('email', $user->email) }}" 
+                        <input type="email" name="email" value="{{ old('email', $user->email) }}"
                                style="width: 100%; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.2s; box-sizing: border-box;"
                                onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)';"
                                onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';"
                                required>
                     </div>
 
-                    <button type="submit" 
+                    <button type="submit"
                             style="width: 100%; background: #3b82f6; color: white; border: none; padding: 14px 20px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px;"
                             onmouseover="this.style.background='#2563eb'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(59,130,246,0.3)';"
                             onmouseout="this.style.background='#3b82f6'; this.style.transform='translateY(0)'; this.style.boxShadow='none';">
@@ -220,4 +225,85 @@
         </div>
     @endif
 </div>
+
+<script>
+// Submit photo form with AJAX
+function submitPhotoForm(input) {
+    const file = input.files[0];
+    const statusEl = document.getElementById('upload-status');
+    const uploadLabel = document.getElementById('upload-label');
+    
+    if (!file) return;
+    
+    // Validate file type
+    if (!file.type.match('image.*')) {
+        statusEl.style.color = '#ef4444';
+        statusEl.textContent = '❌ Please select an image file (JPEG, PNG, GIF)';
+        return;
+    }
+    
+    // Validate file size (2MB max)
+    if (file.size > 2 * 1024 * 1024) {
+        statusEl.style.color = '#ef4444';
+        statusEl.textContent = '❌ File size exceeds 2MB. Please choose a smaller image.';
+        return;
+    }
+    
+    // Find the form element (traverse up from input)
+    const form = input.closest('form');
+    
+    // Safety check: make sure we found a form
+    if (!form) {
+        statusEl.style.color = '#ef4444';
+        statusEl.textContent = '❌ Form not found. Please refresh the page.';
+        return;
+    }
+    
+    // Show loading state
+    statusEl.style.color = '#3b82f6';
+    statusEl.textContent = '⏳ Uploading...';
+    uploadLabel.style.pointerEvents = 'none';
+    uploadLabel.style.background = '#64748b';
+    
+    const formData = new FormData(form);
+    
+    fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update preview image
+            const previewContainer = input.closest('div').previousElementSibling.querySelector('img');
+            if (previewContainer) {
+                previewContainer.src = data.photo_url + '?t=' + new Date().getTime();
+            }
+            statusEl.style.color = '#10b981';
+            statusEl.textContent = '✅ Photo uploaded successfully!';
+            setTimeout(() => {
+                statusEl.style.color = '#94a3b8';
+                statusEl.textContent = 'Click to choose image. Max 2MB.';
+            }, 3000);
+        } else {
+            statusEl.style.color = '#ef4444';
+            statusEl.textContent = '❌ ' + (data.message || 'Upload failed');
+        }
+    })
+    .catch(error => {
+        console.error('Upload error:', error);
+        statusEl.style.color = '#ef4444';
+        statusEl.textContent = '❌ Upload failed. Please try again.';
+    })
+    .finally(() => {
+        uploadLabel.style.pointerEvents = 'auto';
+        uploadLabel.style.background = '#3b82f6';
+        input.value = ''; // Reset file input
+    });
+}
+</script>
 @endsection

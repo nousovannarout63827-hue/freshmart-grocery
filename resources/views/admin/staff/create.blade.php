@@ -25,32 +25,38 @@
     <form action="{{ route('admin.staff.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
-        <input type="hidden" name="profile_photo_base64" id="profile_photo_base64">
-
         <div style="background: white; border-radius: 16px; padding: 24px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); margin-bottom: 24px;">
-            <h3 style="margin: 0 0 20px 0; font-weight: 800; color: #1e293b; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">1. Account Setup</h3>
+            <h3 style="margin: 0 0 20px 0; font-weight: 800; color: #1e293b; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">1. Profile Photo & Role</h3>
 
-            <div style="display: flex; gap: 40px; align-items: center;">
-                
+            <div style="display: flex; gap: 40px; align-items: center; flex-wrap: wrap;">
+
                 <div style="text-align: center; flex-shrink: 0;">
-                    <div style="width: 120px; height: 120px; border-radius: 50%; background: #f8fafc; border: 2px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; overflow: hidden; position: relative;">
+                    <div style="width: 120px; height: 120px; border-radius: 50%; background: #f8fafc; border: 2px dashed #cbd5e1; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; overflow: hidden;">
                         <img id="photo-preview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
-                        <span id="photo-placeholder" style="font-size: 32px; color: #94a3b8;">📷</span>
+                        <span id="photo-placeholder" style="font-size: 48px; color: #cbd5e1;">📷</span>
                     </div>
-                    <label style="background: #1e293b; color: white; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s;">
+                    <label style="background: #1e293b; color: white; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px;"
+                           onmouseover="this.style.background='#0f172a'"
+                           onmouseout="this.style.background='#1e293b'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
                         Upload Photo
-                        <input type="file" name="image" accept="image/*" style="display: none;" onchange="previewImage(event)">
+                        <input type="file" name="photo" accept="image/*" style="display: none;" onchange="previewImage(event)">
                     </label>
+                    <p style="font-size: 11px; color: #94a3b8; margin-top: 8px;">JPEG, PNG, GIF • Max 2MB</p>
                 </div>
 
-                <div style="flex: 1;">
+                <div style="flex: 1; min-width: 280px;">
                     <label style="display: block; font-weight: 800; color: #475569; margin-bottom: 8px; font-size: 12px; text-transform: uppercase;">Assign Role <span style="color: #ef4444;">*</span></label>
                     <select name="role" required style="width: 100%; max-width: 400px; padding: 12px 16px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 600; color: #1e293b; background: #f8fafc; outline: none; cursor: pointer;">
-                        <option value="staff">🏢 Store Staff</option>
+                        <option value="staff">🏬 Store Staff</option>
                         <option value="driver">🚚 Delivery Driver</option>
-                        <option value="admin">👑 Super Admin</option>
+                        <option value="admin">👑 Admin</option>
                     </select>
-                    <p style="margin: 8px 0 0 0; font-size: 12px; color: #64748b;">Super Admins have unrestricted access to the entire dashboard.</p>
+                    <p style="margin: 8px 0 0 0; font-size: 12px; color: #64748b;">Admins have unrestricted access to the entire dashboard.</p>
                 </div>
             </div>
         </div>

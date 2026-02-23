@@ -92,7 +92,7 @@
                     @if($staff->dob)
                     <div style="margin-bottom: 16px;">
                         <p style="margin: 0 0 4px 0; font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 700;">🎂 Date of Birth</p>
-                        <p style="margin: 0; font-weight: 600; color: #1e293b;">{{ $staff->dob->format('M d, Y') }}</p>
+                        <p style="margin: 0; font-weight: 600; color: #1e293b;">{{ \Carbon\Carbon::parse($staff->dob)->format('M d, Y') }}</p>
                     </div>
                     @endif
                     <div style="margin-bottom: 16px;">
@@ -135,7 +135,7 @@
                     @if($staff->dob)
                     <div>
                         <p style="margin: 0 0 4px 0; font-size: 12px; color: #64748b; font-weight: 600;">Date of Birth</p>
-                        <p style="margin: 0; font-weight: 600; color: #1e293b;">{{ $staff->dob->format('F d, Y') }}</p>
+                        <p style="margin: 0; font-weight: 600; color: #1e293b;">{{ \Carbon\Carbon::parse($staff->dob)->format('F d, Y') }}</p>
                     </div>
                     @endif
                     @if($staff->pob)

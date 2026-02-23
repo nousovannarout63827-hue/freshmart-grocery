@@ -1,6 +1,98 @@
 @extends('layouts.admin')
 
 @section('content')
+<style>
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 64px;
+        align-items: end;
+    }
+    .filter-col-date { grid-column: span 12; }
+    .filter-col-driver { grid-column: span 12; }
+    .filter-col-action { grid-column: span 12; }
+    .filter-col-buttons { grid-column: span 12; }
+    
+    @media (min-width: 768px) {
+        .filter-col-date { grid-column: span 3; }
+        .filter-col-driver { grid-column: span 4; }
+        .filter-col-action { grid-column: span 3; }
+        .filter-col-buttons { grid-column: span 2; }
+    }
+    
+    .filter-input {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 1px solid #cbd5e1;
+        background: #f8fafc;
+        color: #475569;
+        font-size: 14px;
+        outline: none;
+        transition: all 0.2s;
+    }
+    .filter-input:focus {
+        background: white;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+    }
+    
+    .filter-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .btn-filter {
+        flex: 1;
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        border: none;
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        box-shadow: 0 2px 8px rgba(59,130,246,0.3);
+        transition: all 0.2s;
+    }
+    .btn-filter:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+    }
+    
+    .btn-reset {
+        flex: 1;
+        background: #f1f5f9;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 13px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: all 0.2s;
+    }
+    .btn-reset:hover {
+        background: #e2e8f9;
+        color: #475569;
+    }
+</style>
+
 <div style="padding: 32px; box-sizing: border-box; background: #f1f5f9; min-height: 100vh;">
 
     <!-- Page Header -->
@@ -250,37 +342,56 @@
             </h2>
         </div>
 
-        <!-- Filters -->
-        <div style="background: white; border-radius: 12px; padding: 16px; margin-bottom: 20px; border: 1px solid #e2e8f0;">
-            <form action="{{ route('admin.driver-performance.index') }}" method="GET" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
-                <div style="flex: 0 0 120px;">
-                    <label style="display: block; font-size: 10px; font-weight: 700; color: #64748b; margin-bottom: 6px; text-transform: uppercase;">📅 Date</label>
-                    <input type="date" name="date_from" value="{{ request('date_from') }}" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 12px; background: #f8fafc;">
-                </div>
+        <!-- Filters - Modern Grid Layout -->
+        <div style="background: white; border-radius: 16px; padding: 24px; margin-bottom: 24px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+            <form action="{{ route('admin.driver-performance.index') }}" method="GET">
+                <div class="filter-grid">
 
-                <div style="flex: 1; min-width: 150px;">
-                    <label style="display: block; font-size: 10px; font-weight: 700; color: #64748b; margin-bottom: 6px; text-transform: uppercase;">👤 Driver</label>
-                    <select name="driver_id" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 12px; background: #f8fafc;">
-                        <option value="">All Drivers</option>
-                        @foreach($drivers as $driver)
-                            <option value="{{ $driver->id }}" {{ $selectedDriverId == $driver->id ? 'selected' : '' }}>{{ $driver->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                    <!-- Date Filter -->
+                    <div class="filter-col-date">
+                        <label class="filter-label">
+                            <span>📅</span> Date
+                        </label>
+                        <input type="date" name="date_from" value="{{ request('date_from') }}" class="filter-input" style="border-radius: 12px;">
+                    </div>
 
-                <div style="flex: 0 0 110px;">
-                    <label style="display: block; font-size: 10px; font-weight: 700; color: #64748b; margin-bottom: 6px; text-transform: uppercase;">⚡ Action</label>
-                    <select name="action" style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 12px; background: #f8fafc;">
-                        <option value="">All Actions</option>
-                        @foreach($actions as $action)
-                            <option value="{{ $action }}" {{ request('action') == $action ? 'selected' : '' }}>{{ $action }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                    <!-- Driver Filter -->
+                    <div class="filter-col-driver" style="margin-left: 0;">
+                        <label class="filter-label">
+                            <span>👤</span> Driver
+                        </label>
+                        <select name="driver_id" class="filter-input" style="border-radius: 12px; cursor: pointer;">
+                            <option value="">All Drivers</option>
+                            @foreach($drivers as $driver)
+                                <option value="{{ $driver->id }}" {{ $selectedDriverId == $driver->id ? 'selected' : '' }}>{{ $driver->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                <div style="display: flex; gap: 6px; flex-shrink: 0;">
-                    <button type="submit" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 12px; cursor: pointer;">🔍 Filter</button>
-                    <a href="{{ route('admin.driver-performance.index') }}" style="background: white; color: #64748b; border: 1px solid #e2e8f0; padding: 8px 14px; border-radius: 8px; font-weight: 700; font-size: 12px; text-decoration: none;">🔄 Reset</a>
+                    <!-- Action Filter -->
+                    <div class="filter-col-action">
+                        <label class="filter-label">
+                            <span>⚡</span> Action
+                        </label>
+                        <select name="action" class="filter-input">
+                            <option value="">All Actions</option>
+                            @foreach($actions as $action)
+                                <option value="{{ $action }}" {{ request('action') == $action ? 'selected' : '' }}>{{ $action }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Filter Buttons -->
+                    <div class="filter-col-buttons" style="display: flex; gap: 10px; height: 48px;">
+                        <button type="submit" class="btn-filter">
+                            🔍 Filter
+                        </button>
+                        
+                        <a href="{{ route('admin.driver-performance.index') }}" class="btn-reset">
+                            🔄 Reset
+                        </a>
+                    </div>
+
                 </div>
             </form>
         </div>

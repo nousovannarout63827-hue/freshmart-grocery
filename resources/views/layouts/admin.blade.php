@@ -49,7 +49,7 @@
             </div>
         </div>
         
-        <nav class="side-nav">
+        <nav class="side-nav" style="display: flex; flex-direction: column; height: calc(100vh - 80px); overflow-y: auto;">
             <a href="{{ route('admin.dashboard') }}" class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 <span style="font-size: 20px; margin-right: 10px;">📊</span>
                 Dashboard
@@ -110,7 +110,7 @@
                 </a>
             @endif
 
-            <div style="margin-top: auto; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);    margin-bottom: 10px;">
+            <div style="margin-top: auto; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px;">
 
                 <!-- Notification Bell - Opens Modal -->
                 <button onclick="openAlertsModal()" style="width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px; border-radius: 8px; transition: background 0.3s; background: rgba(255,255,255,0.1); border: none; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
@@ -136,12 +136,41 @@
                         @endif
                     </div>
 
-                    <div style="overflow: hidden;">
+                    <div style="overflow: hidden; flex: 1;">
                         <div style="color: white; font-weight: 600; font-size: 14px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
                             {{ auth()->user()->name }}
                         </div>
-                        <div style="color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
-                            {{ ucfirst(auth()->user()->role) }}
+                        <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px; flex-wrap: wrap;">
+                            @php
+                                $userRole = auth()->user()->role;
+                                if ($userRole === 'admin' || $userRole === 'super_user') {
+                                    $badgeColor = '#7c3aed';
+                                    $badgeIcon = '👑';
+                                    $badgeText = 'Admin';
+                                } elseif ($userRole === 'staff') {
+                                    $badgeColor = '#2563eb';
+                                    $badgeIcon = '🏬';
+                                    $badgeText = 'Staff';
+                                } elseif ($userRole === 'driver') {
+                                    $badgeColor = '#d97706';
+                                    $badgeIcon = '🚚';
+                                    $badgeText = 'Driver';
+                                } else {
+                                    $badgeColor = '#64748b';
+                                    $badgeIcon = '👤';
+                                    $badgeText = ucfirst($userRole);
+                                }
+                                $loginTime = session('login_time');
+                            @endphp
+                            <span style="background: {{ $badgeColor }}; color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 3px; white-space: nowrap;">
+                                {{ $badgeIcon }} {{ $badgeText }}
+                            </span>
+                            {{-- DEBUG: Check session --}}
+                            @if($loginTime)
+                                <span style="color: #94a3b8; font-size: 10px; white-space: nowrap;">• {{ \Carbon\Carbon::parse($loginTime)->diffForHumans() }}</span>
+                            @else
+                                <span style="color: #ef4444; font-size: 9px;">[No login session]</span>
+                            @endif
                         </div>
                     </div>
 

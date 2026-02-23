@@ -1,6 +1,10 @@
 @extends('layouts.admin')
 
 @section('content')
+@php
+    $isOriginalAdmin = auth()->user()->id === 1 || auth()->user()->email === 'admin@grocery.com';
+@endphp
+
 <div style="padding: 30px; box-sizing: border-box;">
 
     <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
@@ -33,6 +37,7 @@
                 <option value="">All Roles</option>
                 <option value="staff" {{ request('role') == 'staff' ? 'selected' : '' }}>🏬 Store Staff</option>
                 <option value="driver" {{ request('role') == 'driver' ? 'selected' : '' }}>🚚 Delivery Driver</option>
+                <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>👑 Admin</option>
             </select>
             
             <button type="submit" style="background: #3b82f6; color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;"
@@ -94,7 +99,11 @@
                     </td>
 
                     <td style="padding: 15px 20px; vertical-align: middle;">
-                        @if($member->role == 'driver')
+                        @if($member->role == 'admin')
+                            <span style="background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-block; box-shadow: 0 2px 8px rgba(124,58,237,0.3);">
+                                👑 Admin
+                            </span>
+                        @elseif($member->role == 'driver')
                             <span style="background: #fffbeb; color: #d97706; border: 1px solid #fde68a; padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block;">
                                 🚚 Driver
                             </span>
@@ -136,12 +145,14 @@
                                 📜 History
                             </a>
 
-                            <button type="button" onclick="openRoleModal({{ $member->id }}, '{{ $member->name }}', '{{ $member->role }}')"
-                                    style="background: #8b5cf6; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap;"
-                                    onmouseover="this.style.background='#7c3aed'; this.style.transform='translateY(-1px)';"
-                                    onmouseout="this.style.background='#8b5cf6'; this.style.transform='translateY(0)';">
-                                🔄 Change Role
-                            </button>
+                            @if($member->role !== 'admin' || $isOriginalAdmin)
+                                <button type="button" onclick="openRoleModal({{ $member->id }}, '{{ $member->name }}', '{{ $member->role }}')"
+                                        style="background: #8b5cf6; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap;"
+                                        onmouseover="this.style.background='#7c3aed'; this.style.transform='translateY(-1px)';"
+                                        onmouseout="this.style.background='#8b5cf6'; this.style.transform='translateY(0)';">
+                                    🔄 Change Role
+                                </button>
+                            @endif
 
                             <a href="{{ route('admin.staff.edit', $member->id) }}"
                                style="background: #64748b; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.2s; text-decoration: none; white-space: nowrap;"
@@ -150,14 +161,14 @@
                                 ✏️ Edit
                             </a>
 
-                            @if(($member->status === 'active' || $member->status === null))
+                            @if(($member->status === 'active' || $member->status === null) && ($member->role !== 'admin' || $isOriginalAdmin))
                                 <button type="button" onclick="confirmDeactivate('{{ route('admin.staff.deactivate', $member->id) }}')"
                                         style="background: #f59e0b; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap;"
                                         onmouseover="this.style.background='#d97706'; this.style.transform='translateY(-1px)';"
                                         onmouseout="this.style.background='#f59e0b'; this.style.transform='translateY(0)';">
                                     ⏸️ Deactivate
                                 </button>
-                            @else
+                            @elseif($member->status !== 'active' && ($member->role !== 'admin' || $isOriginalAdmin))
                                 <button type="button" onclick="confirmDeactivate('{{ route('admin.staff.deactivate', $member->id) }}')"
                                         style="background: #22c55e; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap;"
                                         onmouseover="this.style.background='#16a34a'; this.style.transform='translateY(-1px)';"
@@ -166,12 +177,14 @@
                                 </button>
                             @endif
 
-                            <button type="button" onclick="triggerDelete('{{ route('admin.staff.delete', $member->id) }}', '{{ addslashes($member->name) }}')"
-                                    style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap;"
-                                    onmouseover="this.style.background='#dc2626'; this.style.transform='translateY(-1px)';"
-                                    onmouseout="this.style.background='#ef4444'; this.style.transform='translateY(0)';">
-                                🗑️ Delete
-                            </button>
+                            @if($member->role !== 'admin' || $isOriginalAdmin)
+                                <button type="button" onclick="triggerDelete('{{ route('admin.staff.delete', $member->id) }}', '{{ addslashes($member->name) }}')"
+                                        style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.2s; white-space: nowrap;"
+                                        onmouseover="this.style.background='#dc2626'; this.style.transform='translateY(-1px)';"
+                                        onmouseout="this.style.background='#ef4444'; this.style.transform='translateY(0)';">
+                                    🗑️ Delete
+                                </button>
+                            @endif
                         </div>
                     </td>
                 </tr>
@@ -202,6 +215,7 @@
                         onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';">
                     <option value="staff">🏬 Store Staff</option>
                     <option value="driver">🚚 Delivery Driver</option>
+                    <option value="admin">👑 Admin</option>
                 </select>
             </div>
             
