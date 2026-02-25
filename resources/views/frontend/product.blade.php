@@ -600,35 +600,37 @@
                                     @if($review->replies && $review->replies->count() > 0)
                                         <div class="mt-4 pt-4 border-t border-gray-100 space-y-4">
                                             @foreach($review->replies as $reply)
-                                                <div class="flex gap-3 bg-gray-50 rounded-xl p-4">
-                                                    <div class="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                                                        @if($reply->user && ($reply->user->avatar ?? $reply->user->profile_photo_path))
-                                                            <img src="{{ asset('storage/' . ($reply->user->avatar ?? $reply->user->profile_photo_path)) }}" 
-                                                                 alt="{{ $reply->user->name ?? 'User' }}" 
-                                                                 class="w-full h-full rounded-full object-cover">
-                                                        @else
-                                                            {{ strtoupper(substr($reply->user->name ?? 'U', 0, 1)) }}
-                                                        @endif
-                                                    </div>
-                                                    <div class="flex-1">
-                                                        <div class="flex items-center gap-2 mb-1">
-                                                            <h5 class="font-semibold text-gray-900 text-sm">{{ $reply->user->name ?? 'User' }}</h5>
-                                                            <span class="text-xs text-gray-500">{{ $reply->created_at->diffForHumans() }}</span>
-                                                        </div>
-                                                        <p class="text-gray-700 text-sm">{{ $reply->comment }}</p>
-                                                        @auth
-                                                            @if(auth()->id() === $reply->user_id)
-                                                                <form action="{{ route('reviews.reply.destroy', $reply->id) }}" method="POST" class="mt-2">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                    <button type="submit" class="text-xs text-red-600 hover:text-red-700 font-medium">
-                                                                        Delete
-                                                                    </button>
-                                                                </form>
+                                                @if(!$reply->is_hidden || (auth()->check() && auth()->id() === $reply->user_id))
+                                                    <div class="flex gap-3 bg-gray-50 rounded-xl p-4">
+                                                        <div class="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                                                            @if($reply->user && ($reply->user->avatar ?? $reply->user->profile_photo_path))
+                                                                <img src="{{ asset('storage/' . ($reply->user->avatar ?? $reply->user->profile_photo_path)) }}"
+                                                                     alt="{{ $reply->user->name ?? 'User' }}"
+                                                                     class="w-full h-full rounded-full object-cover">
+                                                            @else
+                                                                {{ strtoupper(substr($reply->user->name ?? 'U', 0, 1)) }}
                                                             @endif
-                                                        @endauth
+                                                        </div>
+                                                        <div class="flex-1">
+                                                            <div class="flex items-center gap-2 mb-1">
+                                                                <h5 class="font-semibold text-gray-900 text-sm">{{ $reply->user->name ?? 'User' }}</h5>
+                                                                <span class="text-xs text-gray-500">{{ $reply->created_at->diffForHumans() }}</span>
+                                                            </div>
+                                                            <p class="text-gray-700 text-sm">{{ $reply->comment }}</p>
+                                                            @auth
+                                                                @if(auth()->id() === $reply->user_id)
+                                                                    <form action="{{ route('reviews.reply.destroy', $reply->id) }}" method="POST" class="mt-2">
+                                                                        @csrf
+                                                                        @method('DELETE')
+                                                                        <button type="submit" class="text-xs text-red-600 hover:text-red-700 font-medium">
+                                                                            Delete
+                                                                        </button>
+                                                                    </form>
+                                                                @endif
+                                                            @endauth
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                @endif
                                             @endforeach
                                         </div>
                                     @endif

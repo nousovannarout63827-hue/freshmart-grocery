@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class ReviewManagementController extends Controller
 {
@@ -301,6 +302,57 @@ class ReviewManagementController extends Controller
         
         return redirect()->back()
             ->with('success', 'Reply deleted successfully!');
+    }
+
+    /**
+     * Hide/Unhide a review reply (admin only).
+     */
+    public function toggleReplyVisibility($id)
+    {
+        $reply = \App\Models\ReviewReply::findOrFail($id);
+        $reply->is_hidden = !$reply->is_hidden;
+        $reply->save();
+        
+        $action = $reply->is_hidden ? 'Hidden' : 'Unhidden';
+        
+        // Log activity
+        activityLog($action . ' reply #' . $id . ' on review #' . $reply->review_id, 'Reviews');
+        
+        return redirect()->back()
+            ->with('success', 'Reply ' . strtolower($action) . ' successfully!');
+    }
+
+    /**
+     * Update admin's own reply.
+     */
+    public function updateReply(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'comment' => 'required|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $reply = \App\Models\ReviewReply::findOrFail($id);
+        
+        // Only admin can edit their own reply
+        if (auth()->id() !== $reply->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $reply->update([
+            'comment' => $request->comment,
+        ]);
+
+        // Log activity
+        activityLog('Updated reply #' . $id . ' on review #' . $reply->review_id, 'Reviews');
+
+        return redirect()->back()
+            ->with('success', 'Reply updated successfully!');
     }
 }
 

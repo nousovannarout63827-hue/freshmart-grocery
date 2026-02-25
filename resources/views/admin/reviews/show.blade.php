@@ -144,7 +144,7 @@
                     </div>
                     <div class="p-6 space-y-4">
                         @foreach($review->replies as $reply)
-                            <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                            <div class="bg-gray-50 rounded-xl p-4 border {{ $reply->is_hidden ? 'border-red-200 bg-red-50' : 'border-gray-100' }}">
                                 <div class="flex items-start justify-between mb-3">
                                     <a href="{{ route('admin.customers.show', $reply->user_id) }}" class="flex items-center gap-3 hover:bg-gray-100 rounded-lg p-2 -ml-2 transition">
                                         @if($reply->user && ($reply->user->avatar ?? $reply->user->profile_photo_path))
@@ -161,41 +161,87 @@
                                             <p class="text-xs text-gray-500">{{ $reply->created_at->format('F d, Y') }} • {{ $reply->created_at->diffForHumans() }}</p>
                                         </div>
                                     </a>
-                                    @auth
-                                        @if(auth()->id() === $reply->user_id)
-                                            <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">Reviewer</span>
+                                    <div class="flex items-center gap-2">
+                                        @if($reply->is_hidden)
+                                            <span class="px-2 py-1 bg-red-100 text-red-700 text-xs font-bold rounded-full">Hidden</span>
+                                        @elseif(auth()->id() === $reply->user_id)
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">Your Reply</span>
                                         @endif
-                                    @endauth
+                                    </div>
                                 </div>
-                                <p class="text-gray-700 text-sm leading-relaxed mb-3">{{ $reply->comment }}</p>
-                                @auth
+                                
+                                @if($reply->is_hidden)
+                                    <div class="flex items-center gap-2 mb-3 p-3 bg-red-100 rounded-lg border border-red-200">
+                                        <svg class="w-5 h-5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                        </svg>
+                                        <p class="text-sm text-red-700 font-medium">This reply has been hidden by a moderator</p>
+                                    </div>
+                                @endif
+                                
+                                <div id="reply-content-{{ $reply->id }}">
+                                    <p class="text-gray-700 text-sm leading-relaxed mb-3 {{ $reply->is_hidden ? 'opacity-50' : '' }}">{{ $reply->comment }}</p>
+                                </div>
+                                
+                                <!-- Admin Controls -->
+                                <div class="flex items-center gap-2 mt-3 pt-3 border-t border-gray-200">
+                                    <!-- Hide/Unhide Toggle (For any reply) -->
+                                    <form action="{{ route('admin.reviews.reply.toggle', $reply->id) }}" method="POST" class="inline">
+                                        @csrf
+                                        <button type="submit" class="text-xs {{ $reply->is_hidden ? 'text-green-600 hover:text-green-700' : 'text-orange-600 hover:text-orange-700' }} font-medium inline-flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                @if($reply->is_hidden)
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                @else
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                                                @endif
+                                            </svg>
+                                            {{ $reply->is_hidden ? 'Unhide Reply' : 'Hide Reply' }}
+                                        </button>
+                                    </form>
+                                    
+                                    <!-- Edit Button (Only for admin's own replies) -->
                                     @if(auth()->id() === $reply->user_id)
-                                        <form action="{{ route('admin.reviews.reply.destroy', $reply->id) }}" method="POST" class="mt-2">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-xs text-red-600 hover:text-red-700 font-medium inline-flex items-center gap-1">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                                Delete Reply
-                                            </button>
-                                        </form>
+                                        <button onclick="toggleEditForm({{ $reply->id }})" class="text-xs text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                            Edit
+                                        </button>
                                     @endif
                                     
-                                    <!-- Admin can delete any reply -->
-                                    @if(auth()->user()->isAdmin())
-                                        <form action="{{ route('admin.reviews.reply.destroy', $reply->id) }}" method="POST" class="mt-2">
+                                    <!-- Delete Button -->
+                                    <form action="{{ route('admin.reviews.reply.destroy', $reply->id) }}" method="POST" class="inline" onsubmit="return confirm('Delete this reply? This cannot be undone.');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-xs text-red-600 hover:text-red-700 font-medium inline-flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                                
+                                <!-- Edit Form (Only for admin's own replies) -->
+                                @if(auth()->id() === $reply->user_id)
+                                    <div id="edit-form-{{ $reply->id }}" class="hidden mt-3 p-3 bg-white rounded-lg border border-gray-200">
+                                        <form action="{{ route('admin.reviews.reply.update', $reply->id) }}" method="POST">
                                             @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-xs text-red-600 hover:text-red-700 font-medium inline-flex items-center gap-1">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                                Delete Reply
-                                            </button>
+                                            @method('PUT')
+                                            <textarea name="comment" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm" required>{{ $reply->comment }}</textarea>
+                                            <div class="flex gap-2 mt-2">
+                                                <button type="submit" class="px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg hover:bg-blue-700 transition font-medium">
+                                                    Save Changes
+                                                </button>
+                                                <button type="button" onclick="toggleEditForm({{ $reply->id }})" class="px-3 py-1.5 bg-gray-100 text-gray-700 text-xs rounded-lg hover:bg-gray-200 transition font-medium">
+                                                    Cancel
+                                                </button>
+                                            </div>
                                         </form>
-                                    @endif
-                                @endauth
+                                    </div>
+                                @endif
                             </div>
                         @endforeach
                     </div>
@@ -413,6 +459,13 @@
                 modal.remove();
             }
         });
+    }
+
+    function toggleEditForm(replyId) {
+        const form = document.getElementById(`edit-form-${replyId}`);
+        if (form) {
+            form.classList.toggle('hidden');
+        }
     }
 </script>
 @endpush

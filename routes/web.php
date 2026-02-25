@@ -233,6 +233,8 @@ Route::group([
         
         // Review Reply Management
         Route::delete('/reviews/reply/{id}', [ReviewManagementController::class, 'destroyReply'])->name('reviews.reply.destroy');
+        Route::post('/reviews/reply/{id}/toggle', [ReviewManagementController::class, 'toggleReplyVisibility'])->name('reviews.reply.toggle');
+        Route::put('/reviews/reply/{id}', [ReviewManagementController::class, 'updateReply'])->name('reviews.reply.update');
     });
 
     // 📈 REPORTS - Admin only

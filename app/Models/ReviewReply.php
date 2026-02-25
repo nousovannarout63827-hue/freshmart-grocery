@@ -14,7 +14,18 @@ class ReviewReply extends Model
         'review_id',
         'user_id',
         'comment',
+        'is_hidden',
     ];
+
+    /**
+     * The attributes that should be cast.
+     */
+    protected function casts(): array
+    {
+        return [
+            'is_hidden' => 'boolean',
+        ];
+    }
 
     /**
      * Get the review that this reply belongs to.
