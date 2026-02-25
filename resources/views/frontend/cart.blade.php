@@ -78,7 +78,12 @@
                                 <!-- Product Info -->
                                 <div class="flex-1">
                                     <h3 class="font-semibold text-gray-900 text-lg mb-1">{{ $item['name'] }}</h3>
-                                    <p class="text-primary-600 font-bold text-xl">${{ number_format($item['price'], 2) }}</p>
+                                    <p class="text-primary-600 font-bold text-xl">
+                                        @php
+                                            $displayPrice = ($item['price'] == floor($item['price'])) ? '$' . number_format($item['price'], 0) : '$' . number_format($item['price'], 2);
+                                        @endphp
+                                        {{ $displayPrice }}
+                                    </p>
                                     
                                     <!-- Quantity Controls -->
                                     <div class="flex items-center gap-4 mt-4">

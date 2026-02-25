@@ -245,7 +245,7 @@
                         <span class="value" style="font-size: 32px;">$ {{ number_format($soldAmount ?? 0, 2) }}</span>
                     </div>
                 </div>
-                <a href="#" class="view-details">
+                <a href="{{ route('admin.orders.index', ['status' => 'delivered']) }}" class="view-details">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -262,16 +262,16 @@
                         </svg>
                     </div>
                     <div class="card-info">
-                        <span class="label">Feedbacks</span>
-                        <span class="value">{{ $feedbacksCount }}</span>
+                        <span class="label">Customer Reviews</span>
+                        <span class="value">{{ $totalReviews }}</span>
                     </div>
                 </div>
-                <a href="#" class="view-details">
+                <a href="{{ route('admin.reviews.index') }}" class="view-details">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    View Details
+                    View Reviews
                 </a>
             </div>
 
@@ -298,6 +298,84 @@
 
         </div>
     </div>
+
+    <!-- Recent Customer Reviews -->
+    @if($recentReviews->count() > 0)
+    <div style="background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); margin-bottom: 25px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 28px; height: 28px; color: #db2777;">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                </svg>
+                <h2 style="margin: 0; color: #1e293b; font-size: 20px; font-weight: 800;">Recent Customer Reviews</h2>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <span style="background: #fce7f3; color: #db2777; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 700;">
+                    ⭐ {{ $averageRating }}/5.0 Average
+                </span>
+                <a href="{{ route('admin.reviews.index') }}" style="background: #db2777; color: white; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 14px; transition: all 0.2s;">
+                    View All Reviews →
+                </a>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+            @foreach($recentReviews as $review)
+                <div style="background: {{ $review->is_flagged ? '#fef3c7' : ($review->is_banned ? '#fee2e2' : '#f0fdf4') }}; border: 1px solid {{ $review->is_flagged ? '#fde68a' : ($review->is_banned ? '#fca5a5' : '#bbf7d0') }}; border-radius: 12px; padding: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <a href="{{ route('admin.customers.show', $review->user_id) }}" style="text-decoration: none;">
+                                @if($review->user && $review->user->avatar)
+                                    <img src="{{ asset('storage/' . $review->user->avatar) }}" alt="{{ $review->user->name ?? 'Customer' }}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                @else
+                                    <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #22c55e, #16a34a); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px; cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                                        {{ strtoupper(substr($review->user->name ?? 'C', 0, 1)) }}
+                                    </div>
+                                @endif
+                            </a>
+                            <div>
+                                <a href="{{ route('admin.customers.show', $review->user_id) }}" style="font-weight: 700; color: #1e293b; font-size: 13px; text-decoration: none;" onmouseover="this.style.color='#16a34a'" onmouseout="this.style.color='#1e293b'">{{ Str::limit($review->user->name ?? 'Customer', 20) }}</a>
+                                <div style="font-size: 11px; color: #64748b;">{{ $review->created_at->diffForHumans() }}</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 2px; color: #fbbf24;">
+                            @for($i = 1; $i <= 5; $i++)
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" style="width: 14px; height: 14px;">
+                                    <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+                                </svg>
+                            @endfor
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <div style="font-size: 12px; color: #64748b; margin-bottom: 4px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 12px; height: 12px; display: inline; vertical-align: middle;">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                            </svg>
+                            {{ Str::limit($review->product->name ?? 'Product', 25) }}
+                        </div>
+                        <div style="font-size: 13px; color: #475569; line-height: 1.5;">
+                            {{ Str::limit($review->comment ?? 'No comment', 60) }}
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; gap: 8px;">
+                            @if($review->is_flagged)
+                                <span style="background: #f59e0b; color: white; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700;">FLAGGED</span>
+                            @endif
+                            @if($review->is_banned)
+                                <span style="background: #ef4444; color: white; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700;">BANNED</span>
+                            @endif
+                            @if($review->is_approved)
+                                <span style="background: #10b981; color: white; padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: 700;">APPROVED</span>
+                            @endif
+                        </div>
+                        <a href="{{ route('admin.reviews.show', $review->id) }}" style="color: #db2777; text-decoration: none; font-size: 12px; font-weight: 600;">View →</a>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
 
     <!-- Out of Stock Alert (Critical - 0 stock) -->
     @if($outOfStockItems->count() > 0)

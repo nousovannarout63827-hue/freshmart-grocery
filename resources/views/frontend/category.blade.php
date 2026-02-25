@@ -103,7 +103,12 @@
                                 <h3 class="font-semibold text-gray-800 mb-2 truncate group-hover:text-primary-600 transition">{{ $product->name }}</h3>
                                 <div class="flex items-center justify-between mb-4">
                                     <div>
-                                        <span class="text-xl font-bold text-gray-900">${{ number_format($product->price, 2) }}</span>
+                                        <span class="text-xl font-bold text-gray-900">
+                                            @php
+                                                $displayPrice = ($product->price == floor($product->price)) ? '$' . number_format($product->price, 0) : '$' . number_format($product->price, 2);
+                                            @endphp
+                                            {{ $displayPrice }}
+                                        </span>
                                         <span class="text-sm text-gray-500">/{{ $product->unit ?? 'unit' }}</span>
                                     </div>
                                     <div class="flex items-center gap-1 text-yellow-400">

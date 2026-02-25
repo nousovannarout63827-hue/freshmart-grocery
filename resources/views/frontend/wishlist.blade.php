@@ -90,7 +90,12 @@
                                 </a>
                             </h3>
                             <div class="flex items-center justify-between mb-4">
-                                <span class="text-xl font-bold text-gray-900">${{ number_format($item->product->price, 2) }}</span>
+                                <span class="text-xl font-bold text-gray-900">
+                                    @php
+                                        $displayPrice = ($item->product->price == floor($item->product->price)) ? '$' . number_format($item->product->price, 0) : '$' . number_format($item->product->price, 2);
+                                    @endphp
+                                    {{ $displayPrice }}
+                                </span>
                                 @if($item->product->stock > 0)
                                     <span class="text-xs text-green-600 font-medium bg-green-50 px-2 py-1 rounded-full">In Stock</span>
                                 @else

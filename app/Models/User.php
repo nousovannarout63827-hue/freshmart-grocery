@@ -71,6 +71,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all reviews written by the user.
+     */
+    public function reviews()
+    {
+        return $this->hasMany(\App\Models\Review::class);
+    }
+
+    /**
+     * Get all helpful votes by the user.
+     */
+    public function helpfulVotes()
+    {
+        return $this->hasMany(\App\Models\ReviewHelpful::class);
+    }
+
+    /**
      * Check if the user is an Admin or Super User
      */
     public function isAdmin()

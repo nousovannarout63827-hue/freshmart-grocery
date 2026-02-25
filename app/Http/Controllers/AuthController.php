@@ -145,17 +145,28 @@ class AuthController extends Controller
     {
         // Log logout action before destroying session
         if (auth()->check()) {
+            $user = auth()->user();
             \App\Models\ActivityLog::create([
                 'user_id' => auth()->id(),
                 'module' => 'Auth',
                 'action' => 'Logged Out',
-                'description' => auth()->user()->name . ' logged out',
+                'description' => $user->name . ' logged out',
             ]);
+            
+            // Check if user is a customer
+            $isCustomer = $user->isCustomer();
+        } else {
+            $isCustomer = false;
         }
 
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
+        // Redirect customers to customer login, others to admin login
+        if ($isCustomer) {
+            return redirect()->route('customer.login');
+        }
 
         return redirect()->route('login');
     }

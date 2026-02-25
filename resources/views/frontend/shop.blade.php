@@ -25,7 +25,7 @@
                             </svg>
                             Filters
                         </h3>
-                        @if(request()->anyFilled(['search', 'category', 'min_price', 'max_price']))
+                        @if(request()->anyFilled(['search', 'category', 'min_price', 'max_price', 'rating']))
                             <a href="{{ route('shop') }}" class="text-sm text-primary-600 hover:text-primary-700 font-medium">
                                 Clear All
                             </a>
@@ -66,12 +66,42 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
                             <div class="flex gap-2">
-                                <input type="number" name="min_price" value="{{ request('min_price') }}" 
+                                <input type="number" name="min_price" value="{{ request('min_price') }}"
                                        placeholder="Min" step="0.01" min="0"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
-                                <input type="number" name="max_price" value="{{ request('max_price') }}" 
+                                <input type="number" name="max_price" value="{{ request('max_price') }}"
                                        placeholder="Max" step="0.01" min="0"
                                        class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition">
+                            </div>
+                        </div>
+
+                        <!-- Rating Filter -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Minimum Rating</label>
+                            <div class="space-y-2">
+                                @for($r = 4; $r >= 1; $r--)
+                                    <label class="flex items-center gap-2 cursor-pointer group">
+                                        <input type="radio" name="rating" value="{{ $r }}" 
+                                               {{ request('rating') == $r ? 'checked' : '' }}
+                                               class="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500">
+                                        <div class="flex items-center gap-1">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                @if($i <= $r)
+                                                    <svg class="w-4 h-4 fill-yellow-400 text-yellow-400" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                                @else
+                                                    <svg class="w-4 h-4 fill-gray-300 text-gray-300" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                                @endif
+                                            @endfor
+                                            <span class="text-sm text-gray-600 group-hover:text-gray-900">& up</span>
+                                        </div>
+                                    </label>
+                                @endfor
+                                @if(request('rating'))
+                                    <a href="{{ request()->fullUrlWithQuery(['rating' => null]) }}" 
+                                       class="text-xs text-primary-600 hover:text-primary-700 font-medium">
+                                        Clear rating filter
+                                    </a>
+                                @endif
                             </div>
                         </div>
 
@@ -95,7 +125,8 @@
                         @if(request('category'))<input type="hidden" name="category" value="{{ request('category') }}">@endif
                         @if(request('min_price'))<input type="hidden" name="min_price" value="{{ request('min_price') }}">@endif
                         @if(request('max_price'))<input type="hidden" name="max_price" value="{{ request('max_price') }}">@endif
-                        
+                        @if(request('rating'))<input type="hidden" name="rating" value="{{ request('rating') }}">@endif
+
                         <label class="text-sm text-gray-600">Sort by:</label>
                         <select name="sort" onchange="this.form.submit()" class="border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 appearance-none bg-white pr-8 cursor-pointer">
                             <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Latest</option>
@@ -103,6 +134,7 @@
                             <option value="price_desc" {{ request('sort') == 'price_desc' ? 'selected' : '' }}>💰 Price: High to Low</option>
                             <option value="name_asc" {{ request('sort') == 'name_asc' ? 'selected' : '' }}>🔤 Name: A-Z</option>
                             <option value="name_desc" {{ request('sort') == 'name_desc' ? 'selected' : '' }}>🔤 Name: Z-A</option>
+                            <option value="rating" {{ request('sort') == 'rating' ? 'selected' : '' }}>⭐ Top Rated</option>
                         </select>
                         <svg class="w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -117,20 +149,20 @@
                                 @if($product->slug)
                                 <a href="{{ route('product.show', $product->slug) }}" class="block group">
                                 @endif
-                                    <div class="relative w-full h-32 sm:h-40 lg:h-48 bg-gray-100 overflow-hidden p-3 lg:p-4">
+                                    <div class="relative w-full h-32 sm:h-40 lg:h-48 bg-gray-100 overflow-hidden">
                                         @php
                                             $productImageUrl = null;
                                             if ($product->image) {
                                                 // Check if image path already contains 'products/' or 'storage/'
-                                                $productImageUrl = str_contains($product->image, 'products/') || str_contains($product->image, 'storage/') 
-                                                    ? asset('storage/' . $product->image) 
+                                                $productImageUrl = str_contains($product->image, 'products/') || str_contains($product->image, 'storage/')
+                                                    ? asset('storage/' . $product->image)
                                                     : asset('storage/products/' . $product->image);
                                             }
                                         @endphp
                                         @if($productImageUrl)
                                             <img src="{{ $productImageUrl }}"
                                                  alt="{{ $product->name }}"
-                                                 class="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition duration-500">
+                                                 class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                                         @else
                                             <div class="w-full h-full flex items-center justify-center text-6xl bg-gradient-to-br from-primary-50 to-primary-100">
                                                 🥬
@@ -190,12 +222,31 @@
                                         <h3 class="font-semibold text-gray-800 mb-1 sm:mb-2 text-xs sm:text-sm truncate group-hover:text-primary-600 transition">{{ $product->name }}</h3>
                                         <div class="flex items-center justify-between mb-2 sm:mb-4">
                                             <div>
-                                                <span class="text-sm sm:text-xl font-bold text-gray-900">${{ number_format($product->price, 2) }}</span>
+                                                <span class="text-sm sm:text-xl font-bold text-gray-900">
+                                            @php
+                                                $displayPrice = ($product->price == floor($product->price)) ? '$' . number_format($product->price, 0) : '$' . number_format($product->price, 2);
+                                            @endphp
+                                            {{ $displayPrice }}
+                                        </span>
                                                 <span class="text-[10px] sm:text-sm text-gray-500">/{{ Str::limit($product->unit ?? 'unit', 3) }}</span>
                                             </div>
-                                            <div class="flex items-center gap-0.5 sm:gap-1 text-yellow-400">
-                                                <svg class="w-3 h-3 sm:w-4 sm:h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                                                <span class="text-[10px] sm:text-sm text-gray-600 font-medium">4.8</span>
+                                            @php
+                                                $avgRating = $product->approvedReviews()->avg('rating');
+                                                $reviewsCount = $product->approvedReviews()->count();
+                                            @endphp
+                                            <div class="flex items-center gap-0.5 sm:gap-1">
+                                                <div class="flex items-center gap-0.5 sm:gap-1 text-yellow-400">
+                                                    @for($i = 1; $i <= 5; $i++)
+                                                        @if($i <= round($avgRating ?? 0))
+                                                            <svg class="w-3 h-3 sm:w-4 sm:h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                                        @else
+                                                            <svg class="w-3 h-3 sm:w-4 sm:h-4 fill-gray-300 text-gray-300" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                                        @endif
+                                                    @endfor
+                                                </div>
+                                                @if($reviewsCount > 0)
+                                                    <span class="text-[10px] sm:text-xs text-gray-500">({{ $reviewsCount }})</span>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>

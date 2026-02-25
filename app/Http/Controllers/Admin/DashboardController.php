@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -88,8 +89,23 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // Calculate feedbacks count (assuming you have a feedbacks table)
-        $feedbacksCount = 3; // Replace with actual query when feedbacks table exists
+        // Calculate feedbacks/reviews statistics
+        $totalReviews = Review::count();
+        $approvedReviews = Review::where('is_approved', true)->where('is_banned', false)->count();
+        $pendingReviews = Review::where('is_approved', false)->where('is_banned', false)->count();
+        $flaggedReviews = Review::where('is_flagged', true)->where('is_banned', false)->count();
+        $bannedReviews = Review::where('is_banned', true)->count();
+        $averageRating = round(Review::where('is_approved', true)->where('is_banned', false)->avg('rating') ?? 0, 1);
+        $reviewsToday = Review::whereDate('created_at', today())->count();
+        
+        // Recent reviews for the dashboard
+        $recentReviews = Review::with(['product', 'user'])
+            ->orderByDesc('created_at')
+            ->take(5)
+            ->get();
+
+        // Calculate feedbacks count (using reviews as feedbacks)
+        $feedbacksCount = $totalReviews;
 
         return view('admin.dashboard', compact(
             'categoriesCount',
@@ -110,7 +126,15 @@ class DashboardController extends Controller
             'weeklySales',
             'orderStatusData',
             'feedbacksCount',
-            'topCustomers'
+            'topCustomers',
+            'totalReviews',
+            'approvedReviews',
+            'pendingReviews',
+            'flaggedReviews',
+            'bannedReviews',
+            'averageRating',
+            'reviewsToday',
+            'recentReviews'
         ));
     }
 

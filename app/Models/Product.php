@@ -121,4 +121,44 @@ class Product extends Model
     {
         return $this->hasOne(ProductImage::class)->orderBy('sort_order');
     }
+
+    /**
+     * Get all reviews for the product.
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Get only approved reviews for the product.
+     */
+    public function approvedReviews()
+    {
+        return $this->hasMany(Review::class)->where('is_approved', true);
+    }
+
+    /**
+     * Get the average rating for the product.
+     */
+    public function getAverageRatingAttribute(): float
+    {
+        return Review::calculateAverageRating($this->id);
+    }
+
+    /**
+     * Get the total number of approved reviews.
+     */
+    public function getReviewsCountAttribute(): int
+    {
+        return $this->approvedReviews()->count();
+    }
+
+    /**
+     * Get the rating distribution for the product.
+     */
+    public function getRatingDistributionAttribute(): array
+    {
+        return Review::getRatingDistribution($this->id);
+    }
 }

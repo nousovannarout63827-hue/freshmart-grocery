@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Order;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -72,6 +73,15 @@ class HomeController extends Controller
             $query->where('price', '<=', $request->max_price);
         }
 
+        // Rating Filter (minimum rating)
+        if ($request->filled('rating')) {
+            $query->whereHas('approvedReviews', function ($q) use ($request) {
+                $q->select('product_id')
+                  ->groupBy('product_id')
+                  ->havingRaw('AVG(rating) >= ?', [$request->rating]);
+            });
+        }
+
         // Sorting
         if ($request->filled('sort')) {
             switch ($request->sort) {
@@ -86,6 +96,11 @@ class HomeController extends Controller
                     break;
                 case 'name_desc':
                     $query->orderBy('name', 'desc');
+                    break;
+                case 'rating':
+                    // Sort by average rating
+                    $query->withCount('approvedReviews as reviews_count')
+                          ->orderByDesc('reviews_count');
                     break;
                 case 'latest':
                 default:
@@ -127,6 +142,31 @@ class HomeController extends Controller
     public function show($slug)
     {
         $product = Product::where('slug', $slug)->firstOrFail();
+
+        // Load reviews with user relationship (include banned reviews for transparency)
+        $reviews = $product->reviews()
+            ->with(['user'])
+            ->where(function($query) {
+                $query->where('is_approved', true)  // Approved reviews
+                      ->orWhere('is_banned', true);  // OR banned reviews (for transparency)
+            })
+            ->orderBy('created_at', 'desc')
+            ->take(10)
+            ->get();
+
+        // Get rating statistics (exclude banned reviews from stats)
+        $averageRating = $product->average_rating;
+        $reviewsCount = $product->reviews_count;
+        $ratingDistribution = $product->rating_distribution;
+
+        // Check if current user has reviewed this product
+        $userReview = null;
+        if (auth()->check()) {
+            $userReview = Review::where('product_id', $product->id)
+                ->where('user_id', auth()->id())
+                ->first();
+        }
+
         $relatedProducts = Product::where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->where('stock', '>', 0)
@@ -135,7 +175,15 @@ class HomeController extends Controller
             ->take(4)
             ->get();
 
-        return view('frontend.product', compact('product', 'relatedProducts'));
+        return view('frontend.product', compact(
+            'product',
+            'relatedProducts',
+            'reviews',
+            'averageRating',
+            'reviewsCount',
+            'ratingDistribution',
+            'userReview'
+        ));
     }
 
     /**

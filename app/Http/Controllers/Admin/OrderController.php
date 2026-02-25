@@ -44,8 +44,11 @@ class OrderController extends Controller
 
         // Keep the pending count for the top alert badge
         $pendingCount = Order::whereIn('status', ['pending', 'preparing'])->count();
+        
+        // Calculate total sold amount for delivered orders (filtered)
+        $totalSoldAmount = (clone $query)->where('status', 'delivered')->sum('total_amount');
 
-        return view('admin.orders.index', compact('orders', 'pendingCount'));
+        return view('admin.orders.index', compact('orders', 'pendingCount', 'totalSoldAmount'));
     }
 
     public function show($id)

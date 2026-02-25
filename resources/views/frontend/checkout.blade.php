@@ -251,7 +251,12 @@
                                     </div>
                                     <div class="flex-1 min-w-0">
                                         <p class="font-medium text-gray-900 text-sm truncate">{{ $item['name'] }}</p>
-                                        <p class="text-sm text-gray-500">{{ $item['quantity'] }} x ${{ number_format($item['price'], 2) }}</p>
+                                        <p class="text-sm text-gray-500">
+                                            @php
+                                                $displayPrice = ($item['price'] == floor($item['price'])) ? '$' . number_format($item['price'], 0) : '$' . number_format($item['price'], 2);
+                                            @endphp
+                                            {{ $item['quantity'] }} x {{ $displayPrice }}
+                                        </p>
                                     </div>
                                     <p class="font-semibold text-gray-900 text-sm">${{ number_format($itemTotal, 2) }}</p>
                                 </div>
@@ -273,7 +278,12 @@
                             </div>
                             <div class="flex justify-between text-gray-600">
                                 <span>Shipping Fee</span>
-                                <span id="summary-delivery" class="font-medium text-primary-600">$6.00</span>
+                                <span id="summary-delivery" class="font-medium text-primary-600">
+                                    @php
+                                        $displayDelivery = (6.00 == floor(6.00)) ? '$' . number_format(6.00, 0) : '$' . number_format(6.00, 2);
+                                    @endphp
+                                    {{ $displayDelivery }}
+                                </span>
                             </div>
 
                             @if(session()->has('coupon'))
@@ -295,7 +305,12 @@
 
                             <div class="border-t-2 border-gray-200 pt-3 flex justify-between text-xl font-bold text-gray-900">
                                 <span>Total</span>
-                                <span id="summary-total" class="text-primary-600">${{ number_format($finalTotal, 2) }}</span>
+                                <span id="summary-total" class="text-primary-600">
+                                    @php
+                                        $displayTotal = ($finalTotal == floor($finalTotal)) ? '$' . number_format($finalTotal, 0) : '$' . number_format($finalTotal, 2);
+                                    @endphp
+                                    {{ $displayTotal }}
+                                </span>
                             </div>
                         </div>
 

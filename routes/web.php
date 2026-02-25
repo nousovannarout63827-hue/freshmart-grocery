@@ -8,6 +8,7 @@ use App\Http\Controllers\Frontend\CustomerProfileController;
 use App\Http\Controllers\Frontend\CouponController as FrontendCouponController;
 use App\Http\Controllers\Frontend\WishlistController;
 use App\Http\Controllers\Frontend\PageController;
+use App\Http\Controllers\Frontend\ReviewController;
 
 // 2. Import your Admin Controllers
 use App\Http\Controllers\Admin\DashboardController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\DriverPerformanceController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ReviewManagementController;
 
 // 3. Import other controllers
 use App\Http\Controllers\AuthController;
@@ -88,6 +90,14 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/wishlist/add', [WishlistController::class, 'add'])->name('wishlist.add');
     Route::post('/wishlist/remove/{id}', [WishlistController::class, 'remove'])->name('wishlist.remove');
     Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+
+    // Review Routes
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::put('/reviews/{id}', [ReviewController::class, 'update'])->name('reviews.update');
+    Route::delete('/reviews/{id}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::post('/reviews/{id}/helpful', [ReviewController::class, 'markHelpful'])->name('reviews.helpful');
+    Route::get('/products/{productId}/reviews', [ReviewController::class, 'filter'])->name('reviews.filter');
+    Route::get('/customer/reviews', [ReviewController::class, 'myReviews'])->name('customer.reviews');
 
     Route::get('/customer/profile', [CustomerAuthController::class, 'profile'])->name('customer.profile');
     Route::get('/customer/profile/edit', [CustomerProfileController::class, 'edit'])->name('customer.profile.edit');
@@ -188,6 +198,19 @@ Route::group([
 
         // 📜 MASTER ACTIVITY LOG - Only for users with manage_staff permission
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity_logs.index');
+
+        // 💬 REVIEW MANAGEMENT - Moderate customer reviews
+        Route::get('/reviews', [ReviewManagementController::class, 'index'])->name('reviews.index');
+        Route::get('/reviews/{id}', [ReviewManagementController::class, 'show'])->name('reviews.show');
+        Route::post('/reviews/{id}/approve', [ReviewManagementController::class, 'approve'])->name('reviews.approve');
+        Route::post('/reviews/{id}/reject', [ReviewManagementController::class, 'reject'])->name('reviews.reject');
+        Route::post('/reviews/{id}/flag', [ReviewManagementController::class, 'flag'])->name('reviews.flag');
+        Route::post('/reviews/{id}/unflag', [ReviewManagementController::class, 'unflag'])->name('reviews.unflag');
+        Route::post('/reviews/{id}/ban', [ReviewManagementController::class, 'ban'])->name('reviews.ban');
+        Route::post('/reviews/{id}/unban', [ReviewManagementController::class, 'unban'])->name('reviews.unban');
+        Route::delete('/reviews/{id}', [ReviewManagementController::class, 'destroy'])->name('reviews.destroy');
+        Route::post('/reviews/bulk-action', [ReviewManagementController::class, 'bulkAction'])->name('reviews.bulk-action');
+        Route::get('/reviews-statistics', [ReviewManagementController::class, 'statistics'])->name('reviews.statistics');
     });
 
     // 📈 REPORTS - Admin only

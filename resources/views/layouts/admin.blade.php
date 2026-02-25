@@ -4,6 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grocery Admin</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('grocery-icon.png') }}?v=3">
+
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
     @vite(['resources/css/style.css', 'resources/js/app.js'])
     <style>
         @keyframes pulse-animation {
@@ -730,6 +767,19 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />
                     </svg>
                     <span class="sidebar-text" style="font-weight: 600; font-size: 14px; white-space: nowrap; transition: opacity 0.2s;">Coupons</span>
+                </a>
+
+                <a href="{{ route('admin.reviews.index') }}" class="nav-item sidebar-menu-item {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}" data-tooltip="Reviews" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; text-decoration: none; color: #94a3b8; border-radius: 10px; transition: all 0.2s; margin-bottom: 4px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 20px; height: 20px; flex-shrink: 0;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                    </svg>
+                    <span class="sidebar-text" style="font-weight: 600; font-size: 14px; white-space: nowrap; transition: opacity 0.2s;">Reviews</span>
+                    @php
+                        $flaggedReviewsCount = \App\Models\Review::where('is_flagged', true)->where('is_banned', false)->count();
+                    @endphp
+                    @if($flaggedReviewsCount > 0)
+                        <span class="badge bg-danger ms-auto" style="font-size: 10px;">{{ $flaggedReviewsCount }}</span>
+                    @endif
                 </a>
 
                 <a href="{{ route('admin.driver-performance.index') }}" class="nav-item sidebar-menu-item {{ request()->routeIs('admin.driver-performance.*') ? 'active' : '' }}" data-tooltip="Driver Performance" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; text-decoration: none; color: #94a3b8; border-radius: 10px; transition: all 0.2s; margin-bottom: 4px;">
