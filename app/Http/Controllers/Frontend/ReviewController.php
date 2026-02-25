@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\Review;
 use App\Models\ReviewHelpful;
+use App\Models\ReviewReply;
 use App\Models\Product;
 use App\Models\Order;
+use App\Notifications\ReviewReplyNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -319,5 +321,65 @@ class ReviewController extends Controller
                 'total' => $reviews->total(),
             ],
         ]);
+    }
+
+    /**
+     * Store a reply to a review.
+     */
+    public function storeReply(Request $request, $reviewId)
+    {
+        // Require authentication
+        if (!auth()->check()) {
+            return redirect()->route('customer.login')
+                ->with('error', 'Please log in to reply to reviews.');
+        }
+
+        $validator = Validator::make($request->all(), [
+            'comment' => 'required|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $review = Review::findOrFail($reviewId);
+
+        // Create the reply
+        $reply = ReviewReply::create([
+            'review_id' => $review->id,
+            'user_id' => auth()->id(),
+            'comment' => $request->comment,
+        ]);
+
+        // Send notification to review author (if not replying to own review)
+        if ($review->user_id !== auth()->id() && $review->user) {
+            $review->user->notify(new ReviewReplyNotification($reply));
+        }
+
+        return redirect()->back()
+            ->with('success', 'Reply posted successfully!');
+    }
+
+    /**
+     * Delete a reply.
+     */
+    public function destroyReply($id)
+    {
+        // Require authentication
+        if (!auth()->check()) {
+            return redirect()->route('customer.login')
+                ->with('error', 'Please log in to delete your reply.');
+        }
+
+        $reply = ReviewReply::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $reply->delete();
+
+        return redirect()->back()
+            ->with('success', 'Reply deleted successfully!');
     }
 }

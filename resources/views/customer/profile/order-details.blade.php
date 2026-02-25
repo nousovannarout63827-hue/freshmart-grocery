@@ -29,6 +29,7 @@
                                 'preparing' => 'bg-purple-100 text-purple-700',
                                 'shipped' => 'bg-indigo-100 text-indigo-700',
                                 'out_for_delivery' => 'bg-cyan-100 text-cyan-700',
+                                'arrived' => 'bg-teal-100 text-teal-700',
                                 'delivered' => 'bg-green-100 text-green-700',
                                 'cancelled' => 'bg-red-100 text-red-700',
                             ];
@@ -168,6 +169,50 @@
                             ⏳ Unpaid
                         </span>
                     @endif
+                </div>
+            </div>
+
+            <!-- Delivery Method -->
+            <div class="bg-white rounded-2xl border border-gray-100 p-6">
+                <h2 class="text-lg font-bold text-gray-900 mb-4">Delivery Method</h2>
+                @php
+                    $shippingMethod = $order->shipping_method ?? 'Standard Delivery';
+                    $shippingColor = 'blue';
+                    $shippingIcon = '🚚';
+                    $shippingBg = 'bg-blue-50';
+                    $shippingBorder = 'border-blue-200';
+                    $shippingText = 'text-blue-700';
+                    
+                    if (str_contains(strtolower($shippingMethod), 'fast')) {
+                        $shippingColor = 'red';
+                        $shippingIcon = '⚡';
+                        $shippingBg = 'bg-red-50';
+                        $shippingBorder = 'border-red-200';
+                        $shippingText = 'text-red-700';
+                    } elseif (str_contains(strtolower($shippingMethod), 'express')) {
+                        $shippingColor = 'amber';
+                        $shippingIcon = '🚀';
+                        $shippingBg = 'bg-amber-50';
+                        $shippingBorder = 'border-amber-200';
+                        $shippingText = 'text-amber-700';
+                    }
+                @endphp
+                <div class="{{ $shippingBg }} rounded-xl border {{ $shippingBorder }} p-4">
+                    <div class="flex items-center gap-3">
+                        <span class="text-3xl">{{ $shippingIcon }}</span>
+                        <div>
+                            <p class="font-semibold {{ $shippingText }}">{{ $shippingMethod }}</p>
+                            <p class="text-sm text-gray-500">
+                                @if(str_contains(strtolower($shippingMethod), 'fast'))
+                                    Delivery in 2 hours
+                                @elseif(str_contains(strtolower($shippingMethod), 'express'))
+                                    Delivery in 6 hours
+                                @else
+                                    Delivery in 12 hours
+                                @endif
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

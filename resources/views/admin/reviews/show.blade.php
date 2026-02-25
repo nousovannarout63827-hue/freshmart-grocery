@@ -131,6 +131,77 @@
                 </div>
             </div>
 
+            <!-- Review Replies -->
+            @if($review->replies && $review->replies->count() > 0)
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                        <h3 class="font-bold text-gray-900 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                            </svg>
+                            Customer Replies ({{ $review->replies->count() }})
+                        </h3>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        @foreach($review->replies as $reply)
+                            <div class="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                                <div class="flex items-start justify-between mb-3">
+                                    <a href="{{ route('admin.customers.show', $reply->user_id) }}" class="flex items-center gap-3 hover:bg-gray-100 rounded-lg p-2 -ml-2 transition">
+                                        @if($reply->user && ($reply->user->avatar ?? $reply->user->profile_photo_path))
+                                            <img src="{{ asset('storage/' . ($reply->user->avatar ?? $reply->user->profile_photo_path)) }}" 
+                                                 alt="{{ $reply->user->name ?? 'User' }}" 
+                                                 class="w-10 h-10 rounded-full object-cover cursor-pointer hover:scale-110 transition-transform">
+                                        @else
+                                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm cursor-pointer hover:scale-110 transition-transform">
+                                                {{ strtoupper(substr($reply->user->name ?? 'U', 0, 1)) }}
+                                            </div>
+                                        @endif
+                                        <div>
+                                            <h4 class="font-semibold text-gray-900 hover:text-blue-600 transition">{{ $reply->user->name ?? 'Deleted User' }}</h4>
+                                            <p class="text-xs text-gray-500">{{ $reply->created_at->format('F d, Y') }} • {{ $reply->created_at->diffForHumans() }}</p>
+                                        </div>
+                                    </a>
+                                    @auth
+                                        @if(auth()->id() === $reply->user_id)
+                                            <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-full">Reviewer</span>
+                                        @endif
+                                    @endauth
+                                </div>
+                                <p class="text-gray-700 text-sm leading-relaxed mb-3">{{ $reply->comment }}</p>
+                                @auth
+                                    @if(auth()->id() === $reply->user_id)
+                                        <form action="{{ route('admin.reviews.reply.destroy', $reply->id) }}" method="POST" class="mt-2">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-xs text-red-600 hover:text-red-700 font-medium inline-flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                                Delete Reply
+                                            </button>
+                                        </form>
+                                    @endif
+                                    
+                                    <!-- Admin can delete any reply -->
+                                    @if(auth()->user()->isAdmin())
+                                        <form action="{{ route('admin.reviews.reply.destroy', $reply->id) }}" method="POST" class="mt-2">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-xs text-red-600 hover:text-red-700 font-medium inline-flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                                Delete Reply
+                                            </button>
+                                        </form>
+                                    @endif
+                                @endauth
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             <!-- Product Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="px-6 py-4 border-b border-gray-100">

@@ -85,6 +85,14 @@ class Review extends Model
     }
 
     /**
+     * Get the replies for this review.
+     */
+    public function replies(): HasMany
+    {
+        return $this->hasMany(ReviewReply::class, 'review_id');
+    }
+
+    /**
      * Get the first image for display.
      */
     public function getFirstImageAttribute(): ?string

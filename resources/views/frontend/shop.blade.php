@@ -343,6 +343,8 @@
 </style>
 
 @push('scripts')
+<!-- SweetAlert2 CDN -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Wishlist toggle functionality
@@ -434,19 +436,43 @@ document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(() => {
                         this.style.transform = 'scale(1)';
                     }, 200);
-                    
-                    // Show toast notification
-                    showToast(`Added "${productName}" to cart! 🛒`, 'success');
-                    
+
+                    // Show SweetAlert2 toast notification
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Added to Cart!',
+                        text: `"${productName}" has been added to your cart`,
+                        iconColor: '#16a34a',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true,
+                        background: '#f0fdf4',
+                        color: '#166534'
+                    });
+
                     // Update cart count in header (if exists)
                     updateCartCount();
                 } else {
                     const error = await response.json();
-                    showToast(error.message || 'Failed to add to cart.', 'error');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops!',
+                        text: error.message || 'Failed to add to cart',
+                        iconColor: '#dc2626',
+                        confirmButtonColor: '#16a34a'
+                    });
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showToast('Something went wrong. Please try again.', 'error');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Something went wrong. Please try again.',
+                    iconColor: '#dc2626',
+                    confirmButtonColor: '#16a34a'
+                });
             } finally {
                 // Restore button
                 this.disabled = false;
@@ -454,7 +480,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-    
+
     // Update cart count function
     async function updateCartCount() {
         try {
@@ -480,29 +506,28 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error updating cart count:', error);
         }
     }
-    
-    // Toast notification function
+
+    // Wishlist toast notifications using SweetAlert2
     function showToast(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 translate-x-full opacity-0 z-50 ${
-            type === 'success' ? 'bg-green-500' : 
-            type === 'error' ? 'bg-red-500' : 'bg-blue-500'
-        } text-white font-medium`;
-        toast.textContent = message;
-        document.body.appendChild(toast);
+        const colors = {
+            success: { bg: '#f0fdf4', color: '#166534', icon: '#16a34a' },
+            error: { bg: '#fef2f2', color: '#991b1b', icon: '#dc2626' },
+            info: { bg: '#eff6ff', color: '#1e40af', icon: '#2563eb' }
+        };
+        const scheme = colors[type] || colors.success;
         
-        // Animate in
-        requestAnimationFrame(() => {
-            toast.classList.remove('translate-x-full', 'opacity-0');
-            toast.classList.add('translate-x-0', 'opacity-100');
+        Swal.fire({
+            icon: type,
+            title: message,
+            iconColor: scheme.icon,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2000,
+            timerProgressBar: true,
+            background: scheme.bg,
+            color: scheme.color
         });
-        
-        // Remove after 3 seconds
-        setTimeout(() => {
-            toast.classList.remove('translate-x-0', 'opacity-100');
-            toast.classList.add('translate-x-full', 'opacity-0');
-            setTimeout(() => toast.remove(), 300);
-        }, 3000);
     }
 });
 </script>

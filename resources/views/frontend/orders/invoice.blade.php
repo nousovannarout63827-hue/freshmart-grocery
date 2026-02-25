@@ -4,21 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice ORD-{{ str_pad($order->id, 8, '0', STR_PAD_LEFT) }} - FreshMart</title>
-    @vite(['resources/css/style.css', 'resources/js/app.js'])
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac',
+                            400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d',
+                            800: '#166534', 900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         @media print {
             .no-print { display: none !important; }
             body { background-color: white !important; }
             .invoice-container { box-shadow: none !important; border: none !important; margin: 0 !important; max-width: 100% !important; padding: 20px !important; }
         }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     </style>
 </head>
 <body class="bg-gray-50 p-8 text-gray-800">
 
     <!-- Back Button (hidden when printing) -->
     <div class="max-w-4xl mx-auto mb-6 no-print">
-        <a href="{{ route('customer.profile') }}" class="text-primary-600 hover:text-primary-700 font-bold underline flex items-center gap-2">
+        <a href="{{ route('customer.profile') }}" class="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-bold underline">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
@@ -28,7 +42,7 @@
 
     <!-- Invoice Container -->
     <div class="max-w-4xl mx-auto bg-white border border-gray-200 rounded-2xl shadow-sm p-10 invoice-container">
-        
+
         <!-- Header -->
         <div class="flex justify-between items-start mb-12 border-b border-gray-100 pb-8">
             <div class="flex items-center gap-3">
@@ -149,12 +163,10 @@
 
             <div class="w-full lg:w-80">
                 @php
-                    // Calculate subtotal from order items
                     $itemSubtotal = 0;
                     foreach($order->orderItems as $item) {
                         $itemSubtotal += $item->price * $item->quantity;
                     }
-                    // Delivery cost is total_amount minus subtotal (if any discount was applied)
                     $deliveryCost = 6.00;
                     $discount = $itemSubtotal + $deliveryCost - $order->total_amount;
                     if ($discount < 0) $discount = 0;
@@ -197,6 +209,7 @@
                     'preparing' => 'bg-purple-100 text-purple-700 border-purple-200',
                     'shipped' => 'bg-indigo-100 text-indigo-700 border-indigo-200',
                     'out_for_delivery' => 'bg-cyan-100 text-cyan-700 border-cyan-200',
+                    'arrived' => 'bg-teal-100 text-teal-700 border-teal-200',
                     'delivered' => 'bg-green-100 text-green-700 border-green-200',
                     'cancelled' => 'bg-red-100 text-red-700 border-red-200',
                 ];
@@ -206,6 +219,7 @@
                     'preparing' => '👨‍🍳',
                     'shipped' => '🚚',
                     'out_for_delivery' => '📬',
+                    'arrived' => '📍',
                     'delivered' => '🎉',
                     'cancelled' => '❌',
                 ];

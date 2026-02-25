@@ -29,32 +29,34 @@
                         </div>
                         <div class="grid md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">First Name *</label>
-                                <input type="text" name="first_name" required 
+                                <label class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                                <input type="text" name="first_name"
                                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
                                        placeholder="John">
+                                <p class="text-xs text-gray-500 mt-1">Optional - You can leave this blank</p>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Last Name *</label>
-                                <input type="text" name="last_name" required 
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                                <input type="text" name="last_name"
                                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
                                        placeholder="Doe">
+                                <p class="text-xs text-gray-500 mt-1">Optional - You can leave this blank</p>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Email Address *</label>
-                                <input type="email" name="email" required 
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                                <input type="email" name="email"
                                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
                                        placeholder="john@example.com">
+                                <p class="text-xs text-gray-500 mt-1">Optional - You can leave this blank</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
                                 <input type="tel" name="phone" required
-                                       pattern="[0-9]{10,15}"
-                                       inputmode="numeric"
-                                       oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                       maxlength="15"
+                                       placeholder="015-868-6089"
                                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
-                                       placeholder="1234567890">
-                                <p class="text-xs text-gray-500 mt-1">Enter numbers only (10-15 digits)</p>
+                                       oninput="formatPhoneNumber(this)">
+                                <p class="text-xs text-gray-500 mt-1">Format: 015-868-6089 (up to 12 digits)</p>
                             </div>
                         </div>
                     </div>
@@ -80,15 +82,16 @@
                             <div class="grid md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">City *</label>
-                                    <input type="text" name="city" required 
+                                    <input type="text" name="city" required
                                            class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
                                            placeholder="New York">
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Postal Code *</label>
-                                    <input type="text" name="postal_code" required 
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
+                                    <input type="text" name="postal_code"
                                            class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
                                            placeholder="10001">
+                                    <p class="text-xs text-gray-500 mt-1">Optional - You can leave this blank</p>
                                 </div>
                             </div>
                         </div>
@@ -291,15 +294,10 @@
                                     <span>Discount ({{ session()->get('coupon')['code'] }})</span>
                                     <span id="summary-discount" class="font-medium">-${{ number_format($discount, 2) }}</span>
                                 </div>
-                            @elseif($subtotal >= 50)
-                                <div class="flex justify-between text-green-600 bg-green-50 p-3 rounded-xl">
-                                    <span>Bulk Discount (Orders $50+)</span>
-                                    <span id="summary-discount" class="font-medium">-$0.00</span>
-                                </div>
                             @else
                                 <div class="flex justify-between text-gray-600 bg-gray-50 p-3 rounded-xl">
                                     <span>Discount</span>
-                                    <span id="summary-discount" class="font-medium">-$0.00</span>
+                                    <span id="summary-discount" class="font-medium">$0.00</span>
                                 </div>
                             @endif
 
@@ -380,6 +378,26 @@
         // Grab PHP values so JS knows the starting math
         const subtotal = {{ $subtotal ?? 0 }};
         const discount = {{ session()->has('coupon') ? session()->get('coupon')['discount'] : 0 }};
+
+        // Phone number auto-formatting (Malaysian format: 015-868-6089)
+        function formatPhoneNumber(input) {
+            // Remove all non-digit characters
+            let value = input.value.replace(/\D/g, '');
+            
+            // Limit to 12 digits (015-868-6089 = 10 digits max, but allow more for flexibility)
+            value = value.substring(0, 12);
+            
+            // Format as XXX-XXX-XXXX (flexible for different lengths)
+            if (value.length >= 7) {
+                value = value.substring(0, 3) + '-' + value.substring(3, 6) + '-' + value.substring(6, 12);
+            } else if (value.length >= 4) {
+                value = value.substring(0, 3) + '-' + value.substring(3, 6);
+            } else if (value.length >= 1) {
+                value = value.substring(0, 3);
+            }
+            
+            input.value = value;
+        }
 
         function updateShippingUI() {
             // 1. Find which radio button is currently selected

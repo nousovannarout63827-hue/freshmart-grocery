@@ -533,7 +533,7 @@
                                             <span>Helpful</span>
                                             <span class="helpful-count">{{ $review->helpful_count }}</span>
                                         </button>
-                                        
+
                                         @auth
                                             @if(auth()->id() === $review->user_id)
                                                 <div class="flex items-center gap-2 ml-auto">
@@ -552,9 +552,86 @@
                                                         <span>Delete</span>
                                                     </button>
                                                 </div>
+                                            @else
+                                                <button onclick="toggleReplyForm({{ $review->id }})"
+                                                        class="ml-auto flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 transition font-medium">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                                                    </svg>
+                                                    <span>Reply</span>
+                                                </button>
                                             @endif
                                         @endauth
                                     </div>
+                                    
+                                    <!-- Reply Form -->
+                                    @auth
+                                        <div id="reply-form-{{ $review->id }}" class="hidden mt-4 pt-4 border-t border-gray-100">
+                                            <form action="{{ route('reviews.reply', $review->id) }}" method="POST">
+                                                @csrf
+                                                <div class="flex gap-3">
+                                                    <div class="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                                                        {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        <textarea name="comment" rows="3"
+                                                                  class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
+                                                                  placeholder="Write your reply..."></textarea>
+                                                        @error('comment')
+                                                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                                        @enderror
+                                                        <div class="flex justify-end gap-2 mt-2">
+                                                            <button type="button" onclick="toggleReplyForm({{ $review->id }})"
+                                                                    class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900 transition">
+                                                                Cancel
+                                                            </button>
+                                                            <button type="submit"
+                                                                    class="px-4 py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700 transition font-medium">
+                                                                Post Reply
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    @endauth
+                                    
+                                    <!-- Display Replies -->
+                                    @if($review->replies && $review->replies->count() > 0)
+                                        <div class="mt-4 pt-4 border-t border-gray-100 space-y-4">
+                                            @foreach($review->replies as $reply)
+                                                <div class="flex gap-3 bg-gray-50 rounded-xl p-4">
+                                                    <div class="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                                                        @if($reply->user && ($reply->user->avatar ?? $reply->user->profile_photo_path))
+                                                            <img src="{{ asset('storage/' . ($reply->user->avatar ?? $reply->user->profile_photo_path)) }}" 
+                                                                 alt="{{ $reply->user->name ?? 'User' }}" 
+                                                                 class="w-full h-full rounded-full object-cover">
+                                                        @else
+                                                            {{ strtoupper(substr($reply->user->name ?? 'U', 0, 1)) }}
+                                                        @endif
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        <div class="flex items-center gap-2 mb-1">
+                                                            <h5 class="font-semibold text-gray-900 text-sm">{{ $reply->user->name ?? 'User' }}</h5>
+                                                            <span class="text-xs text-gray-500">{{ $reply->created_at->diffForHumans() }}</span>
+                                                        </div>
+                                                        <p class="text-gray-700 text-sm">{{ $reply->comment }}</p>
+                                                        @auth
+                                                            @if(auth()->id() === $reply->user_id)
+                                                                <form action="{{ route('reviews.reply.destroy', $reply->id) }}" method="POST" class="mt-2">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit" class="text-xs text-red-600 hover:text-red-700 font-medium">
+                                                                        Delete
+                                                                    </button>
+                                                                </form>
+                                                            @endif
+                                                        @endauth
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 </div>
                             @endforeach
                         @else
@@ -893,6 +970,21 @@
                     };
                     reader.readAsDataURL(file);
                 });
+            }
+        }
+
+        // Toggle reply form visibility
+        function toggleReplyForm(reviewId) {
+            const form = document.getElementById(`reply-form-${reviewId}`);
+            if (form) {
+                form.classList.toggle('hidden');
+                // Focus on textarea when showing
+                if (!form.classList.contains('hidden')) {
+                    const textarea = form.querySelector('textarea');
+                    if (textarea) {
+                        textarea.focus();
+                    }
+                }
             }
         }
 

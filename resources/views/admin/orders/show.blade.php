@@ -606,7 +606,7 @@
 
             <div style="background: white; border-radius: 16px; padding: 20px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
                 <h3 style="margin: 0 0 16px 0; font-weight: 800; color: #1e293b;">💰 Payment Summary</h3>
-                
+
                 <!-- Payment Status Badge -->
                 <div style="margin-bottom: 16px;">
                     <span style="font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase;">Payment Status:</span>
@@ -620,7 +620,28 @@
                         </span>
                     @endif
                 </div>
-                
+
+                <!-- Delivery Method Badge -->
+                <div style="margin-bottom: 16px;">
+                    <span style="font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase;">Delivery Method:</span>
+                    @php
+                        $shippingMethod = $order->shipping_method ?? 'Standard Delivery';
+                        $shippingColor = '#3b82f6'; // Default blue
+                        $shippingIcon = '🚚';
+                        
+                        if (str_contains(strtolower($shippingMethod), 'fast')) {
+                            $shippingColor = '#ef4444'; // Red for fast
+                            $shippingIcon = '⚡';
+                        } elseif (str_contains(strtolower($shippingMethod), 'express')) {
+                            $shippingColor = '#f59e0b'; // Amber for express
+                            $shippingIcon = '🚀';
+                        }
+                    @endphp
+                    <span style="display: inline-block; background: {{ $shippingColor }}1a; color: {{ $shippingColor }}; font-weight: 700; padding: 6px 12px; border-radius: 20px; font-size: 12px; text-transform: uppercase; margin-left: 8px; border: 1px solid {{ $shippingColor }}4d;">
+                        {{ $shippingIcon }} {{ $shippingMethod }}
+                    </span>
+                </div>
+
                 @php
                     // Calculate the exact subtotal of the food items
                     $calculatedSubtotal = 0;

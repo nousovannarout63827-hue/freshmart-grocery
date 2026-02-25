@@ -23,7 +23,7 @@ class ReviewManagementController extends Controller
         $sortBy = $request->get('sort', 'latest');
 
         // Build query
-        $query = Review::with(['product', 'user', 'moderator']);
+        $query = Review::with(['product', 'user', 'moderator', 'replies.user']);
 
         // Apply filters
         switch ($status) {
@@ -102,7 +102,7 @@ class ReviewManagementController extends Controller
      */
     public function show($id)
     {
-        $review = Review::with(['product', 'user', 'moderator', 'helpfulVotes.user'])->findOrFail($id);
+        $review = Review::with(['product', 'user', 'moderator', 'helpfulVotes.user', 'replies.user'])->findOrFail($id);
         return view('admin.reviews.show', compact('review'));
     }
 
@@ -284,6 +284,23 @@ class ReviewManagementController extends Controller
             ->get();
 
         return view('admin.reviews.statistics', compact('stats', 'topReviewedProducts', 'mostHelpfulReviews'));
+    }
+
+    /**
+     * Delete a review reply (admin only).
+     */
+    public function destroyReply($id)
+    {
+        $reply = \App\Models\ReviewReply::findOrFail($id);
+        $reviewId = $reply->review_id;
+        
+        $reply->delete();
+        
+        // Log activity
+        activityLog('Deleted reply #' . $id . ' on review #' . $reviewId, 'Reviews');
+        
+        return redirect()->back()
+            ->with('success', 'Reply deleted successfully!');
     }
 }
 

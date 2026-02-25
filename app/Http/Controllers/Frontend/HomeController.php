@@ -143,9 +143,9 @@ class HomeController extends Controller
     {
         $product = Product::where('slug', $slug)->firstOrFail();
 
-        // Load reviews with user relationship (include banned reviews for transparency)
+        // Load reviews with user relationship and replies (include banned reviews for transparency)
         $reviews = $product->reviews()
-            ->with(['user'])
+            ->with(['user', 'replies.user'])
             ->where(function($query) {
                 $query->where('is_approved', true)  // Approved reviews
                       ->orWhere('is_banned', true);  // OR banned reviews (for transparency)
@@ -399,18 +399,19 @@ class HomeController extends Controller
         }
 
         $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'required|regex:/^[0-9]{10,15}$/|max:20',
+            'first_name' => 'nullable|string|max:255',
+            'last_name' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'required|string|max:20',
             'address' => 'required|string|max:500',
             'city' => 'required|string|max:255',
-            'postal_code' => 'required|string|max:20',
+            'postal_code' => 'nullable|string|max:20',
             'payment_method' => 'required|in:cash,card',
             'shipping_cost' => 'nullable|numeric|min:0|max:100',
-        ], [
-            'phone.regex' => 'Phone number must contain only digits (10-15 digits).',
         ]);
+
+        // Clean phone number (remove dashes for storage)
+        $cleanPhone = str_replace('-', '', $request->phone);
 
         $cart = session()->get('cart', []);
 
@@ -444,15 +445,31 @@ class HomeController extends Controller
 
         // Create the order (matching actual orders table schema)
         try {
+            // Build delivery address (handle optional postal_code)
+            $deliveryAddress = $request->address . ', ' . $request->city;
+            if ($request->postal_code) {
+                $deliveryAddress .= ' ' . $request->postal_code;
+            }
+
+            // Determine shipping method name based on selected shipping cost
+            $shippingMethod = 'Standard Delivery';
+            $submittedShipping = $request->shipping_cost ?? 6.00;
+            if ($submittedShipping >= 20) {
+                $shippingMethod = 'Fast Delivery (2 hours)';
+            } elseif ($submittedShipping >= 10) {
+                $shippingMethod = 'Express Delivery (6 hours)';
+            }
+
             $order = \App\Models\Order::create([
                 'customer_id' => auth()->id(),
                 'total_amount' => $finalTotal,
-                'phone' => $request->phone,
-                'delivery_address' => $request->address . ', ' . $request->city . ' ' . $request->postal_code,
-                'address' => $request->address . ', ' . $request->city . ' ' . $request->postal_code,
+                'phone' => $cleanPhone,
+                'delivery_address' => $deliveryAddress,
+                'address' => $deliveryAddress,
                 'status' => 'pending',
                 'payment_method' => $request->payment_method,
                 'payment_status' => $request->payment_method === 'cash' ? 'unpaid' : 'paid',
+                'shipping_method' => $shippingMethod,
             ]);
 
             // Create order items

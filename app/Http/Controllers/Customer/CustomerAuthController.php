@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Order;
+use App\Models\PasswordResetToken;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class CustomerAuthController extends Controller
 {
@@ -92,6 +95,116 @@ class CustomerAuthController extends Controller
 
         return redirect()->route('customer.profile')
             ->with('success', 'Welcome to FreshMart! Your account has been created.');
+    }
+
+    /**
+     * Show the forgot password form.
+     */
+    public function showForgotPassword()
+    {
+        return view('customer.auth.forgot-password');
+    }
+
+    /**
+     * Handle forgot password form submission.
+     */
+    public function forgotPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        // Only send reset email for customer accounts
+        if (!$user->isCustomer()) {
+            return back()->withErrors(['email' => 'Please use the admin password reset portal.'])
+                ->withInput($request->only('email'));
+        }
+
+        // Generate reset token
+        $token = Str::random(60);
+
+        // Store or update the password reset token
+        PasswordResetToken::updateOrCreate(
+            ['email' => $request->email],
+            [
+                'token' => hash('sha256', $token),
+                'created_at' => now(),
+            ]
+        );
+
+        // Build reset URL
+        $resetUrl = route('customer.reset-password.form', ['token' => $token, 'email' => $request->email]);
+
+        // Send email
+        try {
+            Mail::send('emails.password-reset', [
+                'user' => $user,
+                'email' => $request->email,
+                'resetUrl' => $resetUrl,
+            ], function ($message) use ($user) {
+                $message->to($user->email)
+                    ->subject('Reset Your Password - FreshMart');
+            });
+
+            return redirect()->route('customer.forgot-password')
+                ->with('success', 'We\'ve sent a password reset link to your email address.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['email' => 'Failed to send reset email. Please try again later.'])
+                ->withInput($request->only('email'));
+        }
+    }
+
+    /**
+     * Show the reset password form.
+     */
+    public function showResetPassword(Request $request, $token)
+    {
+        return view('customer.auth.reset-password', [
+            'token' => $token,
+            'email' => $request->email,
+        ]);
+    }
+
+    /**
+     * Handle password reset.
+     */
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email|exists:users,email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        // Verify token
+        $resetToken = PasswordResetToken::where('email', $request->email)
+            ->where('token', hash('sha256', $request->token))
+            ->first();
+
+        if (!$resetToken) {
+            return redirect()->route('customer.forgot-password')
+                ->with('error', 'Invalid or expired reset token. Please request a new password reset.');
+        }
+
+        // Check if token is expired (60 minutes)
+        if ($resetToken->created_at->addMinutes(60)->isPast()) {
+            $resetToken->delete();
+            return redirect()->route('customer.forgot-password')
+                ->with('error', 'Your reset link has expired. Please request a new password reset.');
+        }
+
+        // Update password
+        $user = User::where('email', $request->email)->first();
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        // Delete the used token
+        $resetToken->delete();
+
+        return redirect()->route('customer.login')
+            ->with('success', 'Your password has been reset successfully! You can now log in with your new password.');
     }
 
     /**

@@ -113,11 +113,11 @@
                     <!-- Remember Me & Forgot Password -->
                     <div class="flex items-center justify-between">
                         <label class="flex items-center gap-2 cursor-pointer">
-                            <input type="checkbox" name="remember" 
+                            <input type="checkbox" name="remember"
                                    class="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
                             <span class="text-sm text-gray-600">Remember me</span>
                         </label>
-                        <a href="#" class="text-sm text-primary-600 hover:text-primary-700 font-medium">
+                        <a href="{{ route('customer.forgot-password') }}" class="text-sm text-primary-600 hover:text-primary-700 font-medium">
                             Forgot password?
                         </a>
                     </div>

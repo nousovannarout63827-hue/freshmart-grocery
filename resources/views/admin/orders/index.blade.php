@@ -194,7 +194,7 @@
                             elseif($order->status == 'preparing') { $bg = '#faf5ff'; $text = '#9333ea'; }
                             elseif($order->status == 'ready_for_pickup') { $bg = '#dcfce7'; $text = '#166534'; }
                             elseif($order->status == 'out_for_delivery') { $bg = '#e0e7ff'; $text = '#4f46e5'; }
-                            elseif($order->status == 'arrived') { $bg = '#cffafe'; $text = '#0e7490'; }
+                            elseif($order->status == 'arrived') { $bg = '#f0fdf4'; $text = '#047857'; }
                             elseif($order->status == 'delivered') { $bg = '#ecfdf5'; $text = '#059669'; }
                         @endphp
                         <span style="background: {{ $bg }}; color: {{ $text }}; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 800; text-transform: uppercase;">

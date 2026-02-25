@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\ReviewManagementController;
 // 3. Import other controllers
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Customer\CustomerAuthController;
+use App\Http\Controllers\Customer\NotificationController;
 use App\Http\Controllers\Driver\DriverDashboardController;
 use App\Http\Controllers\Driver\DriverProfileController;
 use App\Http\Controllers\ProfileController;
@@ -84,6 +85,12 @@ Route::post('/customer/login', [CustomerAuthController::class, 'login']);
 Route::get('/customer/register', [CustomerAuthController::class, 'showRegister'])->name('customer.register');
 Route::post('/customer/register', [CustomerAuthController::class, 'register']);
 
+// Customer Password Reset Routes
+Route::get('/customer/forgot-password', [CustomerAuthController::class, 'showForgotPassword'])->name('customer.forgot-password');
+Route::post('/customer/forgot-password', [CustomerAuthController::class, 'forgotPassword']);
+Route::get('/customer/reset-password/{token}', [CustomerAuthController::class, 'showResetPassword'])->name('customer.reset-password.form');
+Route::post('/customer/reset-password', [CustomerAuthController::class, 'resetPassword'])->name('customer.reset-password');
+
 // Customer Profile Routes (Require Login)
 Route::middleware(['auth'])->group(function () {
     Route::get('/wishlist', [WishlistController::class, 'index'])->name('customer.wishlist');
@@ -98,6 +105,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/reviews/{id}/helpful', [ReviewController::class, 'markHelpful'])->name('reviews.helpful');
     Route::get('/products/{productId}/reviews', [ReviewController::class, 'filter'])->name('reviews.filter');
     Route::get('/customer/reviews', [ReviewController::class, 'myReviews'])->name('customer.reviews');
+    
+    // Review Reply Routes
+    Route::post('/reviews/{id}/reply', [ReviewController::class, 'storeReply'])->name('reviews.reply');
+    Route::delete('/reviews/reply/{id}', [ReviewController::class, 'destroyReply'])->name('reviews.reply.destroy');
 
     Route::get('/customer/profile', [CustomerAuthController::class, 'profile'])->name('customer.profile');
     Route::get('/customer/profile/edit', [CustomerProfileController::class, 'edit'])->name('customer.profile.edit');
@@ -108,6 +119,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/customer/order/{orderId}', [CustomerAuthController::class, 'orderDetails'])->name('customer.order.details');
     Route::get('/customer/order/{orderId}/invoice', [CustomerAuthController::class, 'invoice'])->name('customer.order.invoice');
     Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout');
+    
+    // Customer Notifications
+    Route::get('/customer/notifications', [NotificationController::class, 'index'])->name('customer.notifications');
+    Route::post('/customer/notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('customer.notifications.read');
+    Route::post('/customer/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('customer.notifications.read-all');
+    Route::delete('/customer/notifications/{id}', [NotificationController::class, 'destroy'])->name('customer.notifications.destroy');
+    Route::delete('/customer/notifications/delete-all', [NotificationController::class, 'destroyAll'])->name('customer.notifications.destroy-all');
+    Route::get('/customer/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('customer.notifications.unread-count');
 });
 
 /*
@@ -211,6 +230,9 @@ Route::group([
         Route::delete('/reviews/{id}', [ReviewManagementController::class, 'destroy'])->name('reviews.destroy');
         Route::post('/reviews/bulk-action', [ReviewManagementController::class, 'bulkAction'])->name('reviews.bulk-action');
         Route::get('/reviews-statistics', [ReviewManagementController::class, 'statistics'])->name('reviews.statistics');
+        
+        // Review Reply Management
+        Route::delete('/reviews/reply/{id}', [ReviewManagementController::class, 'destroyReply'])->name('reviews.reply.destroy');
     });
 
     // 📈 REPORTS - Admin only
