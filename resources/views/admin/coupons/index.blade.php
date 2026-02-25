@@ -3,15 +3,105 @@
 @section('title', 'Coupon Management - Admin')
 
 @section('content')
-<div style="padding: 24px;">
-    
+<style>
+.coupons-page {
+    padding: 24px;
+}
+
+@media (max-width: 768px) {
+    .coupons-page {
+        padding: 16px !important;
+    }
+
+    .coupons-header {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    .coupons-header h2 {
+        font-size: 20px !important;
+    }
+
+    .create-coupon-btn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+
+    .filter-form {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    .filter-form > div {
+        width: 100% !important;
+        min-width: auto !important;
+    }
+
+    .filter-form input,
+    .filter-form select {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .filter-buttons {
+        width: 100% !important;
+        justify-content: stretch !important;
+    }
+
+    .filter-buttons button,
+    .filter-buttons a {
+        flex: 1 !important;
+        justify-content: center !important;
+    }
+
+    .table-wrapper {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .coupons-table {
+        min-width: 900px !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .coupons-page {
+        padding: 12px !important;
+    }
+
+    .coupons-header h2 {
+        font-size: 18px !important;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .filter-form label {
+        font-size: 10px !important;
+    }
+
+    .filter-form input,
+    .filter-form select {
+        font-size: 13px !important;
+        padding: 8px 12px !important;
+    }
+}
+</style>
+
+<div class="coupons-page" style="padding: 24px;">
+
     <!-- Header -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
+    <div class="coupons-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
         <div>
             <h2 style="font-weight: 800; color: #1e293b; margin: 0; font-size: 24px;">🎟️ Coupon Management</h2>
             <p style="color: #64748b; margin: 4px 0 0 0; font-size: 14px;">Create and manage discount codes for marketing campaigns.</p>
         </div>
-        <a href="{{ route('admin.coupons.create') }}" style="background: #10b981; color: white; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-weight: 700; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3); display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;" onmouseover="this.style.background='#059669'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#10b981'; this.style.transform='translateY(0)';">
+        <a href="{{ route('admin.coupons.create') }}" class="create-coupon-btn" style="background: #10b981; color: white; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-weight: 700; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3); display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s; white-space: nowrap;" onmouseover="this.style.background='#059669'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#10b981'; this.style.transform='translateY(0)';">
             <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
@@ -20,7 +110,7 @@
     </div>
 
     <!-- Stats Cards -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px;">
+    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px;">
         <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #f1f5f9;">
             <div style="color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Total Coupons</div>
             <div style="font-size: 28px; font-weight: 800; color: #1e293b;">{{ $stats['total'] }}</div>
@@ -60,7 +150,8 @@
 
     <!-- Coupons Table -->
     <div style="background: white; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #f1f5f9;">
-        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <div class="table-wrapper" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+        <table class="coupons-table" style="width: 100%; border-collapse: collapse; text-align: left;">
             <thead style="background: #f8fafc; border-bottom: 1px solid #f1f5f9;">
                 <tr>
                     <th style="padding: 16px 24px; font-size: 12px; color: #64748b; font-weight: 700; text-transform: uppercase;">PROMO CODE</th>
@@ -155,6 +246,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
 
     <!-- Pagination -->

@@ -1,9 +1,74 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="category-container">
+<style>
+@media (max-width: 1024px) {
+    .categories-page {
+        max-width: 100% !important;
+        padding: 16px !important;
+    }
+
+    .categories-header h2 {
+        font-size: 24px !important;
+    }
+
+    .split-layout {
+        flex-direction: column !important;
+        gap: 16px !important;
+    }
+
+    .layout-sidebar,
+    .layout-main {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box;
+    }
+}
+
+@media (max-width: 768px) {
+    .categories-header h2 {
+        font-size: 22px !important;
+        line-height: 1.25 !important;
+    }
+
+    .categories-header p {
+        font-size: 14px !important;
+    }
+
+    .layout-sidebar {
+        padding: 16px !important;
+    }
+
+    .categories-table-wrap {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .categories-table-wrap .custom-table {
+        min-width: 720px;
+    }
+
+    .category-actions {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        min-width: 120px;
+    }
+
+    .category-actions a,
+    .category-actions button {
+        width: 100%;
+        box-sizing: border-box;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+}
+</style>
+<div class="category-container categories-page">
     
-    <div style="margin-bottom: 24px;">
+    <div class="categories-header" style="margin-bottom: 24px;">
         <h2 style="font-weight: 800; color: #1e293b; margin: 0 0 8px 0; font-size: 28px;">📁 Manage Categories</h2>
         <p style="color: #64748b; margin: 0; font-size: 15px;">Organize your grocery store aisles.</p>
     </div>
@@ -66,7 +131,7 @@
         </div>
 
         <div class="layout-main">
-            <div style="overflow-x: auto;">
+            <div class="categories-table-wrap" style="overflow-x: auto;">
                 <table class="custom-table">
                     <thead>
                         <tr>
@@ -95,7 +160,7 @@
                                     </span>
                                 </td>
                                 <td style="text-align: right;">
-                                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                                    <div class="category-actions" style="display: flex; gap: 8px; justify-content: flex-end;">
                                         <a href="{{ route('admin.categories.edit', $category->id) }}" style="padding: 6px 14px; border-radius: 8px; border: 1px solid #e2e8f0; background: white; color: #475569; text-decoration: none; font-size: 13px; font-weight: 600; cursor: pointer;">✏️ Edit</a>
 
                                         <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" style="margin: 0;" class="delete-form">
@@ -124,8 +189,6 @@
 
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
     // SweetAlert2 Delete Confirmation

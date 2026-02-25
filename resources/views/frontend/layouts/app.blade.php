@@ -4,16 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'FreshMart - Premium Organic Groceries')</title>
-    
-    <!-- Tailwind CSS -->
+
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind Config -->
     <script>
         tailwind.config = {
             theme: {
@@ -76,6 +69,11 @@
             }
         }
     </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         body { font-family: 'Poppins', sans-serif; }
@@ -229,16 +227,39 @@
                     <!-- Auth -->
                     @auth
                         <div class="relative group hidden md:block">
-                            <button class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-full font-medium hover:bg-gray-200 transition">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                                </svg>
-                                {{ auth()->user()->name ?? 'Account' }}
+                            <button class="flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-full font-medium hover:bg-gray-200 transition">
+                                <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-primary-500 flex-shrink-0">
+                                    @if(auth()->user()->avatar ?? auth()->user()->profile_photo_path)
+                                        <img src="{{ asset('storage/' . (auth()->user()->avatar ?? auth()->user()->profile_photo_path)) }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover">
+                                    @else
+                                        <div class="w-full h-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white text-xs font-bold">
+                                            {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+                                        </div>
+                                    @endif
+                                </div>
+                                <span class="text-sm font-medium">{{ auth()->user()->name ?? 'Account' }}</span>
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                 </svg>
                             </button>
-                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                            <div class="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                                <div class="p-4 border-b border-gray-100">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-primary-500 flex-shrink-0">
+                                            @if(auth()->user()->avatar ?? auth()->user()->profile_photo_path)
+                                                <img src="{{ asset('storage/' . (auth()->user()->avatar ?? auth()->user()->profile_photo_path)) }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover">
+                                            @else
+                                                <div class="w-full h-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white font-bold">
+                                                    {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-semibold text-gray-900 truncate">{{ auth()->user()->name ?? 'User' }}</p>
+                                            <p class="text-xs text-gray-500 truncate">{{ auth()->user()->email ?? 'user@example.com' }}</p>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="py-2">
                                     @if(auth()->user()->role !== 'customer')
                                         <p class="text-xs text-gray-400 px-4 py-2 uppercase font-medium">Staff Mode Active</p>
@@ -246,14 +267,14 @@
                                             💻 Go to Dashboard &rarr;
                                         </a>
                                     @else
-                                        <a href="{{ route('customer.orders') }}" class="block px-4 py-2.5 hover:bg-primary-50 text-gray-700 hover:text-primary-600 transition">My Orders</a>
-                                        <a href="{{ route('customer.profile.edit') }}" class="block px-4 py-2.5 hover:bg-primary-50 text-gray-700 hover:text-primary-600 transition">Edit Profile</a>
-                                        <a href="{{ route('customer.profile') }}" class="block px-4 py-2.5 hover:bg-primary-50 text-gray-700 hover:text-primary-600 transition">Profile Dashboard</a>
+                                        <a href="{{ route('customer.orders') }}" class="block px-4 py-2.5 hover:bg-primary-50 text-gray-700 hover:text-primary-600 transition">📦 My Orders</a>
+                                        <a href="{{ route('customer.profile.edit') }}" class="block px-4 py-2.5 hover:bg-primary-50 text-gray-700 hover:text-primary-600 transition">✏️ Edit Profile</a>
+                                        <a href="{{ route('customer.profile') }}" class="block px-4 py-2.5 hover:bg-primary-50 text-gray-700 hover:text-primary-600 transition">👤 Profile Dashboard</a>
                                     @endif
                                     <hr class="my-2">
                                     <form action="{{ route('logout') }}" method="POST">
                                         @csrf
-                                        <button type="submit" class="w-full text-left px-4 py-2.5 hover:bg-red-50 text-red-600 transition">Logout</button>
+                                        <button type="submit" class="w-full text-left px-4 py-2.5 hover:bg-red-50 text-red-600 transition">🚪 Logout</button>
                                     </form>
                                 </div>
                             </div>
@@ -271,70 +292,178 @@
     <!-- Mobile Menu -->
     <div id="mobileMenu" class="mobile-menu fixed inset-0 z-50 lg:hidden">
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="toggleMobileMenu()"></div>
-        <div class="absolute left-0 top-0 bottom-0 w-80 bg-white shadow-2xl">
+        <div class="absolute left-0 top-0 bottom-0 w-80 bg-white shadow-2xl overflow-y-auto">
             <div class="p-6">
-                <div class="flex justify-between items-center mb-8">
-                    <span class="text-xl font-bold text-primary-600">🛒 FreshMart</span>
+                <!-- Header -->
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center text-white text-xl shadow-lg">
+                            🛒
+                        </div>
+                        <div>
+                            <span class="text-xl font-bold text-gray-900">FreshMart</span>
+                            <p class="text-xs text-gray-500">Fresh Groceries</p>
+                        </div>
+                    </div>
                     <button onclick="toggleMobileMenu()" class="p-2 hover:bg-gray-100 rounded-lg transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </button>
                 </div>
-                
+
                 <!-- Mobile Search -->
                 <form action="{{ route('shop') }}" method="GET" class="mb-6">
-                    <input type="text" name="search" placeholder="Search products..." 
-                           class="w-full border border-gray-200 rounded-full px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                    <div class="relative">
+                        <input type="text" name="search" placeholder="Search products..."
+                               class="w-full border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50">
+                        <button type="submit" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-primary-600 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </button>
+                    </div>
                 </form>
 
                 <!-- Mobile Nav -->
-                <nav class="space-y-2">
-                    <a href="{{ route('home') }}" class="block px-4 py-3 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-600 font-medium transition">Home</a>
-                    <a href="{{ route('shop') }}" class="block px-4 py-3 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-600 font-medium transition">Shop</a>
+                <nav class="space-y-1">
+                    <a href="{{ route('home') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-600 font-medium transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                        </svg>
+                        Home
+                    </a>
+                    <a href="{{ route('shop') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-600 font-medium transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                        </svg>
+                        Shop Now
+                    </a>
+
+                    <!-- Categories Dropdown -->
                     @if(isset($categories) && $categories->isNotEmpty())
-                        <div class="pt-4">
-                            <p class="px-4 text-sm font-semibold text-gray-500 mb-2">Categories</p>
-                            @foreach($categories as $cat)
-                                <a href="{{ route('category.view', $cat->slug) }}" class="block px-4 py-2.5 rounded-xl hover:bg-primary-50 text-gray-600 hover:text-primary-600 transition">
-                                    {{ $cat->name }}
-                                </a>
-                            @endforeach
+                        <div class="pt-2">
+                            <button onclick="toggleCategories()" class="w-full flex items-center justify-between px-4 py-3 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-600 font-medium transition">
+                                <div class="flex items-center gap-3">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                                    </svg>
+                                    Categories
+                                </div>
+                                <svg id="categoriesArrow" class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <div id="categoriesDropdown" class="hidden pl-4 pr-2 mt-1 space-y-1">
+                                @foreach($categories as $cat)
+                                    <a href="{{ route('category.view', $cat->slug) }}" class="flex items-center justify-between px-4 py-2.5 rounded-lg hover:bg-primary-50 text-gray-600 hover:text-primary-600 transition text-sm">
+                                        <span>{{ $cat->name }}</span>
+                                        <span class="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-full">{{ $cat->products_count }}</span>
+                                    </a>
+                                @endforeach
+                            </div>
                         </div>
                     @endif
-                    <a href="{{ route('about') }}" class="block px-4 py-3 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-600 font-medium transition">About Us</a>
-                    <a href="{{ route('contact') }}" class="block px-4 py-3 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-600 font-medium transition">Contact</a>
+
+                    <a href="{{ route('about') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-600 font-medium transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        About Us
+                    </a>
+                    <a href="{{ route('contact') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-primary-50 text-gray-700 hover:text-primary-600 font-medium transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        Contact
+                    </a>
                 </nav>
 
                 <!-- Mobile Auth -->
-                <div class="mt-8 pt-6 border-t">
+                <div class="mt-8 pt-6 border-t border-gray-100">
                     @auth
-                        <div class="mb-4">
-                            <p class="text-sm text-gray-600 mb-2">Signed in as: <span class="font-semibold">{{ auth()->user()->name ?? 'User' }}</span></p>
-                            <p class="text-xs text-gray-400 uppercase font-medium">{{ auth()->user()->role ?? 'Customer' }}</p>
+                        <div class="mb-4 p-4 bg-gray-50 rounded-xl">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-12 h-12 rounded-full overflow-hidden flex-shrink:0 border-2 border-primary-500 shadow-md">
+                                    @if(auth()->user()->avatar ?? auth()->user()->profile_photo_path)
+                                        <img src="{{ asset('storage/' . (auth()->user()->avatar ?? auth()->user()->profile_photo_path)) }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover">
+                                    @else
+                                        <div class="w-full h-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white font-bold">
+                                            {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-semibold text-gray-900 truncate">{{ auth()->user()->name ?? 'User' }}</p>
+                                    <p class="text-xs text-gray-500 uppercase">{{ auth()->user()->role ?? 'Customer' }}</p>
+                                    @if(auth()->user()->email)
+                                        <p class="text-xs text-gray-400 truncate mt-1">{{ auth()->user()->email }}</p>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
+
                         @if(auth()->user()->role !== 'customer')
-                            <p class="text-xs text-gray-400 px-4 py-2 mb-2 uppercase font-medium">Staff Mode Active</p>
-                            <a href="{{ route('admin.dashboard') }}" class="block w-full px-4 py-3 bg-green-600 text-white rounded-xl font-medium text-center hover:bg-green-700 transition mb-2">
-                                💻 Go to Dashboard &rarr;
-                            </a>
+                            <div class="mb-3 p-3 bg-green-50 border border-green-200 rounded-xl">
+                                <p class="text-xs text-green-700 font-semibold mb-2">👨‍💼 Staff Mode Active</p>
+                                <a href="{{ route('admin.dashboard') }}" class="block w-full px-4 py-3 bg-green-600 text-white rounded-xl font-medium text-center hover:bg-green-700 transition shadow-lg shadow-green-500/30">
+                                    💻 Admin Dashboard →
+                                </a>
+                            </div>
                         @else
-                            <a href="{{ route('customer.orders') }}" class="block w-full px-4 py-3 bg-primary-600 text-white rounded-xl font-medium text-center hover:bg-primary-700 transition mb-2">My Orders</a>
-                            <a href="{{ route('customer.profile.edit') }}" class="block w-full px-4 py-3 border-2 border-primary-600 text-primary-600 rounded-xl font-medium text-center hover:bg-primary-50 transition mb-2">Edit Profile</a>
-                            <a href="{{ route('customer.profile') }}" class="block w-full px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium text-center hover:bg-gray-200 transition mb-2">Profile Dashboard</a>
+                            <div class="space-y-2">
+                                <a href="{{ route('customer.orders') }}" class="block w-full px-4 py-3 bg-primary-600 text-white rounded-xl font-medium text-center hover:bg-primary-700 transition shadow-lg shadow-primary-500/30">
+                                    📦 My Orders
+                                </a>
+                                <a href="{{ route('customer.profile.edit') }}" class="block w-full px-4 py-3 border-2 border-primary-600 text-primary-600 rounded-xl font-medium text-center hover:bg-primary-50 transition">
+                                    ✏️ Edit Profile
+                                </a>
+                                <a href="{{ route('customer.profile') }}" class="block w-full px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium text-center hover:bg-gray-200 transition">
+                                    👤 Profile
+                                </a>
+                            </div>
                         @endif
-                        <form action="{{ route('logout') }}" method="POST">
+
+                        <form action="{{ route('logout') }}" method="POST" class="mt-3">
                             @csrf
-                            <button type="submit" class="w-full px-4 py-3 bg-red-600 text-white rounded-xl font-medium text-center hover:bg-red-700 transition">Logout</button>
+                            <button type="submit" class="w-full px-4 py-3 bg-red-50 text-red-600 rounded-xl font-medium text-center hover:bg-red-100 transition border border-red-200">
+                                🚪 Logout
+                            </button>
                         </form>
                     @else
-                        <a href="{{ route('customer.login') }}" class="block w-full px-4 py-3 bg-primary-600 text-white rounded-xl font-medium text-center hover:bg-primary-700 transition mb-2">Sign In</a>
-                        <a href="{{ route('customer.register') }}" class="block w-full px-4 py-3 border-2 border-primary-600 text-primary-600 rounded-xl font-medium text-center hover:bg-primary-50 transition">Create Account</a>
+                        <div class="space-y-2">
+                            <a href="{{ route('customer.login') }}" class="block w-full px-4 py-3 bg-primary-600 text-white rounded-xl font-medium text-center hover:bg-primary-700 transition shadow-lg shadow-primary-500/30">
+                                🔐 Sign In
+                            </a>
+                            <a href="{{ route('customer.register') }}" class="block w-full px-4 py-3 border-2 border-primary-600 text-primary-600 rounded-xl font-medium text-center hover:bg-primary-50 transition">
+                                📝 Create Account
+                            </a>
+                        </div>
                     @endauth
+                </div>
+
+                <!-- App Download CTA -->
+                <div class="mt-6 p-4 bg-gradient-to-r from-primary-500 to-primary-700 rounded-xl text-white text-center">
+                    <p class="text-sm font-semibold mb-2">📱 Get the FreshMart App</p>
+                    <p class="text-xs opacity-90 mb-3">Better experience, exclusive deals!</p>
+                    <div class="flex gap-2 justify-center">
+                        <button class="flex-1 bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg text-xs font-medium hover:bg-white/30 transition">iOS</button>
+                        <button class="flex-1 bg-white/20 backdrop-blur-sm px-3 py-2 rounded-lg text-xs font-medium hover:bg-white/30 transition">Android</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        // Toggle Categories Dropdown
+        function toggleCategories() {
+            const dropdown = document.getElementById('categoriesDropdown');
+            const arrow = document.getElementById('categoriesArrow');
+            dropdown.classList.toggle('hidden');
+            arrow.classList.toggle('rotate-180');
+        }
+    </script>
 
     <!-- Flash Messages / Toast Notifications -->
     @if(session('success'))

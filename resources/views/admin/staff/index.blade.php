@@ -5,17 +5,90 @@
     $isOriginalAdmin = auth()->user()->id === 1 || auth()->user()->email === 'admin@grocery.com';
 @endphp
 
-<div style="padding: 30px; box-sizing: border-box;">
+<style>
+.staff-page {
+    padding: 30px;
+    box-sizing: border-box;
+}
 
-    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+@media (max-width: 768px) {
+    .staff-page {
+        padding: 16px !important;
+    }
+
+    .page-header {
+        flex-direction: column !important;
+        gap: 12px !important;
+        align-items: stretch !important;
+    }
+
+    .page-header h1 {
+        font-size: 20px !important;
+    }
+
+    .btn-primary {
+        width: 100% !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    .filter-bar {
+        padding: 16px !important;
+    }
+
+    .filter-bar form {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    .filter-bar input,
+    .filter-bar select,
+    .filter-bar button,
+    .filter-bar a {
+        width: 100% !important;
+        min-width: auto !important;
+    }
+
+    .table-container {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .data-table {
+        min-width: 700px !important;
+    }
+
+    .table-container {
+        border-radius: 12px !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .staff-page {
+        padding: 12px !important;
+    }
+
+    .page-header h1 {
+        font-size: 18px !important;
+    }
+
+    .page-header p {
+        font-size: 13px !important;
+    }
+}
+</style>
+
+<div class="staff-page" style="padding: 30px; box-sizing: border-box;">
+
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 12px;">
         <div>
             <h1 style="font-size: 24px; font-weight: 900; color: #1e293b; margin: 0;">
                 👥 Staff Management
             </h1>
             <p style="font-size: 14px; color: #64748b; margin: 5px 0 0;">Manage your team roles and permissions</p>
         </div>
-        
-        <a href="{{ route('admin.staff.create') }}" class="btn btn-primary" style="background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none;"
+
+        <a href="{{ route('admin.staff.create') }}" class="btn btn-primary" style="background: #3b82f6; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; white-space: nowrap;"
            onmouseover="this.style.background='#2563eb';"
            onmouseout="this.style.background='#3b82f6';">
             ➕ Add New Staff
@@ -25,13 +98,13 @@
     {{-- Search & Filter Bar --}}
     <div class="filter-bar" style="background: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
         <form action="{{ route('admin.staff.index') }}" method="GET" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
-            <input type="text" name="search" placeholder="🔍 Search by name or email..." 
-                   value="{{ request('search') }}" 
-                   style="flex: 1; min-width: 250px; padding: 10px 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; outline: none;"
+            <input type="text" name="search" placeholder="🔍 Search by name or email..."
+                   value="{{ request('search') }}"
+                   style="flex: 1; min-width: 200px; padding: 10px 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; outline: none;"
                    onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.1)';"
                    onblur="this.style.borderColor='#e2e8f0'; this.style.boxShadow='none';">
-            
-            <select name="role" style="padding: 10px 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; cursor: pointer; min-width: 150px;"
+
+            <select name="role" style="flex: 1; min-width: 150px; padding: 10px 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; cursor: pointer;"
                     onfocus="this.style.borderColor='#3b82f6';"
                     onblur="this.style.borderColor='#e2e8f0';">
                 <option value="">All Roles</option>
@@ -39,15 +112,15 @@
                 <option value="driver" {{ request('role') == 'driver' ? 'selected' : '' }}>🚚 Delivery Driver</option>
                 <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>👑 Admin</option>
             </select>
-            
-            <button type="submit" style="background: #3b82f6; color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s;"
+
+            <button type="submit" style="background: #3b82f6; color: white; border: none; padding: 10px 25px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap;"
                     onmouseover="this.style.background='#2563eb';"
                     onmouseout="this.style.background='#3b82f6';">
                 🔍 Filter
             </button>
-            
+
             @if(request('search') || request('role'))
-                <a href="{{ route('admin.staff.index') }}" style="background: #f1f5f9; color: #64748b; border: 2px solid #e2e8f0; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none;"
+                <a href="{{ route('admin.staff.index') }}" style="background: #f1f5f9; color: #64748b; border: 2px solid #e2e8f0; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; text-decoration: none; white-space: nowrap;"
                    onmouseover="this.style.background='#e2e8f0'; this.style.borderColor='#cbd5e1';"
                    onmouseout="this.style.background='#f1f5f9'; this.style.borderColor='#e2e8f0';">
                     ✕ Clear

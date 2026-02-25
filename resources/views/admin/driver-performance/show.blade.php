@@ -13,8 +13,12 @@
             Back to Driver Performance
         </a>
         <div style="display: flex; align-items: center; gap: 20px;">
-            <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #2563eb); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 36px;">
-                {{ strtoupper(substr($driver->name, 0, 1)) }}
+            <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #2563eb); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 36px; overflow: hidden;">
+                @if($driver->avatar || $driver->profile_photo_path)
+                    <img src="{{ asset('storage/' . ($driver->avatar ?? $driver->profile_photo_path)) }}" alt="{{ $driver->name }}" style="width: 100%; height: 100%; object-cover;">
+                @else
+                    {{ strtoupper(substr($driver->name, 0, 1)) }}
+                @endif
             </div>
             <div>
                 <h1 style="font-size: 28px; font-weight: 900; color: #1e293b; margin: 0;">{{ $driver->name }}</h1>

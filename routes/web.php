@@ -18,11 +18,13 @@ use App\Http\Controllers\Admin\CustomerManagementController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\DriverPerformanceController;
+use App\Http\Controllers\Admin\ReportController;
 
 // 3. Import other controllers
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Customer\CustomerAuthController;
 use App\Http\Controllers\Driver\DriverDashboardController;
+use App\Http\Controllers\Driver\DriverProfileController;
 use App\Http\Controllers\ProfileController;
 
 // 4. Import Middleware
@@ -63,6 +65,7 @@ Route::post('/cart/add', [HomeController::class, 'addToCart'])->name('cart.add')
 Route::put('/cart/update', [HomeController::class, 'updateCart'])->name('cart.update');
 Route::delete('/cart/remove/{productId}', [HomeController::class, 'removeFromCart'])->name('cart.remove');
 Route::post('/cart/clear', [HomeController::class, 'clearCart'])->name('cart.clear');
+Route::get('/cart/count', [HomeController::class, 'cartCount'])->name('cart.count');
 
 // Coupon Routes (Frontend)
 Route::post('/apply-coupon', [FrontendCouponController::class, 'apply'])->name('coupon.apply');
@@ -189,6 +192,13 @@ Route::group([
 
     // 📈 REPORTS - Admin only
     Route::middleware(['role:admin,super_user'])->group(function () {
+        // Main Reports Page - Financial & Driver Analytics
+        Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/export-financial', [ReportController::class, 'exportFinancial'])->name('reports.export-financial');
+        Route::get('/reports/export-driver', [ReportController::class, 'exportDriver'])->name('reports.export-driver');
+        Route::get('/reports/export-pdf', [ReportController::class, 'exportPdf'])->name('reports.export-pdf');
+        
+        // Legacy driver reports route
         Route::get('/reports/drivers', [DashboardController::class, 'driverPerformance'])->name('reports.drivers');
         Route::get('/driver-performance', [DriverPerformanceController::class, 'index'])->name('driver-performance.index');
         Route::get('/driver-performance/{id}', [DriverPerformanceController::class, 'show'])->name('driver-performance.show');
@@ -209,6 +219,11 @@ Route::group([
 ], function () {
     // Dashboard
     Route::get('/dashboard', [DriverDashboardController::class, 'index'])->name('dashboard');
+
+    // Profile
+    Route::get('/profile', [DriverProfileController::class, 'show'])->name('profile');
+    Route::put('/profile', [DriverProfileController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/profile/photo', [DriverProfileController::class, 'updatePhoto'])->name('profile.photo');
     
     // Order Actions
     Route::post('/order/{id}/accept', [DriverDashboardController::class, 'acceptOrder'])->name('accept-order');

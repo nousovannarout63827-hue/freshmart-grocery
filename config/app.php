@@ -123,4 +123,18 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Driver Commission Rate
+    |--------------------------------------------------------------------------
+    |
+    | This value determines the percentage of each delivery total that is
+    | paid to the driver as commission. Set this in your .env file.
+    |
+    | Example: 0.10 = 10%, 0.15 = 15%, 0.20 = 20%
+    |
+    */
+
+    'driver_commission_rate' => (float) env('DRIVER_COMMISSION_RATE', 0.10),
+
 ];

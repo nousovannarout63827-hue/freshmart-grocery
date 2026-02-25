@@ -4,23 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice ORD-{{ str_pad($order->id, 8, '0', STR_PAD_LEFT) }} - FreshMart</title>
-    <!-- Tailwind CSS CDN for standalone invoice -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: {
-                            50: '#f0fdf4', 100: '#dcfce7', 200: '#bbf7d0', 300: '#86efac',
-                            400: '#4ade80', 500: '#22c55e', 600: '#16a34a', 700: '#15803d',
-                            800: '#166534', 900: '#14532d',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+    @vite(['resources/css/style.css', 'resources/js/app.js'])
     <style>
         @media print {
             .no-print { display: none !important; }

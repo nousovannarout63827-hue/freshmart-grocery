@@ -158,21 +158,26 @@
         @if($relatedProducts->count() > 0)
             <div class="mt-20">
                 <h2 class="text-3xl font-bold text-gray-900 mb-8">Related Products</h2>
-                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
                     @foreach($relatedProducts as $related)
-                        <div class="product-card bg-white rounded-2xl border border-gray-100 overflow-hidden group h-full flex flex-col">
+                        <div class="product-card bg-white rounded-xl lg:rounded-2xl border border-gray-100 overflow-hidden group h-full flex flex-col">
                             @if($related->slug)
                             <a href="{{ route('product.show', $related->slug) }}" class="block group">
                             @endif
-                                <div class="relative aspect-square bg-gray-100 overflow-hidden">
-                                    @if($related->image)
-                                        <img src="{{ asset('storage/' . $related->image) }}"
+                                <div class="relative w-full h-32 sm:h-40 lg:h-48 bg-gray-100 overflow-hidden p-3 lg:p-4">
+                                    @php
+                                        $productImageUrl = null;
+                                        if ($related->image) {
+                                            // Check if image path already contains 'products/' or 'storage/'
+                                            $productImageUrl = str_contains($related->image, 'products/') || str_contains($related->image, 'storage/')
+                                                ? asset('storage/' . $related->image)
+                                                : asset('storage/products/' . $related->image);
+                                        }
+                                    @endphp
+                                    @if($productImageUrl)
+                                        <img src="{{ $productImageUrl }}"
                                              alt="{{ $related->name }}"
-                                             class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
-                                    @elseif($related->primaryImage)
-                                        <img src="{{ asset('storage/' . $related->primaryImage->image) }}"
-                                             alt="{{ $related->name }}"
-                                             class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                                             class="w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition duration-500">
                                     @else
                                         <div class="w-full h-full flex items-center justify-center text-6xl bg-gradient-to-br from-primary-50 to-primary-100">
                                             🥬
@@ -180,29 +185,30 @@
                                     @endif
                                 </div>
 
-                                <div class="p-5">
-                                    <p class="text-xs text-primary-600 font-semibold mb-2">{{ $related->category->name ?? 'Uncategorized' }}</p>
-                                    <h3 class="font-semibold text-gray-800 mb-2 truncate group-hover:text-primary-600 transition">{{ $related->name }}</h3>
-                                    <div class="flex items-center justify-between mb-4">
-                                        <span class="text-xl font-bold text-gray-900">${{ number_format($related->price, 2) }}</span>
-                                        <span class="text-sm text-gray-500">/{{ $related->unit ?? 'unit' }}</span>
+                                <div class="p-3 sm:p-5">
+                                    <p class="text-[10px] sm:text-xs text-primary-600 font-semibold mb-1 sm:mb-2">{{ $related->category->name ?? 'Uncategorized' }}</p>
+                                    <h3 class="font-semibold text-gray-800 mb-1 sm:mb-2 text-xs sm:text-sm truncate group-hover:text-primary-600 transition">{{ $related->name }}</h3>
+                                    <div class="flex items-center justify-between mb-2 sm:mb-4">
+                                        <span class="text-sm sm:text-xl font-bold text-gray-900">${{ number_format($related->price, 2) }}</span>
+                                        <span class="text-[10px] sm:text-sm text-gray-500">/{{ Str::limit($related->unit ?? 'unit', 3) }}</span>
                                     </div>
                                 </div>
                             @if($related->slug)
                             </a>
                             @endif
 
-                            <div class="px-5 pb-5 mt-auto">
+                            <div class="px-3 sm:px-5 pb-3 sm:pb-5 mt-auto">
                                 <form action="{{ route('cart.add') }}" method="POST">
                                     @csrf
                                     <input type="hidden" name="product_id" value="{{ $related->id }}">
                                     <input type="hidden" name="quantity" value="1">
                                     <button type="submit"
-                                            class="w-full bg-primary-600 text-white py-3 rounded-xl hover:bg-primary-700 transition font-medium text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary-500/30">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            class="w-full bg-primary-600 text-white py-2 sm:py-3 rounded-lg sm:rounded-xl hover:bg-primary-700 transition font-medium text-[11px] sm:text-sm flex items-center justify-center gap-1 sm:gap-2 shadow-lg shadow-primary-500/30">
+                                        <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
                                         </svg>
-                                        Add to Cart
+                                        <span class="hidden sm:inline">Add to Cart</span>
+                                        <span class="sm:hidden">Add</span>
                                     </button>
                                 </form>
                             </div>

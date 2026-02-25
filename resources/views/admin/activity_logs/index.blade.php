@@ -1,11 +1,101 @@
 @extends('layouts.admin')
 
 @section('content')
-<div style="padding: 32px; box-sizing: border-box; background: #f1f5f9; min-height: 100vh;">
+<style>
+.activity-logs-page {
+    padding: 32px;
+    box-sizing: border-box;
+    background: #f1f5f9;
+    min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+    .activity-logs-page {
+        padding: 16px !important;
+    }
+
+    .activity-logs-header {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    .activity-logs-header h1 {
+        font-size: 20px !important;
+    }
+
+    .activity-logs-header p {
+        font-size: 13px !important;
+    }
+
+    .filter-form {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    .filter-form > div {
+        width: 100% !important;
+        flex: none !important;
+        min-width: auto !important;
+    }
+
+    .filter-form input,
+    .filter-form select {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .filter-buttons {
+        width: 100% !important;
+        justify-content: stretch !important;
+        margin-left: 0 !important;
+    }
+
+    .filter-buttons button,
+    .filter-buttons a {
+        flex: 1 !important;
+        justify-content: center !important;
+    }
+
+    .table-wrapper {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .activity-logs-table {
+        min-width: 900px !important;
+    }
+
+    .logs-card {
+        border-radius: 12px !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .activity-logs-page {
+        padding: 12px !important;
+    }
+
+    .activity-logs-header h1 {
+        font-size: 18px !important;
+    }
+
+    .filter-form label {
+        font-size: 10px !important;
+    }
+
+    .filter-form input,
+    .filter-form select {
+        font-size: 12px !important;
+        padding: 8px 10px !important;
+    }
+}
+</style>
+
+<div class="activity-logs-page" style="padding: 32px; box-sizing: border-box; background: #f1f5f9; min-height: 100vh;">
 
     <!-- Page Header -->
-    <div style="margin-bottom: 32px;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="activity-logs-header" style="margin-bottom: 32px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <div>
                 <h1 style="font-size: 28px; font-weight: 900; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 12px;">
                     <span style="font-size: 32px;">👁️</span>
@@ -18,7 +108,7 @@
 
     {{-- Filter Bar --}}
     <div style="background: white; border-radius: 16px; padding: 20px; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <form action="{{ route('admin.activity_logs.index') }}" method="GET" style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-end;">
+        <form class="filter-form" action="{{ route('admin.activity_logs.index') }}" method="GET" style="display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-end;">
 
             <div style="flex: 0 0 120px;">
                 <label style="display: block; font-size: 10px; font-weight: 700; color: #64748b; margin-bottom: 6px; text-transform: uppercase;">📅 Date</label>
@@ -85,7 +175,8 @@
 
     <!-- Activity Table -->
     <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <table style="width: 100%; border-collapse: collapse;">
+        <div class="table-wrapper" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+        <table class="activity-logs-table" style="width: 100%; border-collapse: collapse;">
             <thead style="background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-bottom: 2px solid #e2e8f0;">
                 <tr>
                     <th style="padding: 18px 24px; text-align: left; font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">
@@ -210,6 +301,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
 
     @if($logs->hasPages())

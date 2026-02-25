@@ -2,102 +2,183 @@
 
 @section('content')
 <style>
+.driver-perf-page {
+    padding: 32px;
+    box-sizing: border-box;
+    background: #f1f5f9;
+    min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+    .driver-perf-page {
+        padding: 16px !important;
+    }
+
+    .page-header {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    .page-title {
+        font-size: 20px !important;
+    }
+
     .filter-grid {
-        display: grid;
-        grid-template-columns: repeat(12, 1fr);
-        gap: 64px;
-        align-items: end;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
     }
-    .filter-col-date { grid-column: span 12; }
-    .filter-col-driver { grid-column: span 12; }
-    .filter-col-action { grid-column: span 12; }
-    .filter-col-buttons { grid-column: span 12; }
-    
-    @media (min-width: 768px) {
-        .filter-col-date { grid-column: span 3; }
-        .filter-col-driver { grid-column: span 4; }
-        .filter-col-action { grid-column: span 3; }
-        .filter-col-buttons { grid-column: span 2; }
+
+    .filter-col-date,
+    .filter-col-driver,
+    .filter-col-action,
+    .filter-col-buttons {
+        grid-column: span 1 !important;
     }
-    
-    .filter-input {
-        width: 100%;
-        padding: 12px 16px;
-        border-radius: 12px;
-        border: 1px solid #cbd5e1;
-        background: #f8fafc;
-        color: #475569;
-        font-size: 14px;
-        outline: none;
-        transition: all 0.2s;
+
+    .filter-buttons {
+        width: 100% !important;
+        justify-content: stretch !important;
     }
-    .filter-input:focus {
-        background: white;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+
+    .filter-buttons button,
+    .filter-buttons a {
+        flex: 1 !important;
+        justify-content: center !important;
     }
-    
-    .filter-label {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 11px;
-        font-weight: 700;
-        color: #64748b;
-        margin-bottom: 8px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
     }
-    
-    .btn-filter {
-        flex: 1;
-        background: linear-gradient(135deg, #3b82f6, #2563eb);
-        color: white;
-        border: none;
-        padding: 12px 16px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 13px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        box-shadow: 0 2px 8px rgba(59,130,246,0.3);
-        transition: all 0.2s;
+
+    .stat-card {
+        padding: 16px !important;
     }
-    .btn-filter:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+
+    .stat-value {
+        font-size: 24px !important;
     }
-    
-    .btn-reset {
-        flex: 1;
-        background: #f1f5f9;
-        color: #64748b;
-        border: 1px solid #e2e8f0;
-        padding: 12px 16px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 13px;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        transition: all 0.2s;
+
+    .table-wrapper {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
     }
-    .btn-reset:hover {
-        background: #e2e8f9;
-        color: #475569;
+
+    .drivers-table {
+        min-width: 700px !important;
     }
+}
+
+@media (max-width: 375px) {
+    .driver-perf-page {
+        padding: 12px !important;
+    }
+
+    .page-title {
+        font-size: 18px !important;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 64px;
+    align-items: end;
+}
+.filter-col-date { grid-column: span 12; }
+.filter-col-driver { grid-column: span 12; }
+.filter-col-action { grid-column: span 12; }
+.filter-col-buttons { grid-column: span 12; }
+
+@media (min-width: 768px) {
+    .filter-col-date { grid-column: span 3; }
+    .filter-col-driver { grid-column: span 4; }
+    .filter-col-action { grid-column: span 3; }
+    .filter-col-buttons { grid-column: span 2; }
+}
+
+.filter-input {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+}
+.filter-input:focus {
+    background: white;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+
+.filter-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-filter {
+    flex: 1;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(59,130,246,0.3);
+    transition: all 0.2s;
+}
+.btn-filter:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+}
+
+.btn-reset {
+    flex: 1;
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 13px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+.btn-reset:hover {
+    background: #e2e8f9;
+    color: #475569;
+}
 </style>
 
-<div style="padding: 32px; box-sizing: border-box; background: #f1f5f9; min-height: 100vh;">
+<div class="driver-perf-page" style="padding: 32px; box-sizing: border-box; background: #f1f5f9; min-height: 100vh;">
 
     <!-- Page Header -->
-    <div style="margin-bottom: 32px;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="page-header" style="margin-bottom: 32px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
             <div>
                 <h1 style="font-size: 28px; font-weight: 900; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 12px;">
                     <span style="font-size: 32px;">🚚</span>
@@ -105,7 +186,7 @@
                 </h1>
                 <p style="font-size: 14px; color: #64748b; margin: 8px 0 0;">Track driver activities, deliveries, and performance metrics</p>
             </div>
-            <button onclick="exportReport()" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(16, 185, 129, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.3)'">
+            <button onclick="exportReport()" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: all 0.2s; margin-left: auto;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(16, 185, 129, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.3)'">
                 📥 Export Report
             </button>
         </div>
@@ -231,8 +312,12 @@
                     </div>
 
                     <!-- Avatar -->
-                    <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #2563eb); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 20px; flex-shrink: 0;">
-                        {{ $performer['avatar_initial'] }}
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #2563eb); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 20px; flex-shrink: 0; overflow: hidden;">
+                        @if($performer['avatar'] ?? null)
+                            <img src="{{ asset('storage/' . $performer['avatar']) }}" alt="{{ $performer['name'] }}" style="width: 100%; height: 100%; object-cover;">
+                        @else
+                            {{ $performer['avatar_initial'] }}
+                        @endif
                     </div>
 
                     <!-- Info -->
@@ -275,8 +360,12 @@
                 @endphp
                 <a href="{{ route('admin.driver-performance.show', $driver->id) }}" style="text-decoration: none; background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 2px solid transparent; transition: all 0.3s;" onmouseover="this.style.borderColor='{{ $performanceColor }}'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 12px 24px rgba(0,0,0,0.1)'" onmouseout="this.style.borderColor='transparent'; this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'">
                     <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
-                        <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #2563eb); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 24px; flex-shrink: 0;">
-                            {{ strtoupper(substr($driver->name, 0, 1)) }}
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #2563eb); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 24px; flex-shrink: 0; overflow: hidden;">
+                            @if($driver->avatar || $driver->profile_photo_path)
+                                <img src="{{ asset('storage/' . ($driver->avatar ?? $driver->profile_photo_path)) }}" alt="{{ $driver->name }}" style="width: 100%; height: 100%; object-cover;">
+                            @else
+                                {{ strtoupper(substr($driver->name, 0, 1)) }}
+                            @endif
                         </div>
                         <div style="flex: 1;">
                             <div style="font-weight: 800; color: #1e293b; font-size: 16px;">{{ $driver->name }}</div>
@@ -398,7 +487,8 @@
 
         <!-- Activity Table -->
         <div style="background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <table style="width: 100%; border-collapse: collapse;">
+            <div class="table-wrapper" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+            <table class="drivers-table" style="width: 100%; border-collapse: collapse;">
                 <thead style="background: #f8fafc; border-bottom: 2px solid #f1f5f9;">
                     <tr>
                         <th style="padding: 15px 20px; text-align: left; font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase;">Time</th>
@@ -415,8 +505,12 @@
                             </td>
                             <td style="padding: 15px 20px;">
                                 <div style="display: flex; align-items: center; gap: 10px;">
-                                    <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px;">
-                                        {{ strtoupper(substr($activity->user->name ?? '?', 0, 1)) }}
+                                    <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; overflow: hidden;">
+                                        @if($activity->user->avatar ?? $activity->user->profile_photo_path)
+                                            <img src="{{ asset('storage/' . ($activity->user->avatar ?? $activity->user->profile_photo_path)) }}" alt="{{ $activity->user->name ?? '?' }}" style="width: 100%; height: 100%; object-cover;">
+                                        @else
+                                            {{ strtoupper(substr($activity->user->name ?? '?', 0, 1)) }}
+                                        @endif
                                     </div>
                                     <div>
                                         <div style="font-weight: 700; color: #1e293b; font-size: 13px;">{{ $activity->user->name ?? 'Unknown' }}</div>
@@ -450,6 +544,7 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
 
         @if($activities->hasPages())

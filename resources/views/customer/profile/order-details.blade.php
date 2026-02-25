@@ -213,12 +213,28 @@
             @if($order->driver)
             <div class="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg flex-shrink-0">
-                        {{ strtoupper(substr($order->driver->name ?? 'D', 0, 1)) }}
+                    <div class="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg flex-shrink-0 overflow-hidden">
+                        @if($order->driver->avatar || $order->driver->profile_photo_path)
+                            <img src="{{ asset('storage/' . ($order->driver->avatar ?? $order->driver->profile_photo_path)) }}" 
+                                 alt="{{ $order->driver->name }}"
+                                 class="w-full h-full object-cover"
+                                 onerror="this.style.display='none'; this.parentElement.innerText='{{ strtoupper(substr($order->driver->name ?? 'D', 0, 1)) }}'">
+                        @else
+                            {{ strtoupper(substr($order->driver->name ?? 'D', 0, 1)) }}
+                        @endif
                     </div>
                     <div class="flex-1">
                         <p class="font-semibold text-gray-900">{{ $order->driver->name ?? 'Driver' }}</p>
-                        <p class="text-sm text-gray-600">📞 {{ $order->driver->phone_number ?? 'N/A' }}</p>
+                        @if($order->driver->phone_number)
+                            <a href="tel:{{ $order->driver->phone_number }}" class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                </svg>
+                                {{ $order->driver->phone_number }}
+                            </a>
+                        @else
+                            <p class="text-sm text-gray-500">Phone number not available</p>
+                        @endif
                     </div>
                     <div class="text-right">
                         <span class="inline-block bg-blue-600 text-white font-bold px-3 py-1 rounded-full text-xs uppercase">
@@ -226,6 +242,10 @@
                         </span>
                     </div>
                 </div>
+            </div>
+            @else
+            <div class="mb-6 p-4 bg-amber-50 rounded-xl border border-amber-200">
+                <p class="text-sm text-amber-700">Driver will be assigned soon.</p>
             </div>
             @endif
         @endif

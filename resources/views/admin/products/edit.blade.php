@@ -1,11 +1,104 @@
 @extends('layouts.admin')
 
 @section('content')
-<div style="padding: 30px 30px 30px 300px; box-sizing: border-box; max-width: 1400px; margin: 0 auto;">
+<style>
+.product-edit-page {
+    padding: 30px;
+    box-sizing: border-box;
+    max-width: 1400px;
+    margin: 0 auto;
+}
 
-    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+@media (max-width: 1024px) {
+    .product-edit-page {
+        padding: 16px !important;
+        max-width: 100% !important;
+    }
+
+    .product-edit-layout {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    .product-edit-card {
+        padding: 20px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .product-edit-page {
+        padding: 12px !important;
+    }
+
+    .page-header {
+        flex-direction: column !important;
+        gap: 12px !important;
+        align-items: stretch !important;
+    }
+
+    .page-header h1 {
+        font-size: 20px !important;
+        line-height: 1.3 !important;
+    }
+
+    .cancel-btn {
+        width: 100% !important;
+        justify-content: center !important;
+        text-align: center !important;
+    }
+
+    .product-edit-spec-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .product-edit-actions {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .product-edit-actions button {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    .image-preview-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+
+    .form-group label {
+        font-size: 12px !important;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 14px !important;
+        padding: 10px !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .product-edit-page {
+        padding: 10px !important;
+    }
+
+    .page-header h1 {
+        font-size: 18px !important;
+    }
+
+    .product-edit-card {
+        padding: 16px !important;
+    }
+}
+</style>
+
+<div class="product-edit-page" style="padding: 30px; box-sizing: border-box; max-width: 1400px; margin: 0 auto;">
+
+    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 12px;">
         <h1 style="margin: 0; font-size: 28px; font-weight: 900; color: #1e293b;">Edit Product: {{ $product->name }}</h1>
-        <a href="{{ route('admin.products.index') }}" style="background: #f1f5f9; color: #475569; text-decoration: none; padding: 10px 20px; border-radius: 10px; font-weight: 700; font-size: 14px; transition: background 0.2s; border: 1px solid #e2e8f0;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">← Cancel</a>
+        <a href="{{ route('admin.products.index') }}" class="cancel-btn" style="background: #f1f5f9; color: #475569; text-decoration: none; padding: 10px 20px; border-radius: 10px; font-weight: 700; font-size: 14px; transition: background 0.2s; border: 1px solid #e2e8f0; white-space: nowrap;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">← Cancel</a>
     </div>
 
     @if ($errors->any())
@@ -24,11 +117,11 @@
             @csrf
             @method('PUT')
 
-            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
-                
+            <div class="product-edit-layout" style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
+
                 <!-- Left Column: Image Upload -->
                 <div>
-                    <div style="background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                    <div class="product-edit-card" style="background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                         <h3 style="margin: 0 0 20px 0; font-weight: 800; color: #1e293b; font-size: 16px;">Product Images</h3>
 
                         @if($product->productImages && $product->productImages->count() > 0)
@@ -53,7 +146,7 @@
 
                 <!-- Right Column: Product Details -->
                 <div>
-                    <div style="background: white; padding: 32px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                    <div class="product-edit-card" style="background: white; padding: 32px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                         
                         <div style="margin-bottom: 24px;">
                             <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">Product Name *</label>
@@ -69,7 +162,7 @@
                             </select>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                        <div class="product-edit-spec-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px;">
                             <div>
                                 <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">Price ($) *</label>
                                 <input type="number" name="price" step="0.01" min="0" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;" value="{{ old('price', $product->price) }}" required onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">
@@ -92,7 +185,7 @@
                             <small style="color: #64748b; font-size: 12px; margin-top: 6px; display: block;">💡 Leave blank to auto-generate a unique code (e.g., PRD-X7B92M)</small>
                         </div>
 
-                        <div style="display: flex; justify-content: flex-end; padding-top: 20px; border-top: 1px solid #f1f5f9;">
+                        <div class="product-edit-actions" style="display: flex; justify-content: flex-end; padding-top: 20px; border-top: 1px solid #f1f5f9; flex-wrap: wrap; gap: 12px;">
                             <button type="submit" style="background: #10b981; color: white; border: none; padding: 14px 32px; border-radius: 12px; font-weight: 800; font-size: 15px; cursor: pointer; transition: background 0.2s; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);" onmouseover="this.style.background='#059669'; this.style.boxShadow='0 6px 15px rgba(5, 150, 105, 0.3)'" onmouseout="this.style.background='#10b981'; this.style.boxShadow='0 4px 10px rgba(16, 185, 129, 0.2)'">
                                 Update Product
                             </button>

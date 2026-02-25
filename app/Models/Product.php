@@ -62,8 +62,8 @@ class Product extends Model
     public function getImageAttribute(): ?string
     {
         // If images JSON array exists, return the first image
-        if (!empty($this->images) && is_array($this->images)) {
-            return $this->images[0];
+        if (!empty($this->attributes['images']) && is_array($this->attributes['images'])) {
+            return $this->attributes['images'][0];
         }
         // Check the old image column
         if (!empty($this->attributes['image'])) {

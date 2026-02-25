@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Driver;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\User;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DriverDashboardController extends Controller
 {
@@ -15,6 +17,8 @@ class DriverDashboardController extends Controller
     public function index(Request $request)
     {
         $filter = $request->get('filter', 'all');
+        $driverId = auth()->id();
+        $commissionRate = (float) config('app.driver_commission_rate', 0.10);
         
         // Available Orders: Orders ready for pickup (approved by admin/staff, no driver assigned)
         $availableOrders = Order::whereNull('driver_id')
@@ -24,21 +28,21 @@ class DriverDashboardController extends Controller
             ->get();
 
         // Orders assigned to THIS driver (ready to pickup at store)
-        $myToPickupOrders = Order::where('driver_id', auth()->id())
+        $myToPickupOrders = Order::where('driver_id', $driverId)
             ->where('status', 'ready_for_pickup')
             ->with(['customer', 'orderItems.product'])
             ->latest()
             ->get();
 
         // Active deliveries (driver has accepted and is delivering)
-        $myActiveOrders = Order::where('driver_id', auth()->id())
+        $myActiveOrders = Order::where('driver_id', $driverId)
             ->whereIn('status', ['out_for_delivery', 'arrived'])
             ->with(['customer', 'orderItems.product'])
             ->latest()
             ->get();
 
         // Completed deliveries today
-        $completedToday = Order::where('driver_id', auth()->id())
+        $completedToday = Order::where('driver_id', $driverId)
             ->where('status', 'delivered')
             ->whereDate('updated_at', today())
             ->with(['customer'])
@@ -46,12 +50,108 @@ class DriverDashboardController extends Controller
             ->get();
 
         // Delivery history (all time)
-        $deliveryHistory = Order::where('driver_id', auth()->id())
+        $deliveryHistory = Order::where('driver_id', $driverId)
             ->where('status', 'delivered')
-            ->with(['customer'])
+            ->with(['customer', 'orderItems'])
             ->latest()
             ->take(10)
             ->get();
+
+        // Earnings history (daily last 14 days)
+        $dailyRows = Order::where('driver_id', $driverId)
+            ->where('status', 'delivered')
+            ->whereDate('updated_at', '>=', now()->copy()->subDays(13)->toDateString())
+            ->selectRaw('DATE(updated_at) as period_date, COUNT(*) as deliveries, COALESCE(SUM(total_amount), 0) as revenue')
+            ->groupBy('period_date')
+            ->orderBy('period_date')
+            ->get()
+            ->keyBy('period_date');
+
+        $dailyEarningsHistory = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $date = now()->copy()->subDays($i);
+            $dateKey = $date->toDateString();
+            $row = $dailyRows->get($dateKey);
+            $revenue = (float) ($row->revenue ?? 0);
+
+            $dailyEarningsHistory[] = [
+                'date' => $dateKey,
+                'label' => $date->format('M d'),
+                'deliveries' => (int) ($row->deliveries ?? 0),
+                'revenue' => $revenue,
+                'earnings' => $revenue * $commissionRate,
+            ];
+        }
+
+        // Earnings history (monthly last 6 months)
+        $monthlyRows = Order::where('driver_id', $driverId)
+            ->where('status', 'delivered')
+            ->whereDate('updated_at', '>=', now()->copy()->subMonths(5)->startOfMonth()->toDateString())
+            ->selectRaw('YEAR(updated_at) as year_num, MONTH(updated_at) as month_num, COUNT(*) as deliveries, COALESCE(SUM(total_amount), 0) as revenue')
+            ->groupBy('year_num', 'month_num')
+            ->orderBy('year_num')
+            ->orderBy('month_num')
+            ->get()
+            ->keyBy(function ($row) {
+                return sprintf('%04d-%02d', $row->year_num, $row->month_num);
+            });
+
+        $monthlyEarningsHistory = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $month = now()->copy()->subMonths($i);
+            $monthKey = $month->format('Y-m');
+            $row = $monthlyRows->get($monthKey);
+            $revenue = (float) ($row->revenue ?? 0);
+
+            $monthlyEarningsHistory[] = [
+                'month' => $monthKey,
+                'label' => $month->format('M Y'),
+                'deliveries' => (int) ($row->deliveries ?? 0),
+                'revenue' => $revenue,
+                'earnings' => $revenue * $commissionRate,
+            ];
+        }
+
+        // Performance leaderboard (day and month)
+        $todayLeaderboard = $this->buildLeaderboardForPeriod('day', $commissionRate);
+        $monthLeaderboard = $this->buildLeaderboardForPeriod('month', $commissionRate);
+
+        $todayRank = $todayLeaderboard->search(function ($driver) use ($driverId) {
+            return (int) $driver['id'] === (int) $driverId;
+        });
+        $monthRank = $monthLeaderboard->search(function ($driver) use ($driverId) {
+            return (int) $driver['id'] === (int) $driverId;
+        });
+
+        $myTodayStats = $todayLeaderboard->firstWhere('id', $driverId) ?? [
+            'deliveries' => 0,
+            'earnings' => 0,
+        ];
+        $myMonthStats = $monthLeaderboard->firstWhere('id', $driverId) ?? [
+            'deliveries' => 0,
+            'earnings' => 0,
+        ];
+
+        $performanceReport = [
+            'daily_history' => $dailyEarningsHistory,
+            'daily_max_earnings' => max(1, max(array_column($dailyEarningsHistory, 'earnings'))),
+            'monthly_history' => $monthlyEarningsHistory,
+            'monthly_max_earnings' => max(1, max(array_column($monthlyEarningsHistory, 'earnings'))),
+            'today' => [
+                'leaderboard' => $todayLeaderboard->take(5)->values(),
+                'top_driver' => $todayLeaderboard->first(),
+                'my_rank' => $todayRank === false ? null : $todayRank + 1,
+                'my_deliveries' => (int) ($myTodayStats['deliveries'] ?? 0),
+                'my_earnings' => (float) ($myTodayStats['earnings'] ?? 0),
+            ],
+            'month' => [
+                'leaderboard' => $monthLeaderboard->take(5)->values(),
+                'top_driver' => $monthLeaderboard->first(),
+                'my_rank' => $monthRank === false ? null : $monthRank + 1,
+                'my_deliveries' => (int) ($myMonthStats['deliveries'] ?? 0),
+                'my_earnings' => (float) ($myMonthStats['earnings'] ?? 0),
+            ],
+        ];
 
         // Stats
         $stats = [
@@ -59,7 +159,8 @@ class DriverDashboardController extends Controller
             'to_pickup' => $myToPickupOrders->count(),
             'active' => $myActiveOrders->count(),
             'completed_today' => $completedToday->count(),
-            'total_earnings' => $completedToday->sum('total_amount') * 0.10, // Example: 10% commission
+            'total_earnings' => $completedToday->sum('total_amount') * $commissionRate,
+            'month_deliveries' => $performanceReport['month']['my_deliveries'],
         ];
 
         return view('driver.dashboard', compact(
@@ -69,8 +170,51 @@ class DriverDashboardController extends Controller
             'completedToday',
             'deliveryHistory',
             'stats',
-            'filter'
+            'filter',
+            'performanceReport'
         ));
+    }
+
+    /**
+     * Build a delivery leaderboard for all drivers by day or month.
+     */
+    private function buildLeaderboardForPeriod(string $period, float $commissionRate)
+    {
+        $query = User::query()
+            ->where('role', 'driver')
+            ->leftJoin('orders as delivered_orders', function ($join) use ($period) {
+                $join->on('users.id', '=', 'delivered_orders.driver_id')
+                    ->where('delivered_orders.status', '=', 'delivered');
+
+                if ($period === 'day') {
+                    $join->whereDate('delivered_orders.updated_at', today());
+                } else {
+                    $join->whereYear('delivered_orders.updated_at', now()->year)
+                        ->whereMonth('delivered_orders.updated_at', now()->month);
+                }
+            })
+            ->select(
+                'users.id',
+                'users.name',
+                DB::raw('COUNT(delivered_orders.id) as deliveries'),
+                DB::raw('COALESCE(SUM(delivered_orders.total_amount), 0) as revenue')
+            )
+            ->groupBy('users.id', 'users.name')
+            ->orderByDesc('deliveries')
+            ->orderByDesc('revenue')
+            ->orderBy('users.name');
+
+        return $query->get()->map(function ($driver) use ($commissionRate) {
+            $revenue = (float) $driver->revenue;
+
+            return [
+                'id' => (int) $driver->id,
+                'name' => $driver->name,
+                'deliveries' => (int) $driver->deliveries,
+                'revenue' => $revenue,
+                'earnings' => $revenue * $commissionRate,
+            ];
+        });
     }
 
     /**
@@ -220,7 +364,7 @@ class DriverDashboardController extends Controller
      */
     public function viewOrder($id)
     {
-        $order = Order::with(['customer', 'driver', 'orderItems.product'])->findOrFail($id);
+        $order = Order::with(['customer', 'driver', 'orderItems.product.productImages'])->findOrFail($id);
 
         // Validate order belongs to this driver or is available to accept
         if ($order->driver_id !== auth()->id() && $order->driver_id === null) {

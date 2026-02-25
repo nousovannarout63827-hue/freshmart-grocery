@@ -1,11 +1,91 @@
 @extends('layouts.admin')
 
 @section('content')
-<div style="padding: 24px; background: #f8fafc; min-height: 100vh;">
+<style>
+.customers-show-page {
+    padding: 24px;
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
+@media (max-width: 768px) {
+    .customers-show-page {
+        padding: 16px !important;
+    }
+
+    .customer-header {
+        flex-direction: column !important;
+        gap: 16px !important;
+        align-items: center !important;
+    }
+
+    .customer-info {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 12px !important;
+    }
+
+    .customer-avatar {
+        width: 60px !important;
+        height: 60px !important;
+    }
+
+    .customer-header h2 {
+        font-size: 20px !important;
+    }
+
+    .back-btn {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+    }
+
+    .stat-card {
+        padding: 16px !important;
+    }
+
+    .stat-value {
+        font-size: 24px !important;
+    }
+
+    .content-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .table-wrapper {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .orders-table {
+        min-width: 600px !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .customers-show-page {
+        padding: 12px !important;
+    }
+
+    .customer-header h2 {
+        font-size: 18px !important;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+
+<div class="customers-show-page" style="padding: 24px; background: #f8fafc; min-height: 100vh;">
     <!-- Header -->
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px;">
-        
-        <div style="display: flex; align-items: center; gap: 20px;">
+    <div class="customer-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 30px; flex-wrap: wrap; gap: 16px;">
+
+        <div class="customer-info" style="display: flex; align-items: center; gap: 20px;">
             @if($user->avatar)
                 <img src="{{ asset('storage/' . $user->avatar) }}" alt="{{ $user->name }}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #10b981; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
             @else
@@ -13,14 +93,14 @@
                     {{ strtoupper(substr($user->name, 0, 1)) }}
                 </div>
             @endif
-            
+
             <div>
                 <h2 style="font-weight: 800; color: #1e293b; margin: 0 0 4px 0; font-size: 28px;">{{ $user->name }}</h2>
                 <span style="background: #1e293b; color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Registered Customer</span>
             </div>
         </div>
 
-        <a href="{{ route('admin.customers.index') }}" style="text-decoration: none; color: #475569; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: white; border-radius: 8px; border: 1px solid #e2e8f0; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">
+        <a href="{{ route('admin.customers.index') }}" class="back-btn" style="text-decoration: none; color: #475569; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; background: white; border-radius: 8px; border: 1px solid #e2e8f0; transition: all 0.2s; white-space: nowrap;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'">
             <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
@@ -39,7 +119,7 @@
     @endif
 
     <!-- Statistics Cards -->
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px;">
+    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px;">
         <div style="background: white; padding: 24px; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                 <div style="width: 40px; height: 40px; background: #eff6ff; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
@@ -89,7 +169,7 @@
         </div>
     </div>
 
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+    <div class="content-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
         <!-- Order History -->
         <div style="background: white; border-radius: 16px; border: 1px solid #f1f5f9; overflow: hidden;">
             <div style="padding: 20px 24px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
@@ -98,7 +178,8 @@
                     <span style="font-weight: 700; color: #1e293b; font-size: 18px;">Order History</span>
                 </div>
             </div>
-            <table style="width: 100%; border-collapse: collapse;">
+            <div class="table-wrapper" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+            <table class="orders-table" style="width: 100%; border-collapse: collapse;">
                 <thead style="background: #f8fafc;">
                     <tr>
                         <th style="padding: 15px 24px; text-align: left; font-size: 12px; color: #64748b; font-weight: 700; text-transform: uppercase;">Order ID</th>
@@ -139,7 +220,8 @@
                     @endforelse
                 </tbody>
             </table>
-            
+            </div>
+
             @if($orders->hasPages())
             <div style="padding: 20px 24px; border-top: 1px solid #f1f5f9;">
                 {{ $orders->links('vendor.pagination.tailwind') }}

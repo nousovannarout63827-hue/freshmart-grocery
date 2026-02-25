@@ -92,7 +92,7 @@ class DriverPerformanceController extends Controller
                     ->whereYear('updated_at', now()->year)
                     ->count(),
                 'total_revenue' => $totalRevenue,
-                'total_earnings' => $totalRevenue * 0.10, // 10% commission
+                'total_earnings' => $totalRevenue * config('app.driver_commission_rate'),
                 'cod_orders' => $codOrders,
                 'online_orders' => $onlineOrders,
                 'active_orders' => Order::where('driver_id', $driver->id)
@@ -287,12 +287,13 @@ class DriverPerformanceController extends Controller
     private function getTopPerformers($driverStats)
     {
         $performers = [];
-        
+
         foreach ($driverStats as $driverId => $stats) {
             $driver = User::find($driverId);
             $performers[] = [
                 'id' => $driverId,
                 'name' => $driver->name,
+                'avatar' => $driver->avatar ?? $driver->profile_photo_path,
                 'avatar_initial' => strtoupper(substr($driver->name, 0, 1)),
                 'deliveries' => $stats['deliveries_this_month'],
                 'revenue' => $stats['total_revenue'],
@@ -301,11 +302,11 @@ class DriverPerformanceController extends Controller
                 'success_rate' => $stats['success_rate'],
             ];
         }
-        
+
         usort($performers, function($a, $b) {
             return $b['deliveries'] <=> $a['deliveries'];
         });
-        
+
         return array_slice($performers, 0, 5);
     }
 
@@ -335,7 +336,7 @@ class DriverPerformanceController extends Controller
 
         $stats = [
             'total_deliveries' => $totalDeliveries,
-            'total_earnings' => $totalRevenue * 0.10,
+            'total_earnings' => $totalRevenue * config('app.driver_commission_rate'),
             'avg_delivery_time' => $this->calculateAverageDeliveryTime($driverId),
             'customer_rating' => $this->calculateDriverRating($driverId),
         ];

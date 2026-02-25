@@ -1,15 +1,85 @@
 @extends('layouts.admin')
 
 @section('content')
-<div style="padding: 24px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+<style>
+.order-show-page {
+    padding: 24px;
+}
+
+@media (max-width: 768px) {
+    .order-show-page {
+        padding: 16px !important;
+    }
+
+    .order-header {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+
+    .order-header h2 {
+        font-size: 20px !important;
+    }
+
+    .back-link {
+        font-size: 13px !important;
+    }
+
+    .action-buttons {
+        flex-direction: column !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+
+    .action-buttons a,
+    .action-buttons button {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    .control-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .control-card {
+        padding: 16px !important;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    .table-wrapper {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .items-table {
+        min-width: 600px !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .order-show-page {
+        padding: 12px !important;
+    }
+
+    .order-header h2 {
+        font-size: 18px !important;
+    }
+}
+</style>
+
+<div class="order-show-page" style="padding: 24px;">
+    <div class="order-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
         <div>
-            <a href="{{ route('admin.orders.index') }}" style="text-decoration: none; color: #64748b; font-weight: 600; font-size: 14px;">← Back to Orders</a>
+            <a href="{{ route('admin.orders.index') }}" class="back-link" style="text-decoration: none; color: #64748b; font-weight: 600; font-size: 14px;">← Back to Orders</a>
             <h2 style="font-weight: 800; color: #1e293b; margin-top: 8px;">📦 Manage Order #{{ $order->id }}</h2>
         </div>
 
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <a href="{{ route('admin.orders.invoice', $order->id) }}" target="_blank" style="background: white; color: #1e293b; border: 1px solid #cbd5e1; padding: 10px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: background 0.2s;">
+        <div class="action-buttons" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <a href="{{ route('admin.orders.invoice', $order->id) }}" target="_blank" style="background: white; color: #1e293b; border: 1px solid #cbd5e1; padding: 10px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: background 0.2s; white-space: nowrap;">
                 🖨️ Print Invoice
             </a>
         </div>
@@ -39,7 +109,7 @@
             🎛️ Admin Order Control
         </h3>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+        <div class="control-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
             
             <!-- Change Order Status -->
             <div style="background: #f8fafc; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0;">
@@ -321,7 +391,8 @@
                 <h3 style="margin: 0; font-weight: 800; color: #1e293b;">🛒 Items to Pack</h3>
             </div>
             <div style="padding: 20px;">
-                <table style="width: 100%; border-collapse: collapse;">
+                <div class="table-wrapper" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+            <table class="items-table" style="width: 100%; border-collapse: collapse;">
                     <tbody>
                         @foreach($order->orderItems as $item)
                         <tr style="border-bottom: 1px solid #f1f5f9;">
@@ -350,6 +421,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
 
@@ -364,8 +436,14 @@
 
                 <!-- Driver Info Card -->
                 <div style="display: flex; align-items: center; gap: 16px; padding: 16px; background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-radius: 12px; margin-bottom: 20px; border: 1px solid #93c5fd;">
-                    <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 24px; flex-shrink: 0;">
-                        {{ strtoupper(substr($order->driver->name ?? 'D', 0, 1)) }}
+                    <div style="width: 64px; height: 64px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 3px solid #2563eb; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        @if($order->driver && ($order->driver->avatar ?? $order->driver->profile_photo_path))
+                            <img src="{{ asset('storage/' . ($order->driver->avatar ?? $order->driver->profile_photo_path)) }}" alt="{{ $order->driver->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        @else
+                            <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #3b82f6, #2563eb); display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 24px;">
+                                {{ strtoupper(substr($order->driver->name ?? 'D', 0, 1)) }}
+                            </div>
+                        @endif
                     </div>
                     <div style="flex: 1;">
                         <div style="font-weight: 800; color: #1e40af; font-size: 16px;">{{ $order->driver->name ?? 'Driver' }}</div>

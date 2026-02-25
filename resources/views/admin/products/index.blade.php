@@ -1,6 +1,86 @@
 @extends('layouts.admin')
 
 @section('content')
+<style>
+.products-page {
+    padding: 24px;
+    box-sizing: border-box;
+}
+
+.products-page .page-header h1 {
+    line-height: 1.2;
+}
+
+@media (max-width: 1024px) {
+    .products-page {
+        padding: 16px !important;
+    }
+
+    .products-page .page-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+    }
+
+    .products-page .page-header h1 {
+        font-size: 22px !important;
+        flex-wrap: wrap;
+    }
+
+    .products-page .header-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .products-page .header-actions .btn {
+        width: 100% !important;
+        justify-content: center !important;
+        box-sizing: border-box;
+        margin: 0 !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .products-page .header-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .products-page .filter-bar {
+        padding: 14px !important;
+    }
+
+    .products-page .filter-bar form {
+        display: grid !important;
+        grid-template-columns: 1fr;
+        gap: 10px !important;
+        align-items: stretch !important;
+    }
+
+    .products-page .filter-bar .form-control {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+
+    .products-page .filter-bar .checkbox-label {
+        margin-left: 0 !important;
+    }
+
+    .products-page .data-table-wrapper {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .products-page .data-table {
+        min-width: 920px !important;
+    }
+
+    .products-page .data-table td:last-child > div {
+        white-space: nowrap;
+    }
+}
+</style>
 <div class="products-page">
 
     <div class="page-header">
@@ -85,6 +165,7 @@
     </div>
 
     <div class="table-container">
+        <div class="data-table-wrapper products-table-wrap">
         <table class="data-table">
             <thead>
                 <tr>
@@ -104,6 +185,7 @@
                 @include('admin.products.partials.table-rows')
             </tbody>
         </table>
+        </div>
         
         <div class="pagination-wrapper" style="display: flex; flex-direction: column; align-items: flex-start; margin-top: 20px;">
             {{ $products->links() }}

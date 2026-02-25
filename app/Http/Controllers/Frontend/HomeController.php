@@ -151,6 +151,9 @@ class HomeController extends Controller
         $product = Product::findOrFail($request->product_id);
 
         if ($product->stock < $request->quantity) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'Not enough stock available.'], 400);
+            }
             return redirect()->back()->with('error', 'Not enough stock available.');
         }
 
@@ -174,7 +177,24 @@ class HomeController extends Controller
 
         session()->put('cart', $cart);
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Product added to cart!',
+                'cart_count' => count($cart)
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Product added to cart!');
+    }
+
+    /**
+     * Get cart item count.
+     */
+    public function cartCount()
+    {
+        $cart = session()->get('cart', []);
+        return response()->json(['count' => count($cart)]);
     }
 
     /**
@@ -184,7 +204,7 @@ class HomeController extends Controller
     {
         $cart = session()->get('cart', []);
         $categories = Category::has('products')->get();
-        
+
         return view('frontend.cart', compact('cart', 'categories'));
     }
 

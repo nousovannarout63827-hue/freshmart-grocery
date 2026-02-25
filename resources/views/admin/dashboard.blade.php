@@ -5,16 +5,86 @@
 
 @section('content')
 
-<div style="padding: 30px; box-sizing: border-box; display: flex; flex-direction: column; gap: 25px;">
+<style>
+@media (max-width: 768px) {
+    .admin-dashboard-page {
+        padding: 16px !important;
+        gap: 16px !important;
+    }
+
+    .admin-dashboard-welcome {
+        padding: 20px 16px !important;
+        border-radius: 16px !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 14px !important;
+    }
+
+    .admin-dashboard-welcome h1 {
+        font-size: 28px !important;
+        line-height: 1.2 !important;
+        word-break: break-word;
+    }
+
+    .admin-dashboard-welcome p {
+        font-size: 15px !important;
+    }
+
+    .admin-dashboard-welcome-user {
+        width: 100% !important;
+        justify-content: space-between !important;
+        padding: 10px 12px !important;
+        box-sizing: border-box;
+    }
+
+    .admin-dashboard-row {
+        flex-direction: column !important;
+        gap: 16px !important;
+        margin-top: 16px !important;
+    }
+
+    .admin-dashboard-row > div {
+        width: 100% !important;
+        min-width: 0 !important;
+        padding: 18px !important;
+        box-sizing: border-box;
+    }
+
+    .admin-dashboard-top-customers {
+        flex: 1 1 100% !important;
+    }
+
+    .admin-dashboard-alert-btn {
+        width: 100% !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-dashboard-welcome h1 {
+        font-size: 24px !important;
+    }
+}
+
+.admin-dashboard-alert-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+}
+</style>
+
+<div class="admin-dashboard-page" style="padding: 30px; box-sizing: border-box; display: flex; flex-direction: column; gap: 25px;">
     
     <!-- Welcome Banner -->
-    <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 20px; padding: 35px 30px; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0, 200, 83, 0.2);">
+    <div class="admin-dashboard-welcome" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 20px; padding: 35px 30px; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0, 200, 83, 0.2);">
         <div>
             <h1 style="margin: 0; font-size: 32px; font-weight: 900;">Welcome back, {{ explode(' ', auth()->user()->name)[0] }} 👋</h1>
             <p style="margin: 8px 0 0 0; font-size: 16px; opacity: 0.9; font-weight: 500;">Let's take a detailed look at your store situation today.</p>
         </div>
 
-        <div style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); padding: 10px 20px; border-radius: 14px; display: flex; align-items: center; gap: 15px;">
+        <div class="admin-dashboard-welcome-user" style="background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); padding: 10px 20px; border-radius: 14px; display: flex; align-items: center; gap: 15px;">
             <div style="text-align: right;">
                 <div style="font-weight: 800; font-size: 15px; line-height: 1.2;">{{ auth()->user()->name }}</div>
                 <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.9;">
@@ -253,7 +323,7 @@
             @endforeach
         </div>
 
-        <a href="{{ route('admin.products.index', ['out_of_stock' => 1]) }}" class="btn" style="background: #991b1b; color: white; border: none; font-weight: bold; padding: 8px 16px; border-radius: 8px;">
+        <a href="{{ route('admin.products.index', ['out_of_stock' => 1]) }}" class="btn admin-dashboard-alert-btn" style="background: #991b1b; color: white; border: none; font-weight: bold; padding: 8px 16px; border-radius: 8px;">
             Resolve Out of Stock →
         </a>
     </div>
@@ -283,14 +353,14 @@
             @endforeach
         </div>
 
-        <a href="{{ route('admin.products.index', ['low_stock' => 1]) }}" class="btn btn-danger" style="font-weight: bold; padding: 8px 16px; border-radius: 8px;">
+        <a href="{{ route('admin.products.index', ['low_stock' => 1]) }}" class="btn btn-danger admin-dashboard-alert-btn" style="font-weight: bold; padding: 8px 16px; border-radius: 8px;">
             View All Low Stock →
         </a>
     </div>
     @endif
 
     <!-- Revenue Chart and Top Customers Side-by-Side -->
-    <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; margin-top: 24px;">
+    <div class="admin-dashboard-row" style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; margin-top: 24px;">
 
         <!-- Monthly Revenue Chart -->
         <div style="flex: 1; min-width: 450px; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
@@ -321,7 +391,7 @@
     </div>
 
     <!-- Order Status Distribution & Top Customers -->
-    <div style="display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px;">
+    <div class="admin-dashboard-row" style="display: flex; flex-wrap: wrap; gap: 24px; margin-top: 24px;">
 
         <!-- Order Status Pie Chart -->
         <div style="flex: 1; min-width: 400px; background: white; border-radius: 20px; padding: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
@@ -338,7 +408,7 @@
         </div>
 
         <!-- Top Customers Leaderboard -->
-        <div style="flex: 0 0 380px; background: white; padding: 24px; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+        <div class="admin-dashboard-top-customers" style="flex: 0 0 380px; background: white; padding: 24px; border-radius: 16px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
             <h3 style="font-weight: 800; color: #1e293b; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-size: 18px;">
                 <span style="font-size: 24px;">🏆</span> Top Customers
             </h3>
@@ -385,8 +455,8 @@
 @endsection
 
 @section('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('revenueChart').getContext('2d');
     const revenueChart = new Chart(ctx, {
         type: 'line',
@@ -600,5 +670,6 @@
             }
         }
     });
+});
 </script>
 @endsection

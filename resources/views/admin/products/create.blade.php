@@ -1,22 +1,150 @@
 @extends('layouts.admin')
 
 @section('content')
-<div style="padding: 30px 30px 30px 300px; box-sizing: border-box; max-width: 1400px; margin: 0 auto;">
+<style>
+.product-create-page {
+    padding: 30px;
+    box-sizing: border-box;
+    max-width: 1400px;
+    margin: 0 auto;
+}
 
-    <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <h1 style="margin: 0; font-size: 28px; font-weight: 900; color: #1e293b;">Add New Product</h1>
-        <a href="{{ route('admin.products.index') }}" style="background: #f1f5f9; color: #475569; text-decoration: none; padding: 10px 20px; border-radius: 10px; font-weight: 700; font-size: 14px; transition: background 0.2s; border: 1px solid #e2e8f0;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">← Back to Inventory</a>
+@media (max-width: 1024px) {
+    .product-create-page {
+        padding: 16px !important;
+        max-width: 100% !important;
+    }
+
+    .product-create-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 12px !important;
+    }
+
+    .product-create-layout {
+        grid-template-columns: 1fr !important;
+        gap: 16px !important;
+    }
+
+    .product-create-details-card,
+    .product-create-image-card {
+        padding: 20px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .product-create-page {
+        padding: 12px !important;
+    }
+
+    .product-create-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 12px !important;
+        flex-wrap: nowrap !important;
+        order: -1 !important;
+    }
+
+    .product-create-header h1 {
+        font-size: 20px !important;
+        line-height: 1.3 !important;
+        width: 100% !important;
+        min-width: auto !important;
+        flex: none !important;
+        order: 1 !important;
+    }
+
+    .product-create-back {
+        width: 100%;
+        box-sizing: border-box;
+        justify-content: center;
+        text-align: center;
+        padding: 10px 16px !important;
+        font-size: 13px !important;
+        order: 2 !important;
+    }
+
+    .product-create-spec-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .product-create-actions {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+
+    .product-create-actions button,
+    .product-create-actions a {
+        width: 100% !important;
+        box-sizing: border-box;
+        justify-content: center !important;
+    }
+
+    .image-upload-zone {
+        padding: 16px !important;
+    }
+
+    #image-preview-container {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+
+    .preview-image-wrapper {
+        aspect-ratio: 1 !important;
+    }
+
+    .form-group label {
+        font-size: 12px !important;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 14px !important;
+        padding: 10px !important;
+    }
+
+    .page-header {
+        margin-bottom: 20px !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .product-create-page {
+        padding: 10px !important;
+    }
+
+    .product-create-details-card,
+    .product-create-image-card {
+        padding: 16px !important;
+    }
+
+    .product-create-header h1 {
+        font-size: 18px !important;
+    }
+
+    #image-preview-container {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+<div class="product-create-page">
+
+    <div class="page-header product-create-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 12px;">
+        <h1 style="margin: 0; font-size: 28px; font-weight: 900; color: #1e293b; flex: 1; min-width: 200px;">Add New Product</h1>
+        <a href="{{ route('admin.products.index') }}" class="product-create-back" style="background: #f1f5f9; color: #475569; text-decoration: none; padding: 10px 20px; border-radius: 10px; font-weight: 700; font-size: 14px; transition: background 0.2s; border: 1px solid #e2e8f0; white-space: nowrap;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">← Back to Inventory</a>
     </div>
 
     <div class="form-container">
         <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
-            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
+            <div class="product-create-layout" style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
                 
                 <!-- Left Column: Image Upload -->
                 <div>
-                    <div style="background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                    <div class="product-create-image-card" style="background: white; padding: 24px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                         <h3 style="margin: 0 0 20px 0; font-weight: 800; color: #1e293b; font-size: 16px;">Product Images</h3>
 
                         <div class="image-upload-zone" style="border: 2px dashed #cbd5e1; border-radius: 12px; padding: 30px; text-align: center; position: relative; background: #f8fafc; transition: all 0.3s ease; cursor: pointer;"
@@ -34,13 +162,13 @@
                                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
                         </div>
 
-                        <div id="image-preview-container" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; min-height: 10px;"></div>
+                        <div id="image-preview-container" class="image-preview-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-top: 20px; min-height: 10px;"></div>
                     </div>
                 </div>
 
                 <!-- Right Column: Product Details -->
                 <div>
-                    <div style="background: white; padding: 32px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                    <div class="product-create-details-card" style="background: white; padding: 32px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                         
                         <div style="margin-bottom: 24px;">
                             <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">Product Name *</label>
@@ -57,7 +185,7 @@
                             </select>
                         </div>
 
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                        <div class="product-create-spec-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 24px;">
                             <div>
                                 <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">Price ($) *</label>
                                 <input type="number" name="price" step="0.01" min="0" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;" placeholder="0.00" required onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">
@@ -80,7 +208,7 @@
                             <small style="color: #64748b; font-size: 12px; margin-top: 6px; display: block;">💡 Leave blank to auto-generate a unique code (e.g., PRD-X7B92M)</small>
                         </div>
 
-                        <div style="display: flex; justify-content: flex-end; padding-top: 20px; border-top: 1px solid #f1f5f9;">
+                        <div class="product-create-actions" style="display: flex; justify-content: flex-end; padding-top: 20px; border-top: 1px solid #f1f5f9;">
                             <button type="submit" style="background: #10b981; color: white; border: none; padding: 14px 32px; border-radius: 12px; font-weight: 800; font-size: 15px; cursor: pointer; transition: background 0.2s; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);" onmouseover="this.style.background='#059669'; this.style.boxShadow='0 6px 15px rgba(5, 150, 105, 0.3)'" onmouseout="this.style.background='#10b981'; this.style.boxShadow='0 4px 10px rgba(16, 185, 129, 0.2)'">
                                 Save Product
                             </button>
@@ -246,3 +374,4 @@
     });
 </script>
 @endsection
+

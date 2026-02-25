@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice #{{ str_pad($order->id, 8, '0', STR_PAD_LEFT) }} - FreshMart</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/style.css', 'resources/js/app.js'])
     <style>
         /* 🖨️ STRICT PRINT RULES TO FIX THE LAYOUT & SHOW THE LOGO */
         @media print {

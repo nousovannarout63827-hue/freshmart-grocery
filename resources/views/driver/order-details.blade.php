@@ -3,280 +3,681 @@
 @section('page-title', 'Order Details')
 @section('page-subtitle', 'Order #' . str_pad($order->id, 8, '0', STR_PAD_LEFT))
 
+@php
+    $statusMeta = [
+        'ready_for_pickup' => ['label' => 'Ready for Pickup', 'chip' => 'od-chip od-chip--pickup'],
+        'assigned' => ['label' => 'Ready for Pickup', 'chip' => 'od-chip od-chip--pickup'],
+        'picked_up' => ['label' => 'Out for Delivery', 'chip' => 'od-chip od-chip--delivery'],
+        'in_transit' => ['label' => 'Out for Delivery', 'chip' => 'od-chip od-chip--delivery'],
+        'out_for_delivery' => ['label' => 'Out for Delivery', 'chip' => 'od-chip od-chip--delivery'],
+        'arrived' => ['label' => 'Arrived', 'chip' => 'od-chip od-chip--arrived'],
+        'delivered' => ['label' => 'Delivered', 'chip' => 'od-chip od-chip--done'],
+    ];
+
+    $statusInfo = $statusMeta[$order->status] ?? ['label' => ucfirst(str_replace('_', ' ', $order->status)), 'chip' => 'od-chip'];
+
+    $paymentMethod = strtolower((string) ($order->payment_method ?? ''));
+    $isCod = in_array($paymentMethod, ['cod', 'cash', 'cash on delivery'], true);
+
+    $customerName = $order->customer->name ?? 'Customer';
+    $customerPhone = $order->phone ?? optional($order->customer)->phone_number;
+    $address = $order->delivery_address ?? $order->address ?? 'No delivery address provided';
+    $itemCount = $order->orderItems->sum('quantity');
+
+    $normalizedStatus = $order->status;
+    if (in_array($normalizedStatus, ['assigned'], true)) {
+        $normalizedStatus = 'ready_for_pickup';
+    }
+    if (in_array($normalizedStatus, ['picked_up', 'in_transit'], true)) {
+        $normalizedStatus = 'out_for_delivery';
+    }
+
+    $progressSteps = [
+        ['key' => 'ready_for_pickup', 'label' => 'Pickup'],
+        ['key' => 'out_for_delivery', 'label' => 'On Route'],
+        ['key' => 'arrived', 'label' => 'Arrived'],
+        ['key' => 'delivered', 'label' => 'Done'],
+    ];
+
+    $progressIndex = array_search($normalizedStatus, array_column($progressSteps, 'key'), true);
+    if ($progressIndex === false) {
+        $progressIndex = 0;
+    }
+
+    $isAssignedToMe = $order->driver_id === auth()->id();
+    $canAccept = is_null($order->driver_id) && $order->status === 'ready_for_pickup';
+    $canPickup = $isAssignedToMe && $order->status === 'ready_for_pickup';
+    $canArrive = $isAssignedToMe && $order->status === 'out_for_delivery';
+    $canDeliver = $isAssignedToMe && in_array($order->status, ['out_for_delivery', 'arrived', 'picked_up', 'in_transit'], true);
+
+    $primaryAction = null;
+    if ($canAccept) {
+        $primaryAction = ['type' => 'form', 'action' => route('driver.accept-order', $order->id), 'label' => 'Accept Order', 'class' => 'od-btn od-btn--success'];
+    } elseif ($canPickup) {
+        $primaryAction = ['type' => 'form', 'action' => route('driver.confirm-pickup', $order->id), 'label' => 'Confirm Pickup', 'class' => 'od-btn od-btn--primary'];
+    } elseif ($canArrive) {
+        $primaryAction = ['type' => 'form', 'action' => route('driver.confirm-arrival', $order->id), 'label' => 'Mark Arrived', 'class' => 'od-btn od-btn--primary'];
+    } elseif ($canDeliver) {
+        $primaryAction = ['type' => 'confirm', 'action' => route('driver.confirm-delivery', $order->id), 'label' => 'Confirm Delivery', 'class' => 'od-btn od-btn--success'];
+    }
+@endphp
+
+@push('styles')
+<style>
+    .od-page {
+        display: grid;
+        gap: 14px;
+        padding-bottom: 120px;
+    }
+
+    .od-card {
+        background: #ffffff;
+        border: 1px solid #dbe6f7;
+        border-radius: 16px;
+        box-shadow: 0 18px 34px -28px rgba(15, 42, 95, 0.6);
+    }
+
+    .od-hero {
+        overflow: hidden;
+        border-radius: 18px;
+        border: 1px solid #bed2f2;
+        background:
+            radial-gradient(80% 120% at 100% -20%, rgba(249, 115, 22, 0.35), transparent 60%),
+            linear-gradient(160deg, #1848a1 0%, #2563eb 85%);
+        color: #ffffff;
+    }
+
+    .od-hero-content {
+        padding: 14px;
+        display: grid;
+        gap: 12px;
+    }
+
+    .od-hero-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: flex-start;
+    }
+
+    .od-back-link {
+        display: inline-flex;
+        align-items: center;
+        text-decoration: none;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .od-order-no {
+        margin: 0;
+        font-size: 23px;
+        line-height: 1.2;
+        font-weight: 800;
+    }
+
+    .od-order-meta {
+        margin: 6px 0 0;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.88);
+        font-weight: 600;
+    }
+
+    .od-chip {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 6px 11px;
+        font-size: 11px;
+        font-weight: 800;
+        line-height: 1.25;
+        text-transform: uppercase;
+        white-space: nowrap;
+        border: 1px solid transparent;
+    }
+
+    .od-chip--pickup {
+        background: #ffedd5;
+        border-color: #fed7aa;
+        color: #9a3412;
+    }
+
+    .od-chip--delivery {
+        background: #dbeafe;
+        border-color: #bfdbfe;
+        color: #1d4ed8;
+    }
+
+    .od-chip--arrived {
+        background: #ede9fe;
+        border-color: #ddd6fe;
+        color: #6d28d9;
+    }
+
+    .od-chip--done {
+        background: #dcfce7;
+        border-color: #bbf7d0;
+        color: #166534;
+    }
+
+    .od-progress {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    .od-progress-step {
+        display: grid;
+        gap: 5px;
+        justify-items: center;
+    }
+
+    .od-progress-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.35);
+        border: 2px solid rgba(255, 255, 255, 0.42);
+    }
+
+    .od-progress-step.is-active .od-progress-dot,
+    .od-progress-step.is-complete .od-progress-dot {
+        background: #ffffff;
+        border-color: #ffffff;
+    }
+
+    .od-progress-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.86);
+        letter-spacing: 0.3px;
+        text-transform: uppercase;
+    }
+
+    .od-layout {
+        display: grid;
+        gap: 14px;
+    }
+
+    .od-main,
+    .od-side {
+        display: grid;
+        gap: 14px;
+    }
+
+    .od-block {
+        padding: 14px;
+        display: grid;
+        gap: 11px;
+    }
+
+    .od-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 800;
+        color: #12315f;
+        letter-spacing: -0.1px;
+    }
+
+    .od-list-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .od-meta {
+        border-radius: 10px;
+        border: 1px solid #dce7f7;
+        background: #f9fbff;
+        padding: 9px;
+    }
+
+    .od-meta-label {
+        margin: 0;
+        color: #5a7094;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.45px;
+    }
+
+    .od-meta-value {
+        margin: 3px 0 0;
+        font-size: 14px;
+        font-weight: 800;
+        color: #12315f;
+        line-height: 1.3;
+        word-break: break-word;
+    }
+
+    .od-address {
+        margin: 0;
+        border-radius: 12px;
+        border: 1px solid #d2e0f5;
+        background: #f3f8ff;
+        color: #1f4277;
+        padding: 10px 11px;
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .od-customer {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-radius: 12px;
+        border: 1px solid #dce7f7;
+        background: #f8fbff;
+        padding: 10px;
+    }
+
+    .od-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 11px;
+        background: linear-gradient(140deg, #2563eb, #3b82f6);
+        color: #ffffff;
+        font-size: 16px;
+        font-weight: 800;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+    }
+
+    .od-customer-name {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 800;
+        color: #0f2a55;
+        line-height: 1.3;
+    }
+
+    .od-customer-sub {
+        margin: 2px 0 0;
+        font-size: 12px;
+        color: #4f678f;
+        font-weight: 600;
+        line-height: 1.35;
+        word-break: break-word;
+    }
+
+    .od-items {
+        display: grid;
+        gap: 9px;
+    }
+
+    .od-item {
+        display: grid;
+        grid-template-columns: 56px minmax(0, 1fr) auto;
+        gap: 9px;
+        align-items: center;
+        border-radius: 12px;
+        border: 1px solid #dce7f7;
+        background: #fbfdff;
+        padding: 9px;
+    }
+
+    .od-item-thumb {
+        width: 56px;
+        height: 56px;
+        border-radius: 10px;
+        border: 1px solid #d7e2f5;
+        overflow: hidden;
+        background: #f3f7ff;
+        display: grid;
+        place-items: center;
+        color: #5a7094;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .od-item-thumb-link {
+        width: 56px;
+        height: 56px;
+        border-radius: 10px;
+        overflow: hidden;
+        display: block;
+        transition: transform 0.18s ease;
+    }
+
+    .od-item-thumb-link:hover {
+        transform: scale(1.04);
+    }
+
+    .od-item-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .od-item-name {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 800;
+        color: #14315e;
+        line-height: 1.35;
+    }
+
+    .od-item-sub {
+        margin: 2px 0 0;
+        font-size: 11px;
+        color: #5a7194;
+        font-weight: 600;
+    }
+
+    .od-item-total {
+        text-align: right;
+    }
+
+    .od-item-total p {
+        margin: 0;
+    }
+
+    .od-item-total .od-item-amount {
+        color: #0f7a40;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .od-item-total .od-item-qty {
+        color: #52698e;
+        font-size: 11px;
+        font-weight: 700;
+        margin-top: 2px;
+    }
+
+    .od-actions {
+        display: grid;
+        gap: 8px;
+    }
+
+    .od-action-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .od-btn {
+        width: 100%;
+        border: 1px solid transparent;
+        border-radius: 11px;
+        padding: 11px;
+        text-decoration: none;
+        text-align: center;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 1.25;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .od-btn:focus-visible {
+        outline: 2px solid #93c5fd;
+        outline-offset: 1px;
+    }
+
+    .od-btn--primary {
+        color: #ffffff;
+        background: linear-gradient(135deg, #1f5ec6, #3b82f6);
+        box-shadow: 0 14px 24px -20px rgba(31, 94, 198, 0.9);
+    }
+
+    .od-btn--success {
+        color: #ffffff;
+        background: linear-gradient(135deg, #0f9f4a, #16a34a);
+        box-shadow: 0 14px 24px -20px rgba(15, 159, 74, 0.9);
+    }
+
+    .od-btn--soft {
+        color: #1f4a8f;
+        background: #ebf3ff;
+        border-color: #c7daf8;
+    }
+
+    .od-btn--ghost {
+        color: #4f6588;
+        background: #ffffff;
+        border-color: #d4dfef;
+    }
+
+    .od-btn--warn {
+        color: #9a3412;
+        background: #ffedd5;
+        border-color: #fed7aa;
+    }
+
+    .od-mobile-cta {
+        position: fixed;
+        left: 12px;
+        right: 12px;
+        bottom: calc(80px + env(safe-area-inset-bottom));
+        z-index: 65;
+        display: none;
+    }
+
+    .od-mobile-cta .od-btn {
+        border-radius: 14px;
+        padding: 13px;
+        font-size: 14px;
+        box-shadow: 0 18px 34px -24px rgba(15, 42, 95, 0.9);
+    }
+
+    @media (min-width: 900px) {
+        .od-page {
+            padding-bottom: 16px;
+        }
+
+        .od-layout {
+            grid-template-columns: minmax(0, 1fr) 340px;
+            align-items: start;
+        }
+
+        .od-side {
+            position: sticky;
+            top: 92px;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .od-mobile-cta {
+            display: block;
+        }
+
+        .od-desktop-actions {
+            display: none;
+        }
+    }
+
+    @media (min-width: 1025px) {
+        .od-mobile-cta {
+            display: none;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
-
-<div style="display: grid; grid-template-columns: 1fr 380px; gap: 24px;">
-
-    <!-- Main Order Information -->
-    <div style="display: flex; flex-direction: column; gap: 24px;">
-
-        <!-- Order Status Card -->
-        <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+<div class="od-page">
+    <section class="od-hero">
+        <div class="od-hero-content">
+            <div class="od-hero-top">
                 <div>
-                    <h2 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 800; color: #1e293b;">Order #{{ str_pad($order->id, 8, '0', STR_PAD_LEFT) }}</h2>
-                    <p style="margin: 0; color: #64748b; font-size: 14px;">Placed {{ $order->created_at->format('M d, Y \a\t h:i A') }}</p>
+                    <a href="{{ route('driver.dashboard') }}" class="od-back-link">Back to dashboard</a>
+                    <h2 class="od-order-no">Order #{{ str_pad($order->id, 8, '0', STR_PAD_LEFT) }}</h2>
+                    <p class="od-order-meta">Placed {{ $order->created_at->format('M d, Y h:i A') }}</p>
                 </div>
-                @php
-                    $statusConfig = [
-                        'ready_for_pickup' => ['label' => 'Ready for Pickup', 'color' => '#f59e0b', 'bg' => '#fef3c7'],
-                        'assigned' => ['label' => 'Assigned to You', 'color' => '#f59e0b', 'bg' => '#fef3c7'],
-                        'picked_up' => ['label' => 'Picked Up', 'color' => '#8b5cf6', 'bg' => '#ede9fe'],
-                        'in_transit' => ['label' => 'In Transit', 'color' => '#06b6d4', 'bg' => '#ecfdf5'],
-                        'delivered' => ['label' => 'Delivered', 'color' => '#16a34a', 'bg' => '#dcfce7'],
-                    ];
-                    $config = $statusConfig[$order->status] ?? ['label' => ucfirst($order->status), 'color' => '#64748b', 'bg' => '#f1f5f9'];
-                @endphp
-                <span style="background: {{ $config['bg'] }}; color: {{ $config['color'] }}; padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 800; text-transform: uppercase;">
-                    {{ $config['label'] }}
-                </span>
+                <span class="{{ $statusInfo['chip'] }}">{{ $statusInfo['label'] }}</span>
             </div>
 
-            <!-- Progress Steps -->
-            <div style="display: flex; align-items: center; gap: 8px; margin-top: 24px;">
-                @php
-                    $steps = [
-                        ['key' => 'ready_for_pickup', 'label' => 'Ready', 'icon' => '📦'],
-                        ['key' => 'assigned', 'label' => 'Assigned', 'icon' => '🎯'],
-                        ['key' => 'picked_up', 'label' => 'Picked Up', 'icon' => '🛍️'],
-                        ['key' => 'in_transit', 'label' => 'In Transit', 'icon' => '🚚'],
-                        ['key' => 'delivered', 'label' => 'Delivered', 'icon' => '✅'],
-                    ];
-                    $statusOrder = ['ready_for_pickup', 'assigned', 'picked_up', 'in_transit', 'delivered'];
-                    $currentStepIndex = array_search($order->status, $statusOrder);
-                    if ($currentStepIndex === false) $currentStepIndex = 0;
-                @endphp
-
-                @foreach($steps as $index => $step)
-                    @if($index > 0)
-                        <div style="flex: 1; height: 3px; background: {{ $index <= $currentStepIndex ? '#16a34a' : '#e2e8f0' }}; border-radius: 2px;"></div>
-                    @endif
-                    <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 80px;">
-                        <div style="width: 40px; height: 40px; border-radius: 50%; background: {{ $index <= $currentStepIndex ? '#16a34a' : '#e2e8f0' }}; display: flex; align-items: center; justify-content: center; font-size: 18px; transition: all 0.3s;">
-                            {{ $step['icon'] }}
-                        </div>
-                        <span style="font-size: 11px; font-weight: 700; color: {{ $index <= $currentStepIndex ? '#16a34a' : '#94a3b8' }}; text-transform: uppercase;">{{ $step['label'] }}</span>
+            <div class="od-progress">
+                @foreach($progressSteps as $index => $step)
+                    @php
+                        $stepClass = '';
+                        if ($index < $progressIndex) {
+                            $stepClass = 'is-complete';
+                        } elseif ($index === $progressIndex) {
+                            $stepClass = 'is-active';
+                        }
+                    @endphp
+                    <div class="od-progress-step {{ $stepClass }}">
+                        <span class="od-progress-dot"></span>
+                        <span class="od-progress-label">{{ $step['label'] }}</span>
                     </div>
                 @endforeach
             </div>
         </div>
+    </section>
 
-        <!-- Order Items -->
-        <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 20px;">📦</span>
-                Order Items ({{ $order->orderItems->count() }})
-            </h3>
+    <div class="od-layout">
+        <div class="od-main">
+            <section class="od-card od-block">
+                <h3 class="od-title">Delivery Summary</h3>
 
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-                @foreach($order->orderItems as $item)
-                    <div style="display: flex; align-items: center; gap: 16px; padding: 16px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
-                        <div style="width: 80px; height: 80px; background: white; border-radius: 10px; overflow: hidden; flex-shrink: 0; border: 1px solid #e2e8f0;">
-                            @php
-                                $hasImage = $item->product && $item->product->images && $item->product->images->isNotEmpty();
-                            @endphp
-                            @if($hasImage)
-                                <img src="{{ asset('storage/' . $item->product->images->first()->image_path) }}" alt="{{ $item->product->name }}" style="width: 100%; height: 100%; object-fit: cover;">
-                            @else
-                                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #f1f5f9; color: #94a3b8; font-size: 24px;">📦</div>
-                            @endif
-                        </div>
-                        <div style="flex: 1; min-width: 0;">
-                            <div style="font-weight: 700; color: #1e293b; font-size: 15px; margin-bottom: 4px;">{{ $item->product->name ?? 'Product Unavailable' }}</div>
-                            <div style="color: #64748b; font-size: 13px; margin-bottom: 6px;">{{ $item->product->category->name ?? 'No Category' }}</div>
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <span style="background: white; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #1e293b; border: 1px solid #e2e8f0;">Qty: {{ $item->quantity }}</span>
-                                <span style="font-weight: 700; color: #16a34a;">${{ number_format($item->price, 2) }} each</span>
+                <div class="od-customer">
+                    <div class="od-avatar">{{ strtoupper(substr($customerName, 0, 1)) }}</div>
+                    <div>
+                        <p class="od-customer-name">{{ $customerName }}</p>
+                        <p class="od-customer-sub">{{ $customerPhone ?: 'No phone available' }}</p>
+                    </div>
+                </div>
+
+                <p class="od-address">{{ $address }}</p>
+
+                <div class="od-list-grid">
+                    <div class="od-meta">
+                        <p class="od-meta-label">Items</p>
+                        <p class="od-meta-value">{{ $itemCount }}</p>
+                    </div>
+                    <div class="od-meta">
+                        <p class="od-meta-label">Order Total</p>
+                        <p class="od-meta-value">${{ number_format($order->total_amount, 2) }}</p>
+                    </div>
+                    <div class="od-meta">
+                        <p class="od-meta-label">Payment</p>
+                        <p class="od-meta-value">{{ $isCod ? 'Cash on Delivery' : 'Paid Online' }}</p>
+                    </div>
+                    <div class="od-meta">
+                        <p class="od-meta-label">Payment Status</p>
+                        <p class="od-meta-value">{{ ucfirst($order->payment_status ?? 'unknown') }}</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="od-card od-block">
+                <h3 class="od-title">Order Items</h3>
+                <div class="od-items">
+                    @foreach($order->orderItems as $item)
+                        @php
+                            $product = $item->product;
+                            $productImagePath = null;
+
+                            if ($product && $product->productImages && $product->productImages->isNotEmpty()) {
+                                $productImagePath = $product->productImages->first()->image_path;
+                            } elseif ($product && !empty($product->image)) {
+                                $productImagePath = $product->image;
+                            }
+
+                            $imageUrl = null;
+                            if (!empty($productImagePath)) {
+                                if (\Illuminate\Support\Str::startsWith($productImagePath, ['http://', 'https://'])) {
+                                    $imageUrl = $productImagePath;
+                                } elseif (\Illuminate\Support\Str::startsWith($productImagePath, 'storage/')) {
+                                    $imageUrl = asset($productImagePath);
+                                } else {
+                                    $imageUrl = asset('storage/' . $productImagePath);
+                                }
+                            }
+
+                            $hasImage = !empty($imageUrl);
+                        @endphp
+                        <div class="od-item">
+                            <div class="od-item-thumb">
+                                @if($hasImage)
+                                    <a href="{{ $imageUrl }}" target="_blank" rel="noopener" class="od-item-thumb-link" title="Open product image">
+                                        <img src="{{ $imageUrl }}" alt="{{ $item->product->name }}">
+                                    </a>
+                                @else
+                                    <span>No image</span>
+                                @endif
+                            </div>
+                            <div>
+                                <p class="od-item-name">{{ $item->product->name ?? 'Product unavailable' }}</p>
+                                <p class="od-item-sub">{{ $item->quantity }} x ${{ number_format($item->price, 2) }}</p>
+                            </div>
+                            <div class="od-item-total">
+                                <p class="od-item-amount">${{ number_format($item->total, 2) }}</p>
+                                <p class="od-item-qty">Qty {{ $item->quantity }}</p>
                             </div>
                         </div>
-                        <div style="text-align: right; flex-shrink: 0;">
-                            <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Total</div>
-                            <div style="font-size: 20px; font-weight: 800; color: #16a34a;">${{ number_format($item->total, 2) }}</div>
-                        </div>
+                    @endforeach
+                </div>
+            </section>
+        </div>
+
+        <aside class="od-side">
+            <section class="od-card od-block">
+                <h3 class="od-title">Quick Tools</h3>
+                <div class="od-actions">
+                    <div class="od-action-row">
+                        <a href="{{ route('driver.get-directions', $order->id) }}" target="_blank" rel="noopener" class="od-btn od-btn--soft">Directions</a>
+                        <a href="{{ route('driver.contact-customer', $order->id) }}" class="od-btn od-btn--soft">Contact</a>
                     </div>
-                @endforeach
-            </div>
+                    <a href="{{ route('driver.dashboard') }}" class="od-btn od-btn--ghost">Back to Dashboard</a>
+                </div>
+            </section>
 
-            <!-- Order Summary -->
-            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px dashed #e2e8f0;">
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f8fafc; border-radius: 12px; margin-bottom: 8px;">
-                    <span style="color: #64748b; font-weight: 600;">Subtotal</span>
-                    <span style="font-weight: 700; color: #1e293b;">${{ number_format($order->total_amount, 2) }}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #dcfce7; border-radius: 12px;">
-                    <span style="color: #15803d; font-weight: 700;">Total Amount</span>
-                    <span style="font-size: 24px; font-weight: 800; color: #16a34a;">${{ number_format($order->total_amount, 2) }}</span>
-                </div>
-            </div>
-        </div>
+            <section class="od-card od-block od-desktop-actions">
+                <h3 class="od-title">Actions</h3>
+                <div class="od-actions">
+                    @if($canAccept)
+                        <form action="{{ route('driver.accept-order', $order->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="od-btn od-btn--success">Accept Order</button>
+                        </form>
+                    @endif
 
-        <!-- Delivery Address -->
-        <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 20px;">📍</span>
-                Delivery Address
-            </h3>
-            <div style="display: flex; align-items: flex-start; gap: 16px; padding: 16px; background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 12px; border: 1px solid #bae6fd;">
-                <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #60a5fa, #3b82f6); border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                        <circle cx="12" cy="10" r="3"></circle>
-                    </svg>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 700; color: #0369a1; font-size: 15px; margin-bottom: 6px;">Customer Address</div>
-                    <div style="color: #0284c7; font-size: 14px; line-height: 1.6;">{{ $order->delivery_address ?? $order->address ?? 'No address provided' }}</div>
-                </div>
-                <a href="{{ route('driver.get-directions', $order->id) }}" target="_blank" style="display: flex; align-items: center; gap: 6px; padding: 10px 16px; background: #0284c7; color: white; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 13px; white-space: nowrap; transition: all 0.2s;" onmouseover="this.style.background='#0369a1'" onmouseout="this.style.background='#0284c7'">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
-                    </svg>
-                    Get Directions
-                </a>
-            </div>
-        </div>
+                    @if($canPickup)
+                        <form action="{{ route('driver.confirm-pickup', $order->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="od-btn od-btn--primary">Confirm Pickup</button>
+                        </form>
+                    @endif
 
+                    @if($canArrive)
+                        <form action="{{ route('driver.confirm-arrival', $order->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="od-btn od-btn--primary">Mark Arrived</button>
+                        </form>
+                    @endif
+
+                    @if($canDeliver)
+                        <button type="button" class="od-btn od-btn--success" onclick="confirmAction('Confirm Delivery', 'Mark this order as delivered?', '{{ route('driver.confirm-delivery', $order->id) }}')">Confirm Delivery</button>
+                    @endif
+
+                    @if(!$canAccept && !$canPickup && !$canArrive && !$canDeliver)
+                        <span class="od-btn od-btn--warn">No pending action for this status</span>
+                    @endif
+                </div>
+            </section>
+        </aside>
     </div>
-
-    <!-- Sidebar - Customer Info & Actions -->
-    <div style="display: flex; flex-direction: column; gap: 24px;">
-
-        <!-- Customer Card -->
-        <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 20px;">👤</span>
-                Customer Information
-            </h3>
-
-            <div style="display: flex; align-items: center; gap: 16px; padding: 16px; background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 12px; border: 1px solid #fcd34d; margin-bottom: 16px;">
-                <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 14px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 22px; flex-shrink: 0;">
-                    {{ strtoupper(substr($order->customer->name ?? 'C', 0, 1)) }}
-                </div>
-                <div style="flex: 1; min-width: 0;">
-                    <div style="font-weight: 800; color: #92400e; font-size: 16px; margin-bottom: 4px;">{{ $order->customer->name ?? 'Customer' }}</div>
-                    <div style="color: #78350f; font-size: 13px;">📞 {{ $order->phone ?? $order->customer->phone_number ?? 'No phone' }}</div>
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <a href="tel:{{ $order->phone ?? $order->customer->phone_number }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: #0284c7; color: white; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 13px; transition: all 0.2s;" onmouseover="this.style.background='#0369a1'" onmouseout="this.style.background='#0284c7'">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                    </svg>
-                    Call Customer
-                </a>
-                <a href="{{ route('driver.get-directions', $order->id) }}" target="_blank" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: #0ea5e9; color: white; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 13px; transition: all 0.2s;" onmouseover="this.style.background='#0284c7'" onmouseout="this.style.background='#0ea5e9'">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polygon points="3 11 22 2 13 21 11 13 3 11"></polygon>
-                    </svg>
-                    Navigate
-                </a>
-            </div>
-        </div>
-
-        <!-- Payment Info -->
-        <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 20px;">💳</span>
-                Payment Information
-            </h3>
-
-            @php
-                $isCOD = in_array(strtolower($order->payment_method ?? ''), ['cod', 'cash', 'cash on delivery']);
-            @endphp
-
-            <div style="padding: 16px; background: {{ $isCOD ? '#fef3c7' : '#dcfce7' }}; border-radius: 12px; border: 1px solid {{ $isCOD ? '#fcd34d' : '#6ee7b7' }}; margin-bottom: 16px;">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                    <span style="font-size: 24px;">{{ $isCOD ? '💵' : '💳' }}</span>
-                    <div>
-                        <div style="font-weight: 800; color: {{ $isCOD ? '#92400e' : '#047857' }}; font-size: 14px;">
-                            {{ $isCOD ? 'Cash on Delivery' : 'Paid Online' }}
-                        </div>
-                        <div style="font-size: 12px; color: {{ $isCOD ? '#78350f' : '#059669' }};">
-                            {{ $order->payment_status === 'paid' ? '✓ Payment Completed' : '⏳ Payment Pending' }}
-                        </div>
-                    </div>
-                </div>
-                <div style="font-size: 24px; font-weight: 800; color: {{ $isCOD ? '#b45309' : '#15803d' }};">
-                    ${{ number_format($order->total_amount, 2) }}
-                </div>
-            </div>
-
-            @if($isCOD)
-                <div style="padding: 12px; background: #fef3c7; border-radius: 10px; border-left: 4px solid #f59e0b;">
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                        <span style="font-size: 16px;">⚠️</span>
-                        <span style="font-weight: 700; color: #92400e; font-size: 13px;">Collect Cash on Delivery</span>
-                    </div>
-                    <p style="margin: 0; color: #78350f; font-size: 12px;">Remember to collect ${{ number_format($order->total_amount, 2) }} from the customer.</p>
-                </div>
-            @else
-                <div style="padding: 12px; background: #dcfce7; border-radius: 10px; border-left: 4px solid #16a34a;">
-                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                        <span style="font-size: 16px;">✅</span>
-                        <span style="font-weight: 700; color: #047857; font-size: 13px;">No Payment Required</span>
-                    </div>
-                    <p style="margin: 0; color: #059669; font-size: 12px;">Customer has already paid online. Just deliver the order.</p>
-                </div>
-            @endif
-        </div>
-
-        <!-- Quick Actions -->
-        <div style="background: white; border-radius: 16px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-            <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 800; color: #1e293b; display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 20px;">⚡</span>
-                Quick Actions
-            </h3>
-
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                @if($order->status === 'ready_for_pickup' && $order->driver_id === auth()->id())
-                    <form action="{{ route('driver.confirm-pickup', $order->id) }}" method="POST" style="margin: 0;">
-                        @csrf
-                        <button type="submit" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(245, 158, 11, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(245, 158, 11, 0.3)'">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <path d="M16 10a4 4 0 0 1-8 0"></path>
-                            </svg>
-                            Confirm Pickup
-                        </button>
-                    </form>
-                @endif
-
-                @if($order->status === 'picked_up')
-                    <form action="{{ route('driver.start-delivery', $order->id) }}" method="POST" style="margin: 0;">
-                        @csrf
-                        <button type="submit" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(139, 92, 246, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(139, 92, 246, 0.3)'">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="5" y="5" width="14" height="14" rx="2" ry="2"></rect>
-                                <polyline points="9 9 15 9 15 15 9 15"></polyline>
-                            </svg>
-                            Start Delivery
-                        </button>
-                    </form>
-                @endif
-
-                @if(in_array($order->status, ['picked_up', 'in_transit']))
-                    <button onclick="confirmAction('Confirm Delivery', 'Have you successfully delivered this order to the customer?', '{{ route('driver.confirm-delivery', $order->id) }}')" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; background: linear-gradient(135deg, #16a34a, #059669); color: white; border: none; border-radius: 10px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(22, 163, 74, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(22, 163, 74, 0.3)'">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        Confirm Delivery
-                    </button>
-                @endif
-
-                <a href="{{ route('driver.dashboard') }}" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: #f1f5f9; color: #475569; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 14px; text-align: center; transition: all 0.2s; border: 1px solid #e2e8f0;" onmouseover="this.style.background='#e2e8f0'; this.style.color='#1e293b'" onmouseout="this.style.background='#f1f5f9'; this.style.color='#475569'">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="19" y1="12" x2="5" y2="12"></line>
-                        <polyline points="12 19 5 12 12 5"></polyline>
-                    </svg>
-                    Back to Dashboard
-                </a>
-            </div>
-        </div>
-
-    </div>
-
 </div>
 
+@if($primaryAction)
+    <div class="od-mobile-cta">
+        @if($primaryAction['type'] === 'form')
+            <form action="{{ $primaryAction['action'] }}" method="POST">
+                @csrf
+                <button type="submit" class="{{ $primaryAction['class'] }}">{{ $primaryAction['label'] }}</button>
+            </form>
+        @else
+            <button type="button" class="{{ $primaryAction['class'] }}" onclick="confirmAction('Confirm Delivery', 'Mark this order as delivered?', '{{ $primaryAction['action'] }}')">{{ $primaryAction['label'] }}</button>
+        @endif
+    </div>
+@endif
 @endsection
