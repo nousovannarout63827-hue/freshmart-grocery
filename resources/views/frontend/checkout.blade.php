@@ -73,13 +73,26 @@
                             <h2 class="text-xl font-bold text-gray-900">Delivery Address</h2>
                         </div>
                         
+                        <!-- Google Places Autocomplete Search -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">📍 Search Your Location</label>
+                            <input 
+                                type="text" 
+                                id="address-search" 
+                                placeholder="Type your street, village, or landmark..." 
+                                class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 mb-3 shadow-sm transition"
+                                autocomplete="off"
+                            >
+                            <p class="text-xs text-gray-500">Start typing and select from Google's suggestions</p>
+                        </div>
+                        
                         <!-- Google Maps Location Picker -->
                         <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-3">📍 Pin Your Location on Map</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">🗺️ Pin Your Exact Location</label>
                             <div class="bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200 mb-3">
                                 <div id="map" style="height: 300px; width: 100%;"></div>
                             </div>
-                            <p class="text-sm text-gray-600 mb-3">Click on the map to set your delivery location pin</p>
+                            <p class="text-sm text-gray-600 mb-3">Drag the pin to adjust your exact delivery location</p>
                             
                             <!-- Hidden inputs for lat/lng -->
                             <input type="hidden" name="latitude" id="latitude" value="">
@@ -408,9 +421,11 @@
     </div>
 
     @push('scripts')
+    <!-- Google Maps API with Places Library -->
     <!-- Google Maps API - Replace YOUR_GOOGLE_MAPS_API_KEY with your actual API key -->
     <!-- Get your API key from: https://console.cloud.google.com/apis/credentials -->
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_api_key', 'YOUR_GOOGLE_MAPS_API_KEY') }}&callback=initMap" async defer></script>
+    <!-- Make sure to enable: Maps JavaScript API, Geocoding API, and Places API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_api_key', 'YOUR_GOOGLE_MAPS_API_KEY') }}&libraries=places&callback=initMap" async defer></script>
     
     <script>
         // Grab PHP values so JS knows the starting math
@@ -420,21 +435,22 @@
         // Google Maps variables
         let map;
         let marker;
-        const defaultLat = 11.5621; // Phnom Penh coordinates
+        let autocomplete;
+        const defaultLat = 11.5564; // Phnom Penh coordinates (center)
         const defaultLng = 104.9282;
 
-        // Initialize Google Maps
+        // Initialize Google Maps with Places Autocomplete
         function initMap() {
-            // Create map centered on Phnom Penh
+            // 1. Create map centered on Phnom Penh
             map = new google.maps.Map(document.getElementById("map"), {
-                zoom: 13,
                 center: { lat: defaultLat, lng: defaultLng },
-                mapTypeControl: true,
+                zoom: 13,
+                mapTypeControl: false,
                 streetViewControl: false,
                 fullscreenControl: true,
             });
 
-            // Create initial marker
+            // 2. Create initial draggable marker
             marker = new google.maps.Marker({
                 position: { lat: defaultLat, lng: defaultLng },
                 map: map,
@@ -443,18 +459,57 @@
                 animation: google.maps.Animation.DROP,
             });
 
-            // Update location when marker is dragged
-            marker.addListener("dragend", function() {
-                updateLocation(marker.getPosition());
+            // 3. Attach Autocomplete to the search input
+            const input = document.getElementById("address-search");
+            autocomplete = new google.maps.places.Autocomplete(input);
+            autocomplete.bindTo("bounds", map);
+
+            // 4. Listen for when user selects an address from dropdown
+            autocomplete.addListener("place_changed", () => {
+                const place = autocomplete.getPlace();
+
+                if (!place.geometry || !place.geometry.location) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'No Location Found',
+                        text: 'No details available for this location. Please try another search or pin manually on the map.',
+                        confirmButtonColor: '#16a34a'
+                    });
+                    return;
+                }
+
+                // Move map to the new location
+                if (place.geometry.viewport) {
+                    map.fitBounds(place.geometry.viewport);
+                } else {
+                    map.setCenter(place.geometry.location);
+                    map.setZoom(17); // Zoom in close to the street
+                }
+
+                // Move the marker to the new location
+                marker.setPosition(place.geometry.location);
+
+                // Update hidden fields and display
+                updateLocation(place.geometry.location);
+
+                // Auto-fill address fields using reverse geocoding
+                reverseGeocode(place.geometry.location.lat(), place.geometry.location.lng());
             });
 
-            // Update location when map is clicked
+            // 5. Listen for when user drags the marker manually
+            marker.addListener("dragend", function() {
+                updateLocation(marker.getPosition());
+                reverseGeocode(marker.getPosition().lat(), marker.getPosition().lng());
+            });
+
+            // 6. Update location when map is clicked
             map.addListener("click", function(event) {
                 marker.setPosition(event.latLng);
                 updateLocation(event.latLng);
+                reverseGeocode(event.latLng.lat(), event.latLng.lng());
             });
 
-            // Try to get user's location
+            // 7. Try to get user's current location
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
@@ -465,6 +520,7 @@
                         map.setCenter(userLocation);
                         marker.setPosition(userLocation);
                         updateLocation(userLocation);
+                        reverseGeocode(userLocation.lat, userLocation.lng);
                     },
                     () => {
                         console.log("Geolocation not available or permission denied");
@@ -487,9 +543,6 @@
             const locationText = document.getElementById('location-text');
             locationDisplay.classList.remove('hidden');
             locationText.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-            
-            // Optional: Reverse geocode to get address
-            reverseGeocode(lat, lng);
         }
 
         // Reverse geocoding to get address from coordinates
