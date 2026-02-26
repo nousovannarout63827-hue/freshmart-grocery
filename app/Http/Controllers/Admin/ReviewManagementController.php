@@ -323,6 +323,44 @@ class ReviewManagementController extends Controller
     }
 
     /**
+     * Show the edit form for a review.
+     */
+    public function edit($id)
+    {
+        $review = Review::with(['product', 'user'])->findOrFail($id);
+        return view('admin.reviews.edit', compact('review'));
+    }
+
+    /**
+     * Update a review.
+     */
+    public function update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'comment' => 'required|string|max:1000',
+            'rating' => 'required|integer|min:1|max:5',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $review = Review::findOrFail($id);
+        $review->update([
+            'comment' => $request->comment,
+            'rating' => $request->rating,
+        ]);
+
+        // Log activity
+        activityLog('Updated review #' . $id . ' by ' . $review->user->name, 'Reviews');
+
+        return redirect()->route('admin.reviews.show', $review->id)
+            ->with('success', 'Review updated successfully!');
+    }
+
+    /**
      * Update admin's own reply.
      */
     public function updateReply(Request $request, $id)
@@ -338,7 +376,7 @@ class ReviewManagementController extends Controller
         }
 
         $reply = \App\Models\ReviewReply::findOrFail($id);
-        
+
         // Only admin can edit their own reply
         if (auth()->id() !== $reply->user_id) {
             abort(403, 'Unauthorized action.');

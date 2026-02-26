@@ -72,27 +72,61 @@
                             </div>
                             <h2 class="text-xl font-bold text-gray-900">Delivery Address</h2>
                         </div>
+                        
+                        <!-- Google Maps Location Picker -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">📍 Pin Your Location on Map</label>
+                            <div class="bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200 mb-3">
+                                <div id="map" style="height: 300px; width: 100%;"></div>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-3">Click on the map to set your delivery location pin</p>
+                            
+                            <!-- Hidden inputs for lat/lng -->
+                            <input type="hidden" name="latitude" id="latitude" value="">
+                            <input type="hidden" name="longitude" id="longitude" value="">
+                            
+                            <!-- Display selected coordinates -->
+                            <div id="location-display" class="hidden bg-green-50 border border-green-200 rounded-xl p-3 mb-3">
+                                <div class="flex items-center gap-2 text-green-700">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    <span class="font-medium">Location selected:</span>
+                                    <span id="location-text" class="text-sm"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div class="space-y-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Street Address *</label>
-                                <input type="text" name="address" required 
+                                <input type="text" name="address" id="address" required
                                        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
                                        placeholder="123 Main Street, Apt 4B">
                             </div>
                             <div class="grid md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">City *</label>
-                                    <input type="text" name="city" required
+                                    <input type="text" name="city" id="city" required
                                            class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
-                                           placeholder="New York">
+                                           placeholder="Phnom Penh">
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
                                     <input type="text" name="postal_code"
                                            class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition"
-                                           placeholder="10001">
-                                    <p class="text-xs text-gray-500 mt-1">Optional - You can leave this blank</p>
+                                           placeholder="12000">
+                                    <p class="text-xs text-gray-500 mt-1">Optional</p>
                                 </div>
+                            </div>
+                            
+                            <!-- Delivery Description/Instructions -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">📝 Delivery Instructions (Optional)</label>
+                                <textarea name="delivery_description" id="delivery_description" rows="3"
+                                          class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition resize-none"
+                                          placeholder="E.g., Near the blue gate, call when you arrive, 3rd floor with elevator, leave at door..."></textarea>
+                                <p class="text-xs text-gray-500 mt-1">Provide any helpful details for the delivery driver</p>
                             </div>
                         </div>
                     </div>
@@ -374,19 +408,119 @@
     </div>
 
     @push('scripts')
+    <!-- Google Maps API - Replace YOUR_GOOGLE_MAPS_API_KEY with your actual API key -->
+    <!-- Get your API key from: https://console.cloud.google.com/apis/credentials -->
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_api_key', 'YOUR_GOOGLE_MAPS_API_KEY') }}&callback=initMap" async defer></script>
+    
     <script>
         // Grab PHP values so JS knows the starting math
         const subtotal = {{ $subtotal ?? 0 }};
         const discount = {{ session()->has('coupon') ? session()->get('coupon')['discount'] : 0 }};
+        
+        // Google Maps variables
+        let map;
+        let marker;
+        const defaultLat = 11.5621; // Phnom Penh coordinates
+        const defaultLng = 104.9282;
+
+        // Initialize Google Maps
+        function initMap() {
+            // Create map centered on Phnom Penh
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 13,
+                center: { lat: defaultLat, lng: defaultLng },
+                mapTypeControl: true,
+                streetViewControl: false,
+                fullscreenControl: true,
+            });
+
+            // Create initial marker
+            marker = new google.maps.Marker({
+                position: { lat: defaultLat, lng: defaultLng },
+                map: map,
+                draggable: true,
+                title: "Drag to set your location",
+                animation: google.maps.Animation.DROP,
+            });
+
+            // Update location when marker is dragged
+            marker.addListener("dragend", function() {
+                updateLocation(marker.getPosition());
+            });
+
+            // Update location when map is clicked
+            map.addListener("click", function(event) {
+                marker.setPosition(event.latLng);
+                updateLocation(event.latLng);
+            });
+
+            // Try to get user's location
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        };
+                        map.setCenter(userLocation);
+                        marker.setPosition(userLocation);
+                        updateLocation(userLocation);
+                    },
+                    () => {
+                        console.log("Geolocation not available or permission denied");
+                    }
+                );
+            }
+        }
+
+        // Update location display and hidden inputs
+        function updateLocation(latLng) {
+            const lat = latLng.lat();
+            const lng = latLng.lng();
+            
+            // Update hidden inputs
+            document.getElementById('latitude').value = lat;
+            document.getElementById('longitude').value = lng;
+            
+            // Update display
+            const locationDisplay = document.getElementById('location-display');
+            const locationText = document.getElementById('location-text');
+            locationDisplay.classList.remove('hidden');
+            locationText.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            
+            // Optional: Reverse geocode to get address
+            reverseGeocode(lat, lng);
+        }
+
+        // Reverse geocoding to get address from coordinates
+        function reverseGeocode(lat, lng) {
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ location: { lat, lng } }, (results, status) => {
+                if (status === "OK" && results[0]) {
+                    // Extract address components
+                    const address = results[0].formatted_address;
+                    document.getElementById('address').value = address;
+                    
+                    // Try to extract city
+                    for (const component of results[0].address_components) {
+                        const types = component.types;
+                        if (types.includes("locality") || types.includes("administrative_area_level_1")) {
+                            document.getElementById('city').value = component.long_name;
+                            break;
+                        }
+                    }
+                }
+            });
+        }
 
         // Phone number auto-formatting (Malaysian format: 015-868-6089)
         function formatPhoneNumber(input) {
             // Remove all non-digit characters
             let value = input.value.replace(/\D/g, '');
-            
+
             // Limit to 12 digits (015-868-6089 = 10 digits max, but allow more for flexibility)
             value = value.substring(0, 12);
-            
+
             // Format as XXX-XXX-XXXX (flexible for different lengths)
             if (value.length >= 7) {
                 value = value.substring(0, 3) + '-' + value.substring(3, 6) + '-' + value.substring(6, 12);
@@ -395,7 +529,7 @@
             } else if (value.length >= 1) {
                 value = value.substring(0, 3);
             }
-            
+
             input.value = value;
         }
 

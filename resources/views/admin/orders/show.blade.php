@@ -576,15 +576,44 @@
                 <h3 style="margin: 0 0 16px 0; font-weight: 800; color: #1e293b;">👤 Customer Details</h3>
                 <p style="margin: 0 0 8px 0; font-weight: 700; color: #475569;">{{ $order->customer->name ?? 'Guest' }}</p>
                 <p style="margin: 0 0 8px 0; color: #64748b; font-size: 14px;">📧 {{ $order->customer->email ?? 'N/A' }}</p>
-                
-                <p style="margin: 0; color: #64748b; font-size: 14px;">📞 {{ $order->phone ?? $order->customer->phone ?? 'No phone provided' }}</p>
-                
+                <p style="margin: 0 0 8px 0; color: #64748b; font-size: 14px;">📞 {{ $order->phone ?? $order->customer->phone ?? 'No phone provided' }}</p>
+
                 <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 16px 0;">
-                
-                <h4 style="margin: 0 0 8px 0; font-weight: 700; color: #475569; font-size: 13px; text-transform: uppercase;">Delivery Address</h4>
-                <p style="margin: 0; color: #64748b; font-size: 14px; line-height: 1.5; font-weight: 600;">
+
+                <h4 style="margin: 0 0 8px 0; font-weight: 700; color: #475569; font-size: 13px; text-transform: uppercase;">📍 Delivery Address</h4>
+                <p style="margin: 0 0 12px 0; color: #64748b; font-size: 14px; line-height: 1.5; font-weight: 600;">
                     {{ $order->delivery_address ?? $order->customer->current_address ?? 'Address not found' }}
                 </p>
+                
+                @if($order->delivery_notes)
+                    <div style="background: #dbeafe; border: 1px solid #93c5fd; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                        <div style="display: flex; align-items: flex-start; gap: 8px;">
+                            <svg style="width: 16px; height: 16px; color: #2563eb; flex-shrink: 0; margin-top: 2px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <div>
+                                <div style="font-weight: 700; color: #1e40af; font-size: 12px; margin-bottom: 4px;">Delivery Instructions:</div>
+                                <div style="color: #1e3a8a; font-size: 13px; line-height: 1.4;">{{ $order->delivery_notes }}</div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                
+                @if($order->latitude && $order->longitude)
+                    <div style="margin-top: 12px;">
+                        <h4 style="margin: 0 0 8px 0; font-weight: 700; color: #475569; font-size: 13px; text-transform: uppercase;">🗺️ Delivery Location Map</h4>
+                        <div style="background: #f1f5f9; border-radius: 12px; overflow: hidden; border: 2px solid #e2e8f0;" id="order-map-container" style="height: 250px;">
+                            <div id="order-map" style="height: 250px; width: 100%;"></div>
+                        </div>
+                        <p style="margin: 8px 0 0 0; font-size: 12px; color: #64748b; text-align: center;">
+                            📍 Coordinates: {{ number_format($order->latitude, 6) }}, {{ number_format($order->longitude, 6) }}
+                        </p>
+                    </div>
+                @else
+                    <div style="margin-top: 12px; padding: 12px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
+                        <p style="margin: 0; font-size: 13px; color: #64748b;">📍 Map location not available for this order</p>
+                    </div>
+                @endif
             </div>
 
             <div style="background: white; border-radius: 16px; padding: 20px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
@@ -734,4 +763,34 @@
         }
     }
 </script>
+
+@if($order->latitude && $order->longitude)
+<script>
+    // Google Maps for Order Location
+    function initOrderMap() {
+        const orderLat = {{ $order->latitude }};
+        const orderLng = {{ $order->longitude }};
+        
+        // Create map centered on delivery location
+        const map = new google.maps.Map(document.getElementById("order-map"), {
+            zoom: 15,
+            center: { lat: orderLat, lng: orderLng },
+            mapTypeControl: false,
+            streetViewControl: false,
+            fullscreenControl: false,
+            zoomControl: true,
+        });
+
+        // Create marker at delivery location
+        new google.maps.Marker({
+            position: { lat: orderLat, lng: orderLng },
+            map: map,
+            title: "Delivery Location",
+            animation: google.maps.Animation.DROP,
+        });
+    }
+</script>
+<!-- Google Maps API -->
+<script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_api_key', 'YOUR_GOOGLE_MAPS_API_KEY') }}&callback=initOrderMap" async defer></script>
+@endif
 @endsection

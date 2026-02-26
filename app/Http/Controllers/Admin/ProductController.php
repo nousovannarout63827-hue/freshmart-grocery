@@ -319,12 +319,69 @@ class ProductController extends Controller
         $ids = $request->ids;
 
         if (!$ids || count($ids) == 0) {
-            return redirect()->back()->with('error', 'Please select at least one product to restore.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Please select at least one product to restore.'
+            ], 400);
         }
 
-        Product::onlyTrashed()->whereIn('id', $ids)->restore();
+        $restored = Product::onlyTrashed()->whereIn('id', $ids)->restore();
 
-        return redirect()->route('admin.products.index')->with('success', 'Selected products have been restored!');
+        // Log the restore action
+        ActivityLog::log(
+            'RESTORED',
+            'Inventory',
+            "Bulk restored " . count($ids) . " products"
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Selected products have been restored!'
+        ]);
+    }
+
+    /**
+     * Bulk force delete products (permanently delete from trash).
+     */
+    public function bulkForceDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:products,id'
+        ]);
+
+        $products = Product::onlyTrashed()->whereIn('id', $request->ids)->get();
+
+        foreach ($products as $product) {
+            // Delete associated images
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+
+            // Delete product images from product_images table
+            if ($product->productImages) {
+                foreach ($product->productImages as $productImage) {
+                    if ($productImage->image_path) {
+                        Storage::disk('public')->delete($productImage->image_path);
+                    }
+                }
+                $product->productImages()->delete();
+            }
+
+            $product->forceDelete();
+        }
+
+        // Log the delete action
+        ActivityLog::log(
+            'DELETED',
+            'Inventory',
+            "Bulk force deleted " . count($request->ids) . " products"
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Selected products have been permanently deleted!'
+        ]);
     }
 
     /**

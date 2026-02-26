@@ -624,9 +624,25 @@
                 <h3 class="od-title">Quick Tools</h3>
                 <div class="od-actions">
                     <div class="od-action-row">
-                        <a href="{{ route('driver.get-directions', $order->id) }}" target="_blank" rel="noopener" class="od-btn od-btn--soft">Directions</a>
-                        <a href="{{ route('driver.contact-customer', $order->id) }}" class="od-btn od-btn--soft">Contact</a>
+                        <a href="{{ route('driver.get-directions', $order->id) }}" target="_blank" rel="noopener" class="od-btn od-btn--soft">🗺️ Directions</a>
+                        <a href="{{ route('driver.contact-customer', $order->id) }}" class="od-btn od-btn--soft">📞 Contact</a>
                     </div>
+                    
+                    @if($order->latitude && $order->longitude)
+                        <div style="margin-top: 8px; padding: 10px; background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px;">
+                            <p style="margin: 0 0 6px 0; font-size: 11px; font-weight: 700; color: #0369a1; text-transform: uppercase;">📍 GPS Coordinates</p>
+                            <p style="margin: 0; font-size: 12px; color: #0c4a6e; font-weight: 600;">
+                                Lat: {{ number_format($order->latitude, 6) }}, Lng: {{ number_format($order->longitude, 6) }}
+                            </p>
+                            <a href="https://www.google.com/maps/dir/?api=1&destination={{$order->latitude}},{{$order->longitude}}" 
+                               target="_blank" 
+                               rel="noopener"
+                               style="display: inline-block; margin-top: 6px; font-size: 11px; color: #0284c7; text-decoration: none; font-weight: 700;">
+                                Open in Google Maps →
+                            </a>
+                        </div>
+                    @endif
+                    
                     <a href="{{ route('driver.dashboard') }}" class="od-btn od-btn--ghost">Back to Dashboard</a>
                 </div>
             </section>

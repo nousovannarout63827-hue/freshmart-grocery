@@ -406,6 +406,9 @@ class HomeController extends Controller
             'address' => 'required|string|max:500',
             'city' => 'required|string|max:255',
             'postal_code' => 'nullable|string|max:20',
+            'latitude' => 'nullable|numeric',
+            'longitude' => 'nullable|numeric',
+            'delivery_description' => 'nullable|string|max:1000',
             'payment_method' => 'required|in:cash,card',
             'shipping_cost' => 'nullable|numeric|min:0|max:100',
         ]);
@@ -460,6 +463,9 @@ class HomeController extends Controller
                 $shippingMethod = 'Express Delivery (6 hours)';
             }
 
+            // Build delivery notes from delivery description
+            $deliveryNotes = $request->delivery_description ?? null;
+
             $order = \App\Models\Order::create([
                 'customer_id' => auth()->id(),
                 'total_amount' => $finalTotal,
@@ -470,6 +476,9 @@ class HomeController extends Controller
                 'payment_method' => $request->payment_method,
                 'payment_status' => $request->payment_method === 'cash' ? 'unpaid' : 'paid',
                 'shipping_method' => $shippingMethod,
+                'delivery_notes' => $deliveryNotes,
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
             ]);
 
             // Create order items

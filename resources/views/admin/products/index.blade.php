@@ -187,7 +187,7 @@
         </table>
         </div>
         
-        <div class="pagination-wrapper" style="display: flex; flex-direction: column; align-items: flex-start; margin-top: 20px;">
+        <div class="pagination-wrapper">
             {{ $products->links() }}
         </div>
     </div>

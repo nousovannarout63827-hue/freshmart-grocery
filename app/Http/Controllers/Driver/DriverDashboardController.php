@@ -377,7 +377,7 @@ class DriverDashboardController extends Controller
     }
 
     /**
-     * Get directions (placeholder for integration with maps).
+     * Get directions to delivery location using Google Maps.
      */
     public function getDirections($id)
     {
@@ -395,9 +395,15 @@ class DriverDashboardController extends Controller
             'Driver ' . auth()->user()->name . ' requested directions for Order #' . $id
         );
 
-        // Build Google Maps URL
-        $destination = urlencode($order->delivery_address ?? $order->address);
-        $mapsUrl = "https://www.google.com/maps/dir/?api=1&destination={$destination}";
+        // Build Google Maps URL - Use coordinates if available, otherwise use address
+        if ($order->latitude && $order->longitude) {
+            // Use exact GPS coordinates for precise navigation
+            $mapsUrl = "https://www.google.com/maps/dir/?api=1&destination={$order->latitude},{$order->longitude}";
+        } else {
+            // Fallback to address if coordinates not available
+            $destination = urlencode($order->delivery_address ?? $order->address);
+            $mapsUrl = "https://www.google.com/maps/dir/?api=1&destination={$destination}";
+        }
 
         return redirect()->away($mapsUrl);
     }

@@ -132,10 +132,48 @@
             <!-- Shipping Address -->
             <div class="bg-white rounded-2xl border border-gray-100 p-6">
                 <h2 class="text-lg font-bold text-gray-900 mb-4">Delivery Address</h2>
-                <div class="space-y-2 text-gray-600">
+                <div class="space-y-3 text-gray-600">
                     <p class="font-semibold text-gray-900">{{ $order->customer->name ?? 'Customer' }}</p>
                     <p>{{ $order->address }}</p>
+                    @if($order->phone)
+                        <p class="text-sm">
+                            <span class="font-medium">Phone:</span> 
+                            <a href="tel:{{ $order->phone }}" class="text-primary-600 hover:text-primary-700">{{ $order->phone }}</a>
+                        </p>
+                    @endif
+                    @if($order->delivery_notes)
+                        <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 mt-2">
+                            <div class="flex items-start gap-2">
+                                <svg class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                <div>
+                                    <p class="font-semibold text-blue-900 text-sm">Delivery Instructions:</p>
+                                    <p class="text-blue-700 text-sm mt-1">{{ $order->delivery_notes }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
+                
+                <!-- Google Map Location -->
+                @if($order->latitude && $order->longitude)
+                    <div class="mt-4">
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2">📍 Delivery Location on Map</h3>
+                        <div class="bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200" style="height: 250px;">
+                            <div id="order-map" style="height: 100%; width: 100%;"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">
+                            Coordinates: {{ number_format($order->latitude, 6) }}, {{ number_format($order->longitude, 6) }}
+                        </p>
+                    </div>
+                @else
+                    <div class="mt-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                        <p class="text-sm text-gray-600 text-center">
+                            📍 Map location not available for this order
+                        </p>
+                    </div>
+                @endif
             </div>
 
             <!-- Payment Info -->
@@ -350,4 +388,35 @@
             </div>
         @endif
     </div>
+
+    @if($order->latitude && $order->longitude)
+    @push('scripts')
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_api_key', 'YOUR_GOOGLE_MAPS_API_KEY') }}&callback=initOrderMap" async defer></script>
+    
+    <script>
+        function initOrderMap() {
+            const orderLat = {{ $order->latitude }};
+            const orderLng = {{ $order->longitude }};
+            
+            // Create map centered on delivery location
+            const map = new google.maps.Map(document.getElementById("order-map"), {
+                zoom: 15,
+                center: { lat: orderLat, lng: orderLng },
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: false,
+            });
+
+            // Create marker at delivery location
+            new google.maps.Marker({
+                position: { lat: orderLat, lng: orderLng },
+                map: map,
+                title: "Delivery Location",
+                animation: google.maps.Animation.DROP,
+            });
+        }
+    </script>
+    @endpush
+    @endif
 @endsection

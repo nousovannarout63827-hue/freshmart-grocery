@@ -325,6 +325,13 @@
                             <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
                                 <p class="text-green-700 font-medium">You've reviewed this product</p>
                                 <p class="text-green-600 text-sm mt-1">Rating: {{ $userReview->rating }}/5</p>
+                                <button onclick="openEditModal({{ $userReview->id }}, {{ $userReview->rating }}, {{ json_encode($userReview->comment ?? '') }})"
+                                        class="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold text-sm">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    Edit Your Review
+                                </button>
                             </div>
                         @endif
                     @else
@@ -537,7 +544,7 @@
                                         @auth
                                             @if(auth()->id() === $review->user_id)
                                                 <div class="flex items-center gap-2 ml-auto">
-                                                    <button onclick="openEditModal({{ $review->id }}, {{ $review->rating }}, {!! json_encode($review->comment) !!})"
+                                                    <button onclick="openEditModal({{ $review->id }}, {{ $review->rating }}, {{ json_encode($review->comment ?? '') }})"
                                                             class="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 transition font-medium">
                                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -913,22 +920,39 @@
 
         // Edit Review Functions
         function openEditModal(reviewId, rating, comment) {
+            console.log('Opening edit modal:', { reviewId, rating, comment });
+            
             // Set the form action
             const form = document.getElementById('editReviewForm');
+            if (!form) {
+                console.error('Edit form not found!');
+                return;
+            }
             form.action = '/reviews/' + reviewId;
-            
+
             // Set the rating
             document.querySelectorAll('#editRatingStars input').forEach(input => {
                 input.checked = false;
             });
-            document.getElementById('edit-star' + rating).checked = true;
+            const ratingInput = document.getElementById('edit-star' + rating);
+            if (ratingInput) {
+                ratingInput.checked = true;
+            }
             updateEditStars(rating);
-            
+
             // Set the comment
-            document.getElementById('editComment').value = comment || '';
-            
+            const commentField = document.getElementById('editComment');
+            if (commentField) {
+                commentField.value = comment || '';
+            }
+
             // Show the modal
-            document.getElementById('editReviewModal').classList.remove('hidden');
+            const modal = document.getElementById('editReviewModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+            } else {
+                console.error('Edit modal not found!');
+            }
         }
 
         function closeEditModal() {

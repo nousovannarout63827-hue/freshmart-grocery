@@ -152,24 +152,24 @@
             <!-- Interactive Google Map -->
             <div class="mt-8">
                 <h2 class="text-2xl font-bold text-gray-900 mb-4">Find us on the map</h2>
-                
+
                 <div class="w-full h-96 bg-gray-200 rounded-2xl overflow-hidden border border-gray-200 shadow-sm relative">
-                    <iframe 
-                        width="100%" 
-                        height="100%" 
-                        frameborder="0" 
-                        scrolling="no" 
-                        marginheight="0" 
-                        marginwidth="0" 
-                        src="https://maps.google.com/maps?q=Khan%20Daun%20Penh,%20Phnom%20Penh,%20Cambodia&t=&z=15&ie=UTF8&iwloc=&output=embed"
-                        style="border:0;" 
-                        allowfullscreen="" 
-                        loading="lazy" 
+                    <iframe
+                        width="100%"
+                        height="100%"
+                        frameborder="0"
+                        scrolling="no"
+                        marginheight="0"
+                        marginwidth="0"
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3898.526994603026!2d104.9282!3d11.5621!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31095538e9e5760d%3A0x123456789abcdef!2sKhan%20Daun%20Penh%2C%20Phnom%20Penh!5e0!3m2!1sen!2skh!4v1234567890"
+                        style="border:0;"
+                        allowfullscreen=""
+                        loading="lazy"
                         referrerpolicy="no-referrer-when-downgrade"
                         title="FreshMart Location Map">
                     </iframe>
                 </div>
-                
+
                 <p class="text-center text-gray-500 text-sm mt-4">
                     📍 123 Fresh Blvd, Khan Daun Penh, Phnom Penh, Cambodia
                 </p>

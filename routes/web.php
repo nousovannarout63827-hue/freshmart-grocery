@@ -189,6 +189,7 @@ Route::group([
         Route::delete('/products/{id}/force-delete', [ProductController::class, 'forceDelete'])->name('products.force-delete');
         Route::post('/products/bulk-delete', [ProductController::class, 'bulkDelete'])->name('products.bulk-delete');
         Route::post('/products/bulk-restore', [ProductController::class, 'bulkRestore'])->name('products.bulk-restore');
+        Route::post('/products/bulk-force-delete', [ProductController::class, 'bulkForceDelete'])->name('products.bulk-force-delete');
         Route::get('/products/export-pdf', [ProductController::class, 'exportPDF'])->name('products.export');
         Route::get('/products/export-excel', [ProductController::class, 'exportExcel'])->name('products.export.excel');
     });
@@ -221,6 +222,8 @@ Route::group([
         // 💬 REVIEW MANAGEMENT - Moderate customer reviews
         Route::get('/reviews', [ReviewManagementController::class, 'index'])->name('reviews.index');
         Route::get('/reviews/{id}', [ReviewManagementController::class, 'show'])->name('reviews.show');
+        Route::get('/reviews/{id}/edit', [ReviewManagementController::class, 'edit'])->name('reviews.edit');
+        Route::put('/reviews/{id}', [ReviewManagementController::class, 'update'])->name('reviews.update');
         Route::post('/reviews/{id}/approve', [ReviewManagementController::class, 'approve'])->name('reviews.approve');
         Route::post('/reviews/{id}/reject', [ReviewManagementController::class, 'reject'])->name('reviews.reject');
         Route::post('/reviews/{id}/flag', [ReviewManagementController::class, 'flag'])->name('reviews.flag');

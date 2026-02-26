@@ -21,6 +21,8 @@ class Order extends Model
         'payment_status',
         'delivery_notes',
         'shipping_method',
+        'latitude',
+        'longitude',
     ];
 
     /**

@@ -1482,42 +1482,97 @@ body {
     list-style: none;
     padding: 0;
     margin: 0;
-    gap: 8px;
+    gap: 4px;
 }
 
-.page-item .page-link {
+.page-item .page-link,
+.pagination .relative {
     padding: 8px 16px;
     border-radius: 10px;
-    border: 1px solid #e2e8f0;
-    color: #64748b;
-    text-decoration: none;
-    font-weight: 800;
-    font-size: 13px;
+    border: 1px solid #e2e8f0 !important;
+    color: #64748b !important;
+    text-decoration: none !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
     transition: all 0.3s ease;
-    background: white;
+    background: white !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 40px;
 }
 
-/* The active page number (e.g., Page 1) */
-.page-item.active .page-link {
-    background-color: #00c853;
-    color: white;
-    border-color: #00c853;
+.page-item .page-link:hover,
+.pagination .relative:hover {
+    background-color: #f0fdf4 !important;
+    color: #16a34a !important;
+    border-color: #16a34a !important;
 }
 
-.page-item .page-link:hover {
-    background-color: #f8fafc;
-    color: #1e293b;
-}
-
-.page-item.active .page-link:hover {
-    background-color: #00a444;
-    color: white;
+/* The active page number */
+.page-item.active .page-link,
+.pagination .relative.bg-gradient-to-r {
+    background: linear-gradient(to right, #16a34a, #15803d) !important;
+    color: white !important;
+    border-color: #16a34a !important;
+    box-shadow: 0 4px 6px rgba(22, 163, 74, 0.3);
 }
 
 /* Disabled Next/Prev buttons */
-.page-item.disabled .page-link {
+.page-item.disabled .page-link,
+.pagination .relative.cursor-not-allowed {
     opacity: 0.5;
     pointer-events: none;
+    background-color: #f8fafc !important;
+}
+
+/* Remove left border for connected look */
+.pagination .relative.-ml-px {
+    margin-left: -1px !important;
+}
+
+/* Round first and last items */
+.pagination .relative:first-child,
+.pagination .relative.rounded-l-xl {
+    border-radius: 10px 0 0 10px !important;
+}
+
+.pagination .relative:last-child,
+.pagination .relative.rounded-r-xl {
+    border-radius: 0 10px 10px 0 !important;
+}
+
+/* Show text results info */
+.pagination + div,
+.pagination-wrapper p {
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* Mobile responsive pagination */
+@media (max-width: 640px) {
+    .pagination-wrapper {
+        justify-content: center;
+        padding: 15px;
+    }
+    
+    .pagination {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 6px;
+    }
+    
+    .pagination .relative,
+    .page-item .page-link {
+        padding: 6px 12px !important;
+        font-size: 13px !important;
+        min-width: 36px;
+    }
+    
+    .pagination-wrapper p {
+        text-align: center;
+        margin-bottom: 10px;
+    }
 }
 
 /* ========================================
