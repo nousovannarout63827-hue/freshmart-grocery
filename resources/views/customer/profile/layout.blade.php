@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'My Account - FreshMart')</title>
+    
+    @if(request()->routeIs('customer.order.details'))
+        <!-- Auto-refresh every 30 seconds for live order tracking -->
+        <meta http-equiv="refresh" content="30">
+    @endif
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('grocery-icon.png') }}?v=2">

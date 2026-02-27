@@ -55,7 +55,7 @@
                         @endphp
                         @if($productImage)
                             <img src="{{ $productImage }}"
-                                 alt="{{ $item->product->name ?? 'Product' }}"
+                                 alt="{{ $item->product->translated_name ?? 'Product' }}"
                                  class="w-full h-full object-cover"
                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                             <div class="w-full h-full flex items-center justify-center text-2xl bg-gradient-to-br from-primary-50 to-primary-100" style="display: none;">
@@ -68,7 +68,7 @@
                         @endif
                     </div>
                     <div class="flex-1">
-                        <p class="font-semibold text-gray-800">{{ $item->product->name ?? 'Product' }}</p>
+                        <p class="font-semibold text-gray-800">{{ $item->product->translated_name ?? 'Product' }}</p>
                         <p class="text-sm text-gray-500">Quantity: {{ $item->quantity }} × ${{ number_format($item->price, 2) }}</p>
                     </div>
                     <p class="font-bold text-gray-700">${{ number_format($item->total, 2) }}</p>

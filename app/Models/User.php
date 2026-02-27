@@ -32,6 +32,9 @@ class User extends Authenticatable
         'pob',
         'current_address',
         'bio',
+        'latitude',
+        'longitude',
+        'location_updated_at',
     ];
 
     /**
@@ -55,6 +58,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'permissions' => 'array',
+            'location_updated_at' => 'datetime',
         ];
     }
 

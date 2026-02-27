@@ -30,7 +30,7 @@
                             <td class="px-6 py-4">
                                 <input type="checkbox" name="ids[]" value="{{ $product->id }}" class="product-checkbox">
                             </td>
-                            <td class="px-6 py-4 font-medium text-gray-900">{{ $product->name }}</td>
+                            <td class="px-6 py-4 font-medium text-gray-900">{{ $product->translated_name }}</td>
                             <td class="px-6 py-4 text-gray-600">{{ $product->category->name }}</td>
                             <td class="px-6 py-4 text-center font-mono text-gray-800">${{ number_format($product->price, 2) }}</td>
                             <td class="px-6 py-4 text-right">

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,6 +17,7 @@
                 extend: {
                     fontFamily: {
                         'poppins': ['Poppins', 'sans-serif'],
+                        'khmer': ['Battambang', 'sans-serif'],
                     },
                     colors: {
                         primary: {
@@ -77,10 +78,11 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Battambang:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
         body { font-family: 'Poppins', sans-serif; }
+        body.font-khmer { font-family: 'Battambang', sans-serif; }
         
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -139,7 +141,7 @@
     
     @stack('styles')
 </head>
-<body class="bg-gray-50 text-gray-900 antialiased">
+<body class="bg-gray-50 text-gray-900 antialiased {{ app()->getLocale() === 'km' ? 'font-khmer' : '' }}">
     <!-- Announcement Bar -->
     <div class="bg-gradient-to-r from-primary-700 to-primary-600 text-white py-2 text-sm">
         <div class="max-w-7xl mx-auto px-4 text-center">
@@ -172,15 +174,15 @@
                 <!-- Desktop Navigation -->
                 <nav class="hidden lg:flex items-center gap-8">
                     <a href="{{ route('home') }}" class="font-medium {{ request()->routeIs('home') ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600' }} transition">
-                        Home
+                        {{ __('messages.home') }}
                     </a>
                     <a href="{{ route('shop') }}" class="font-medium {{ request()->routeIs('shop') ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600' }} transition">
-                        Shop
+                        {{ __('messages.shop') }}
                     </a>
                     @if(isset($categories) && $categories->isNotEmpty())
                         <div class="relative group">
                             <button class="font-medium text-gray-600 hover:text-primary-600 transition flex items-center gap-1">
-                                Categories
+                                {{ __('messages.categories') }}
                                 <svg class="w-4 h-4 transition group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                 </svg>
@@ -196,8 +198,8 @@
                             </div>
                         </div>
                     @endif
-                    <a href="{{ route('about') }}" class="font-medium {{ request()->routeIs('about') ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600' }} transition">About</a>
-                    <a href="{{ route('contact') }}" class="font-medium {{ request()->routeIs('contact') ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600' }} transition">Contact</a>
+                    <a href="{{ route('about') }}" class="font-medium {{ request()->routeIs('about') ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600' }} transition">{{ __('messages.about') }}</a>
+                    <a href="{{ route('contact') }}" class="font-medium {{ request()->routeIs('contact') ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600' }} transition">{{ __('messages.contact') }}</a>
                 </nav>
 
                 <!-- Right Actions -->
@@ -227,6 +229,26 @@
                             </span>
                         </a>
                     @endif
+
+                    <!-- Language Switcher -->
+                    <div class="relative group inline-block z-50">
+                        <button class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-full font-medium hover:bg-gray-200 transition-all text-sm">
+                            <span>🌐</span>
+                            <span class="uppercase">{{ app()->getLocale() }}</span>
+                        </button>
+                        
+                        <div class="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden">
+                            <a href="{{ route('lang.switch', 'en') }}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition border-b border-gray-100 {{ app()->getLocale() === 'en' ? 'bg-primary-50 text-primary-600 font-semibold' : '' }}">
+                                🇬🇧 English
+                            </a>
+                            <a href="{{ route('lang.switch', 'km') }}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition border-b border-gray-100 {{ app()->getLocale() === 'km' ? 'bg-primary-50 text-primary-600 font-semibold' : '' }}">
+                                🇰🇭 ភាសាខ្មែរ
+                            </a>
+                            <a href="{{ route('lang.switch', 'zh') }}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition {{ app()->getLocale() === 'zh' ? 'bg-primary-50 text-primary-600 font-semibold' : '' }}">
+                                🇨🇳 中文
+                            </a>
+                        </div>
+                    </div>
 
                     <!-- Auth -->
                     @auth

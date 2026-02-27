@@ -162,12 +162,12 @@
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
                                     @if($product->image)
-                                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-12 h-12 object-cover rounded-lg">
+                                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->translated_name }}" class="w-12 h-12 object-cover rounded-lg">
                                     @else
                                         <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-2xl">🥬</div>
                                     @endif
                                     <div>
-                                        <p class="font-semibold text-gray-900">{{ Str::limit($product->name, 50) }}</p>
+                                        <p class="font-semibold text-gray-900">{{ Str::limit($product->translated_name, 50) }}</p>
                                         <p class="text-xs text-gray-500">{{ $product->category->name ?? 'Uncategorized' }}</p>
                                     </div>
                                 </div>
@@ -236,7 +236,7 @@
                                     @endfor
                                 </div>
                                 <span class="text-xs text-gray-500">•</span>
-                                <a href="{{ route('product.show', $review->product->slug) }}" class="text-sm text-primary-600 hover:text-primary-700 font-medium">{{ $review->product->name }}</a>
+                                <a href="{{ route('product.show', $review->product->slug) }}" class="text-sm text-primary-600 hover:text-primary-700 font-medium">{{ $review->product->translated_name }}</a>
                             </div>
                         </div>
                         <div class="text-right">

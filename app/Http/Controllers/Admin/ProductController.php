@@ -79,8 +79,14 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
+        // 1. Validate the incoming request with custom error messages
+        $validated = $request->validate([
+            'name_en' => 'required|string|max:255',
+            'name_km' => 'required|string|max:255',
+            'name_zh' => 'required|string|max:255',
+            'description_en' => 'nullable|string|max:1000',
+            'description_km' => 'nullable|string|max:1000',
+            'description_zh' => 'nullable|string|max:1000',
             'category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
@@ -88,22 +94,53 @@ class ProductController extends Controller
             'sku' => 'nullable|string|max:100|unique:products,sku',
             'images' => 'nullable|array|max:4',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            // Custom error messages for better UX
+            'name_en.required' => 'The English name is required.',
+            'name_km.required' => 'សូមបញ្ចូលឈ្មោះផលិតផលជាភាសាខ្មែរ (The Khmer name is required).',
+            'name_zh.required' => 'The Chinese name is required.',
+            'category_id.required' => 'Please select a category.',
+            'category_id.exists' => 'The selected category is invalid.',
+            'price.required' => 'Please enter a price.',
+            'price.numeric' => 'Price must be a number.',
+            'price.min' => 'Price cannot be negative.',
+            'stock.required' => 'Please enter stock quantity.',
+            'stock.integer' => 'Stock must be a whole number.',
+            'stock.min' => 'Stock cannot be negative.',
+            'unit.required' => 'Please select a unit.',
+            'sku.unique' => 'This SKU/Barcode is already in use.',
+            'images.max' => 'You can only upload up to 4 images.',
+            'images.*.image' => 'Each file must be an image.',
+            'images.*.max' => 'Each image must be less than 2MB.',
         ]);
 
         // SMART SKU LOGIC: If blank, generate one. If not, use what they scanned.
-        $finalSku = $data['sku'] ?? null;
+        $finalSku = $validated['sku'] ?? null;
         if (empty($finalSku)) {
             // Generates something like "PRD-A8F39K21"
             $finalSku = 'PRD-' . strtoupper(\Illuminate\Support\Str::random(8));
         }
 
+        // Pack multi-language name and description into JSON arrays
+        $productName = [
+            'en' => $validated['name_en'],
+            'km' => $validated['name_km'],
+            'zh' => $validated['name_zh'],
+        ];
+        
+        $productDescription = [];
+        if (!empty($validated['description_en'])) $productDescription['en'] = $validated['description_en'];
+        if (!empty($validated['description_km'])) $productDescription['km'] = $validated['description_km'];
+        if (!empty($validated['description_zh'])) $productDescription['zh'] = $validated['description_zh'];
+
         // Create the product first
         $product = Product::create([
-            'name' => $data['name'],
-            'category_id' => $data['category_id'],
-            'price' => $data['price'],
-            'stock' => $data['stock'],
-            'unit' => $data['unit'],
+            'name' => $productName,
+            'description' => !empty($productDescription) ? $productDescription : null,
+            'category_id' => $validated['category_id'],
+            'price' => $validated['price'],
+            'stock' => $validated['stock'],
+            'unit' => $validated['unit'],
             'sku' => $finalSku,
         ]);
 
@@ -111,7 +148,7 @@ class ProductController extends Controller
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $index => $image) {
                 $imagePath = $image->store('products', 'public');
-                
+
                 ProductImage::create([
                     'product_id' => $product->id,
                     'image_path' => $imagePath,
@@ -121,9 +158,9 @@ class ProductController extends Controller
         }
 
         // Log the activity
-        ActivityLog::log('Created', 'Inventory', "Added a new product: {$product->name} (ID: {$product->id})");
+        ActivityLog::log('Created', 'Inventory', "Added a new product: {$productName['en']} (ID: {$product->id})");
 
-        return redirect()->route('admin.products.index')->with('success', 'Product added successfully!');
+        return redirect()->route('admin.products.index')->with('success', 'Product added successfully in 3 languages!');
     }
 
     /**

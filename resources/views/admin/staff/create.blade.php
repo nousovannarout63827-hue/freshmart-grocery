@@ -113,20 +113,169 @@
 
         <div style="background: white; border-radius: 16px; padding: 24px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
             <h3 style="margin: 0 0 20px 0; font-weight: 800; color: #1e293b; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">3. Access Permissions</h3>
-            
-            <div style="display: flex; flex-wrap: wrap; gap: 24px; margin-bottom: 24px;">
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 700;">
-                    <input type="checkbox" name="permissions[]" value="manage_inventory" style="width: 20px; height: 20px; accent-color: #10b981;"> 📦 Manage Inventory
-                </label>
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 700;">
-                    <input type="checkbox" name="permissions[]" value="manage_categories" style="width: 20px; height: 20px; accent-color: #10b981;"> 🗂️ Manage Categories
-                </label>
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 700;">
-                    <input type="checkbox" name="permissions[]" value="manage_staff" style="width: 20px; height: 20px; accent-color: #10b981;"> 👥 Manage Staff
-                </label>
-                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 700;">
-                    <input type="checkbox" name="permissions[]" value="manage_orders" style="width: 20px; height: 20px; accent-color: #10b981;"> 🛒 Manage Orders
-                </label>
+            <p style="color: #64748b; margin-bottom: 20px; font-size: 13px;">Select the permissions this team member should have. Admins have unrestricted access.</p>
+
+            <!-- Permission Categories -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 24px;">
+                
+                <!-- Product Management -->
+                <div style="background: #f8fafc; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0;">
+                    <h4 style="margin: 0 0 12px 0; font-weight: 700; color: #475569; font-size: 13px; text-transform: uppercase; display: flex; align-items: center; gap: 8px;">
+                        📦 Product Management
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 600;">
+                            <input type="checkbox" name="permissions[]" value="manage_inventory" style="width: 18px; height: 18px; accent-color: #10b981;">
+                            <span>Manage Inventory</span>
+                        </label>
+                        <small style="color: #94a3b8; font-size: 11px; margin-left: 28px;">Add, edit, and trash products</small>
+                        
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 600;">
+                            <input type="checkbox" name="permissions[]" value="manage_categories" style="width: 18px; height: 18px; accent-color: #10b981;">
+                            <span>Manage Categories</span>
+                        </label>
+                        <small style="color: #94a3b8; font-size: 11px; margin-left: 28px;">Create and manage product categories</small>
+                        
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 600;">
+                            <input type="checkbox" name="permissions[]" value="manage_products" style="width: 18px; height: 18px; accent-color: #10b981;">
+                            <span>Manage Products</span>
+                        </label>
+                        <small style="color: #94a3b8; font-size: 11px; margin-left: 28px;">Full product CRUD operations</small>
+                    </div>
+                </div>
+
+                <!-- Order Management -->
+                <div style="background: #f8fafc; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0;">
+                    <h4 style="margin: 0 0 12px 0; font-weight: 700; color: #475569; font-size: 13px; text-transform: uppercase; display: flex; align-items: center; gap: 8px;">
+                        🛒 Order Management
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 600;">
+                            <input type="checkbox" name="permissions[]" value="manage_orders" style="width: 18px; height: 18px; accent-color: #10b981;">
+                            <span>Manage Orders</span>
+                        </label>
+                        <small style="color: #94a3b8; font-size: 11px; margin-left: 28px;">View and update customer orders</small>
+                        
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 600;">
+                            <input type="checkbox" name="permissions[]" value="process_orders" style="width: 18px; height: 18px; accent-color: #10b981;">
+                            <span>Process Orders</span>
+                        </label>
+                        <small style="color: #94a3b8; font-size: 11px; margin-left: 28px;">Confirm, prepare, and ship orders</small>
+                        
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 600;">
+                            <input type="checkbox" name="permissions[]" value="assign_drivers" style="width: 18px; height: 18px; accent-color: #10b981;">
+                            <span>Assign Drivers</span>
+                        </label>
+                        <small style="color: #94a3b8; font-size: 11px; margin-left: 28px;">Assign drivers to delivery orders</small>
+                    </div>
+                </div>
+
+                <!-- Staff & User Management -->
+                <div style="background: #f8fafc; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0;">
+                    <h4 style="margin: 0 0 12px 0; font-weight: 700; color: #475569; font-size: 13px; text-transform: uppercase; display: flex; align-items: center; gap: 8px;">
+                        👥 Staff & Users
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 600;">
+                            <input type="checkbox" name="permissions[]" value="manage_staff" style="width: 18px; height: 18px; accent-color: #10b981;">
+                            <span>Manage Staff</span>
+                        </label>
+                        <small style="color: #94a3b8; font-size: 11px; margin-left: 28px;">Add users and change roles</small>
+                        
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 600;">
+                            <input type="checkbox" name="permissions[]" value="manage_customers" style="width: 18px; height: 18px; accent-color: #10b981;">
+                            <span>Manage Customers</span>
+                        </label>
+                        <small style="color: #94a3b8; font-size: 11px; margin-left: 28px;">View and manage customer accounts</small>
+                        
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 600;">
+                            <input type="checkbox" name="permissions[]" value="manage_drivers" style="width: 18px; height: 18px; accent-color: #10b981;">
+                            <span>Manage Drivers</span>
+                        </label>
+                        <small style="color: #94a3b8; font-size: 11px; margin-left: 28px;">Manage driver accounts and assignments</small>
+                    </div>
+                </div>
+
+                <!-- Marketing & Promotions -->
+                <div style="background: #f8fafc; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0;">
+                    <h4 style="margin: 0 0 12px 0; font-weight: 700; color: #475569; font-size: 13px; text-transform: uppercase; display: flex; align-items: center; gap: 8px;">
+                        🎉 Marketing & Promotions
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 600;">
+                            <input type="checkbox" name="permissions[]" value="manage_coupons" style="width: 18px; height: 18px; accent-color: #10b981;">
+                            <span>Manage Coupons</span>
+                        </label>
+                        <small style="color: #94a3b8; font-size: 11px; margin-left: 28px;">Create and manage discount codes</small>
+                        
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 600;">
+                            <input type="checkbox" name="permissions[]" value="manage_reviews" style="width: 18px; height: 18px; accent-color: #10b981;">
+                            <span>Manage Reviews</span>
+                        </label>
+                        <small style="color: #94a3b8; font-size: 11px; margin-left: 28px;">Approve, edit, or remove reviews</small>
+                    </div>
+                </div>
+
+                <!-- Reports & Analytics -->
+                <div style="background: #f8fafc; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0;">
+                    <h4 style="margin: 0 0 12px 0; font-weight: 700; color: #475569; font-size: 13px; text-transform: uppercase; display: flex; align-items: center; gap: 8px;">
+                        📊 Reports & Analytics
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 600;">
+                            <input type="checkbox" name="permissions[]" value="view_reports" style="width: 18px; height: 18px; accent-color: #10b981;">
+                            <span>View Reports</span>
+                        </label>
+                        <small style="color: #94a3b8; font-size: 11px; margin-left: 28px;">Access analytics and reports</small>
+                        
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 600;">
+                            <input type="checkbox" name="permissions[]" value="export_data" style="width: 18px; height: 18px; accent-color: #10b981;">
+                            <span>Export Data</span>
+                        </label>
+                        <small style="color: #94a3b8; font-size: 11px; margin-left: 28px;">Export reports to Excel/PDF</small>
+                        
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 600;">
+                            <input type="checkbox" name="permissions[]" value="view_activity_logs" style="width: 18px; height: 18px; accent-color: #10b981;">
+                            <span>View Activity Logs</span>
+                        </label>
+                        <small style="color: #94a3b8; font-size: 11px; margin-left: 28px;">View system activity logs</small>
+                    </div>
+                </div>
+
+                <!-- System Settings -->
+                <div style="background: #f8fafc; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0;">
+                    <h4 style="margin: 0 0 12px 0; font-weight: 700; color: #475569; font-size: 13px; text-transform: uppercase; display: flex; align-items: center; gap: 8px;">
+                        ⚙️ System Settings
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 600;">
+                            <input type="checkbox" name="permissions[]" value="manage_settings" style="width: 18px; height: 18px; accent-color: #10b981;">
+                            <span>Manage Settings</span>
+                        </label>
+                        <small style="color: #94a3b8; font-size: 11px; margin-left: 28px;">Modify system configurations</small>
+                        
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #1e293b; font-weight: 600;">
+                            <input type="checkbox" name="permissions[]" value="manage_roles" style="width: 18px; height: 18px; accent-color: #10b981;">
+                            <span>Manage Roles</span>
+                        </label>
+                        <small style="color: #94a3b8; font-size: 11px; margin-left: 28px;">Create and edit user roles</small>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Quick Select Buttons -->
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px; padding-top: 20px; border-top: 1px dashed #e2e8f0;">
+                <span style="font-size: 13px; color: #64748b; font-weight: 600;">Quick Select:</span>
+                <button type="button" onclick="selectAllPermissions()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.2s;">
+                    ✅ Select All
+                </button>
+                <button type="button" onclick="selectEssentialPermissions()" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.2s;">
+                    📋 Essential Only
+                </button>
+                <button type="button" onclick="clearAllPermissions()" style="background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.2s;">
+                    ❌ Clear All
+                </button>
             </div>
 
             <div style="text-align: right; border-top: 1px solid #f1f5f9; padding-top: 24px;">
@@ -135,6 +284,23 @@
                 </button>
             </div>
         </div>
+
+        <script>
+            function selectAllPermissions() {
+                document.querySelectorAll('input[name="permissions[]"]').forEach(cb => cb.checked = true);
+            }
+            
+            function selectEssentialPermissions() {
+                const essential = ['manage_inventory', 'manage_orders', 'process_orders'];
+                document.querySelectorAll('input[name="permissions[]"]').forEach(cb => {
+                    cb.checked = essential.includes(cb.value);
+                });
+            }
+            
+            function clearAllPermissions() {
+                document.querySelectorAll('input[name="permissions[]"]').forEach(cb => cb.checked = false);
+            }
+        </script>
 
     </form>
 </div>

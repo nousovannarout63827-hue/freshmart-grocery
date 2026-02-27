@@ -13,7 +13,7 @@
     <tbody>
         @foreach($products as $product)
         <tr>
-            <td style="border: 1px solid #ddd; padding: 8px;">{{ $product->name }}</td>
+            <td style="border: 1px solid #ddd; padding: 8px;">{{ $product->translated_name }}</td>
             <td style="border: 1px solid #ddd; padding: 8px;">{{ $product->category->name }}</td>
             <td style="border: 1px solid #ddd; padding: 8px;">{{ $product->quantity }}</td>
             <td style="border: 1px solid #ddd; padding: 8px;">${{ number_format($product->price, 2) }}</td>

@@ -170,7 +170,7 @@
                                 @endphp
                                 @if($productImageUrl)
                                     <img src="{{ $productImageUrl }}"
-                                         alt="{{ $product->name }}"
+                                         alt="{{ $product->translated_name }}"
                                          class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center text-6xl bg-gradient-to-br from-primary-50 to-primary-100">
@@ -228,7 +228,7 @@
 
                             <div class="p-3 sm:p-5">
                                 <p class="text-[10px] sm:text-xs text-primary-600 font-semibold mb-1 sm:mb-2">{{ $product->category->name ?? 'Uncategorized' }}</p>
-                                <h3 class="font-semibold text-gray-800 mb-1 sm:mb-2 text-xs sm:text-sm truncate group-hover:text-primary-600 transition">{{ $product->name }}</h3>
+                                <h3 class="font-semibold text-gray-800 mb-1 sm:mb-2 text-xs sm:text-sm truncate group-hover:text-primary-600 transition {{ app()->getLocale() === 'km' ? 'font-khmer' : '' }}">{{ $product->translated_name }}</h3>
                                 <div class="flex items-center justify-between mb-2 sm:mb-4">
                                     <div>
                                         <span class="text-sm sm:text-xl font-bold text-gray-900">
@@ -268,7 +268,7 @@
                             <button type="button"
                                     class="add-to-cart-btn w-full bg-primary-600 text-white py-2 sm:py-3 rounded-lg sm:rounded-xl hover:bg-primary-700 transition font-medium text-[11px] sm:text-sm flex items-center justify-center gap-1 sm:gap-2 shadow-lg shadow-primary-500/30 hover:shadow-primary-500/50"
                                     data-product-id="{{ $product->id }}"
-                                    data-product-name="{{ $product->name }}"
+                                    data-product-name="{{ $product->translated_name }}"
                                     data-product-price="{{ $product->price }}">
                                 <svg class="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
@@ -492,19 +492,19 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add to Cart functionality
     const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
-    
+
     addToCartButtons.forEach(button => {
         button.addEventListener('click', async function(e) {
             e.preventDefault();
-            
+
             const productId = this.dataset.productId;
             const productName = this.dataset.productName;
-            
+
             // Disable button and show loading state
             const originalText = this.innerHTML;
             this.disabled = true;
             this.innerHTML = '<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Adding...';
-            
+
             try {
                 const response = await fetch('{{ route("cart.add") }}', {
                     method: 'POST',
@@ -513,13 +513,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Accept': 'application/json',
                     },
-                    body: JSON.stringify({ 
+                    body: JSON.stringify({
                         product_id: productId,
                         quantity: 1
                     })
                 });
-                
+
                 if (response.ok) {
+                    const data = await response.json();
+                    console.log('Add to cart response:', data);
+                    
                     // Show success animation
                     this.style.transform = 'scale(1.05)';
                     setTimeout(() => {
@@ -541,8 +544,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         color: '#166534'
                     });
 
-                    // Update cart count in header (if exists)
-                    updateCartCount();
+                    // Update cart count immediately with the count from response
+                    console.log('Cart count from server:', data.cart_count);
+                    if (data.cart_count !== undefined) {
+                        updateCartCountDisplay(data.cart_count);
+                    } else {
+                        console.log('No cart_count in response, fetching...');
+                        updateCartCount();
+                    }
                 } else {
                     const error = await response.json();
                     Swal.fire({
@@ -570,7 +579,29 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Update cart count function
+    // Update cart count display directly
+    function updateCartCountDisplay(count) {
+        const cartCountElements = document.querySelectorAll('#cart-count, .cart-count');
+        console.log('Updating cart count to:', count, 'Found elements:', cartCountElements.length);
+        
+        if (cartCountElements.length === 0) {
+            console.warn('No cart count element found!');
+            return;
+        }
+        
+        cartCountElements.forEach(el => {
+            // Animate the badge
+            el.style.transition = 'all 0.3s ease';
+            el.style.transform = 'scale(1.3)';
+            setTimeout(() => {
+                el.textContent = count;
+                el.style.transform = 'scale(1)';
+                el.classList.remove('hidden'); // Make sure it's visible
+            }, 150);
+        });
+    }
+
+    // Update cart count function (fetch from server)
     async function updateCartCount() {
         try {
             const response = await fetch('{{ route("cart.count") }}', {
@@ -581,18 +612,10 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             if (response.ok) {
                 const data = await response.json();
-                const cartCountElements = document.querySelectorAll('.cart-count');
-                cartCountElements.forEach(el => {
-                    el.textContent = data.count;
-                    // Animate the badge
-                    el.style.transform = 'scale(1.2)';
-                    setTimeout(() => {
-                        el.style.transform = 'scale(1)';
-                    }, 200);
-                });
+                updateCartCountDisplay(data.count);
             }
         } catch (error) {
-            console.error('Error updating cart count:', error);
+            console.error('Error fetching cart count:', error);
         }
     }
 

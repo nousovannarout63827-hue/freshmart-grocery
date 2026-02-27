@@ -59,9 +59,19 @@ class HomeController extends Controller
             ->whereNotNull('slug')
             ->where('slug', '!=', '');
 
-        // Search Filter
+        // Search Filter - Case insensitive search through multi-language JSON names
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $searchTerm = '%' . strtolower($request->search) . '%';
+            
+            // Search through JSON name field (supports English, Khmer, Chinese)
+            $query->where(function($q) use ($searchTerm) {
+                // Search in English name
+                $q->whereRaw('LOWER(JSON_EXTRACT(name, "$.en")) LIKE ?', [$searchTerm])
+                  // Search in Khmer name
+                  ->orWhereRaw('LOWER(JSON_EXTRACT(name, "$.km")) LIKE ?', [$searchTerm])
+                  // Search in Chinese name
+                  ->orWhereRaw('LOWER(JSON_EXTRACT(name, "$.zh")) LIKE ?', [$searchTerm]);
+            });
         }
 
         // Category Filter
@@ -298,6 +308,9 @@ class HomeController extends Controller
             $product = Product::findOrFail($productId);
 
             if ($request->quantity > $product->stock) {
+                if ($request->expectsJson()) {
+                    return response()->json(['message' => 'Not enough stock available.'], 400);
+                }
                 return redirect()->back()->with('error', 'Not enough stock available.');
             }
 
@@ -318,6 +331,20 @@ class HomeController extends Controller
             $message .= ' Coupon removed as subtotal is now below minimum requirement.';
         }
 
+        if ($request->expectsJson()) {
+            $cart = session()->get('cart', []);
+            $itemTotal = isset($cart[$productId]) ? $cart[$productId]['price'] * $cart[$productId]['quantity'] : 0;
+            $itemPrice = isset($cart[$productId]) ? $cart[$productId]['price'] : 0;
+            
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'cart_count' => count($cart),
+                'item_total' => $itemTotal,
+                'item_price' => $itemPrice
+            ]);
+        }
+
         return redirect()->back()->with($couponRemoved ? 'warning' : 'success', $message);
     }
 
@@ -331,19 +358,32 @@ class HomeController extends Controller
         if (isset($cart[$productId])) {
             unset($cart[$productId]);
             session()->put('cart', $cart);
-            
+
             // 🛡️ COUPON WATCHDOG: Re-validate coupon after removal
             $couponRemoved = $this->validateCouponForCart($cart);
-            
+
             $message = 'Item removed from cart!';
             if ($couponRemoved) {
                 $message .= ' Coupon removed as subtotal is now below minimum requirement.';
             }
-            
+
+            if (request()->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'cart_count' => count($cart)
+                ]);
+            }
+
             return redirect()->back()->with($couponRemoved ? 'warning' : 'success', $message);
         }
 
-        return redirect()->back()->with('error', 'Item not found in cart.');
+        $message = 'Item not found in cart.';
+        if (request()->expectsJson()) {
+            return response()->json(['message' => $message], 400);
+        }
+
+        return redirect()->back()->with('error', $message);
     }
 
     /**
@@ -526,8 +566,9 @@ class HomeController extends Controller
                     $product->stock = $newStock;
                     $product->save();
 
-                    // Log stock change for debugging
-                    \Log::info("Product {$product->name} stock updated: {$product->stock} -> {$newStock}");
+                    // Log stock change for debugging - use translated_name to handle multi-language array
+                    $productName = is_array($product->name) ? ($product->name['en'] ?? 'Product') : $product->name;
+                    \Log::info("Product {$productName} stock updated: {$product->stock} -> {$newStock}");
                 }
             }
 

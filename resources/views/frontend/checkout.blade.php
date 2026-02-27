@@ -86,20 +86,25 @@
                             <p class="text-xs text-gray-500">Start typing and select from Google's suggestions</p>
                         </div>
                         
-                        <!-- Google Maps Location Picker -->
+                        <!-- Leaflet.js Map Location Picker -->
                         <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-3">🗺️ Pin Your Exact Location</label>
-                            <div class="bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200 mb-3">
-                                <div id="map" style="height: 300px; width: 100%;"></div>
-                            </div>
-                            <p class="text-sm text-gray-600 mb-3">Drag the pin to adjust your exact delivery location</p>
+                            <label class="block text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.242-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                Delivery Address Location
+                            </label>
+                            <p class="text-sm text-slate-500 mb-3">📍 Drag the red pin to your exact delivery location</p>
                             
+                            <div id="map" class="w-full h-[400px] rounded-2xl border-2 border-slate-200 shadow-sm z-10 relative"></div>
+
                             <!-- Hidden inputs for lat/lng -->
                             <input type="hidden" name="latitude" id="latitude" value="">
                             <input type="hidden" name="longitude" id="longitude" value="">
-                            
+
                             <!-- Display selected coordinates -->
-                            <div id="location-display" class="hidden bg-green-50 border border-green-200 rounded-xl p-3 mb-3">
+                            <div id="location-display" class="hidden bg-green-50 border border-green-200 rounded-xl p-3 mt-3">
                                 <div class="flex items-center gap-2 text-green-700">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -277,7 +282,14 @@
                         <!-- Cart Items -->
                         <div class="space-y-4 mb-6 max-h-80 overflow-y-auto pr-2">
                             @foreach($cart as $productId => $item)
-                                @php $itemTotal = $item['price'] * $item['quantity']; @endphp
+                                @php 
+                                    $itemTotal = $item['price'] * $item['quantity'];
+                                    
+                                    // Handle multi-language name array from session
+                                    $displayName = is_array($item['name']) 
+                                        ? ($item['name'][app()->getLocale()] ?? $item['name']['en'] ?? 'Product')
+                                        : $item['name'];
+                                @endphp
                                 <div class="flex gap-4 p-3 bg-gray-50 rounded-xl">
                                     <div class="w-16 h-16 bg-white rounded-lg flex-shrink-0 overflow-hidden border border-gray-100">
                                         @php
@@ -287,7 +299,7 @@
                                         @endphp
                                         @if($imageUrl)
                                             <img src="{{ $imageUrl }}"
-                                                 alt="{{ $item['name'] }}"
+                                                 alt="{{ $displayName }}"
                                                  class="w-full h-full object-cover"
                                                  onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                             <div class="w-full h-full flex items-center justify-center text-2xl bg-gradient-to-br from-primary-50 to-primary-100" style="display: none;">
@@ -300,7 +312,7 @@
                                         @endif
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <p class="font-medium text-gray-900 text-sm truncate">{{ $item['name'] }}</p>
+                                        <p class="font-medium text-gray-900 text-sm truncate">{{ $displayName }}</p>
                                         <p class="text-sm text-gray-500">
                                             @php
                                                 $displayPrice = ($item['price'] == floor($item['price'])) ? '$' . number_format($item['price'], 0) : '$' . number_format($item['price'], 2);
@@ -421,95 +433,62 @@
     </div>
 
     @push('scripts')
-    <!-- Google Maps API with Places Library -->
-    <!-- Google Maps API - Replace YOUR_GOOGLE_MAPS_API_KEY with your actual API key -->
-    <!-- Get your API key from: https://console.cloud.google.com/apis/credentials -->
-    <!-- Make sure to enable: Maps JavaScript API, Geocoding API, and Places API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_api_key', 'YOUR_GOOGLE_MAPS_API_KEY') }}&libraries=places&callback=initMap" async defer></script>
-    
+    <!-- Leaflet.js CSS & JS - Free OpenStreetMap -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <script>
-        // Grab PHP values so JS knows the starting math
-        const subtotal = {{ $subtotal ?? 0 }};
-        const discount = {{ session()->has('coupon') ? session()->get('coupon')['discount'] : 0 }};
-        
-        // Google Maps variables
-        let map;
-        let marker;
-        let autocomplete;
-        const defaultLat = 11.5564; // Phnom Penh coordinates (center)
-        const defaultLng = 104.9282;
+        document.addEventListener("DOMContentLoaded", function() {
+            // Grab PHP values so JS knows the starting math
+            const subtotal = {{ $subtotal ?? 0 }};
+            const discount = {{ session()->has('coupon') ? session()->get('coupon')['discount'] : 0 }};
 
-        // Initialize Google Maps with Places Autocomplete
-        function initMap() {
-            // 1. Create map centered on Phnom Penh
-            map = new google.maps.Map(document.getElementById("map"), {
-                center: { lat: defaultLat, lng: defaultLng },
-                zoom: 13,
-                mapTypeControl: false,
-                streetViewControl: false,
-                fullscreenControl: true,
+            // Leaflet.js Map - Centered on Phnom Penh
+            const defaultLat = 11.5564;
+            const defaultLng = 104.9282;
+
+            // 1. Initialize the Map
+            const map = L.map('map').setView([defaultLat, defaultLng], 14);
+
+            // 2. Load OpenStreetMap tiles (free!)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // 3. Create the draggable marker (red pin)
+            const marker = L.marker([defaultLat, defaultLng], {
+                draggable: true
+            }).addTo(map);
+
+            // 4. Update hidden inputs when page loads
+            document.getElementById("latitude").value = defaultLat;
+            document.getElementById("longitude").value = defaultLng;
+
+            // 5. Update location display function
+            function updateLocation(lat, lng) {
+                document.getElementById('latitude').value = lat;
+                document.getElementById('longitude').value = lng;
+
+                const locationDisplay = document.getElementById('location-display');
+                const locationText = document.getElementById('location-text');
+                locationDisplay.classList.remove('hidden');
+                locationText.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            }
+
+            // 6. Listen for marker drag end
+            marker.on('dragend', function (event) {
+                const position = marker.getLatLng();
+                updateLocation(position.lat, position.lng);
             });
 
-            // 2. Create initial draggable marker
-            marker = new google.maps.Marker({
-                position: { lat: defaultLat, lng: defaultLng },
-                map: map,
-                draggable: true,
-                title: "Drag to set your location",
-                animation: google.maps.Animation.DROP,
+            // 7. Move marker when user clicks on map
+            map.on('click', function(event) {
+                marker.setLatLng(event.latlng);
+                updateLocation(event.latlng.lat, event.latlng.lng);
             });
 
-            // 3. Attach Autocomplete to the search input
-            const input = document.getElementById("address-search");
-            autocomplete = new google.maps.places.Autocomplete(input);
-            autocomplete.bindTo("bounds", map);
-
-            // 4. Listen for when user selects an address from dropdown
-            autocomplete.addListener("place_changed", () => {
-                const place = autocomplete.getPlace();
-
-                if (!place.geometry || !place.geometry.location) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'No Location Found',
-                        text: 'No details available for this location. Please try another search or pin manually on the map.',
-                        confirmButtonColor: '#16a34a'
-                    });
-                    return;
-                }
-
-                // Move map to the new location
-                if (place.geometry.viewport) {
-                    map.fitBounds(place.geometry.viewport);
-                } else {
-                    map.setCenter(place.geometry.location);
-                    map.setZoom(17); // Zoom in close to the street
-                }
-
-                // Move the marker to the new location
-                marker.setPosition(place.geometry.location);
-
-                // Update hidden fields and display
-                updateLocation(place.geometry.location);
-
-                // Auto-fill address fields using reverse geocoding
-                reverseGeocode(place.geometry.location.lat(), place.geometry.location.lng());
-            });
-
-            // 5. Listen for when user drags the marker manually
-            marker.addListener("dragend", function() {
-                updateLocation(marker.getPosition());
-                reverseGeocode(marker.getPosition().lat(), marker.getPosition().lng());
-            });
-
-            // 6. Update location when map is clicked
-            map.addListener("click", function(event) {
-                marker.setPosition(event.latLng);
-                updateLocation(event.latLng);
-                reverseGeocode(event.latLng.lat(), event.latLng.lng());
-            });
-
-            // 7. Try to get user's current location
+            // 8. Try to get user's current location (if browser supports it)
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
@@ -517,54 +496,19 @@
                             lat: position.coords.latitude,
                             lng: position.coords.longitude,
                         };
-                        map.setCenter(userLocation);
-                        marker.setPosition(userLocation);
-                        updateLocation(userLocation);
-                        reverseGeocode(userLocation.lat, userLocation.lng);
+                        map.setView(userLocation, 16);
+                        marker.setLatLng(userLocation);
+                        updateLocation(userLocation.lat, userLocation.lng);
                     },
                     () => {
                         console.log("Geolocation not available or permission denied");
                     }
                 );
             }
-        }
 
-        // Update location display and hidden inputs
-        function updateLocation(latLng) {
-            const lat = latLng.lat();
-            const lng = latLng.lng();
-            
-            // Update hidden inputs
-            document.getElementById('latitude').value = lat;
-            document.getElementById('longitude').value = lng;
-            
-            // Update display
-            const locationDisplay = document.getElementById('location-display');
-            const locationText = document.getElementById('location-text');
-            locationDisplay.classList.remove('hidden');
-            locationText.textContent = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-        }
-
-        // Reverse geocoding to get address from coordinates
-        function reverseGeocode(lat, lng) {
-            const geocoder = new google.maps.Geocoder();
-            geocoder.geocode({ location: { lat, lng } }, (results, status) => {
-                if (status === "OK" && results[0]) {
-                    // Extract address components
-                    const address = results[0].formatted_address;
-                    document.getElementById('address').value = address;
-                    
-                    // Try to extract city
-                    for (const component of results[0].address_components) {
-                        const types = component.types;
-                        if (types.includes("locality") || types.includes("administrative_area_level_1")) {
-                            document.getElementById('city').value = component.long_name;
-                            break;
-                        }
-                    }
-                }
-            });
-        }
+            // Note: Address search/autocomplete would require a separate geocoding service
+            // For now, users manually pin their location on the map
+        });
 
         // Phone number auto-formatting (Malaysian format: 015-868-6089)
         function formatPhoneNumber(input) {

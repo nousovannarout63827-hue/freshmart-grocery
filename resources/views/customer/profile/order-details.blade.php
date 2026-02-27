@@ -21,7 +21,7 @@
                         <h1 class="text-2xl font-bold text-gray-900 mb-1">Order #{{ $order->id }}</h1>
                         <p class="text-gray-500">Placed on {{ $order->created_at->format('F d, Y \a\t g:i A') }}</p>
                     </div>
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-3 flex-wrap">
                         @php
                             $statusColors = [
                                 'pending' => 'bg-amber-100 text-amber-700',
@@ -33,18 +33,43 @@
                                 'delivered' => 'bg-green-100 text-green-700',
                                 'cancelled' => 'bg-red-100 text-red-700',
                             ];
+                            
+                            // Map status for timeline display
+                            $displayStatus = $order->status;
+                            if ($displayStatus === 'picked_up') {
+                                $displayStatus = 'out_for_delivery';
+                            }
                         @endphp
                         <span class="px-4 py-2 rounded-full text-sm font-medium {{ $statusColors[$order->status] ?? 'bg-gray-100 text-gray-700' }} w-fit">
                             {{ ucfirst(str_replace('_', ' ', $order->status)) }}
                         </span>
+                        
+                        @if(in_array($order->status, ['pending', 'preparing', 'ready_for_pickup', 'out_for_delivery', 'arrived']))
+                            <a href="{{ route('customer.order.track', $order->id) }}"
+                               class="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-primary-500/30">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"/>
+                                </svg>
+                                Track Order
+                            </a>
+                        @endif
+                        
                         @if($order->status !== 'cancelled')
                             <a href="{{ route('customer.order.invoice', $order->id) }}"
-                               class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition"
-                               target="_blank">
+                               target="_blank"
+                               class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-all shadow-sm">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
-                                Invoice
+                                View Invoice
+                            </a>
+                            <a href="{{ route('customer.order.invoice-pdf', $order->id) }}"
+                               class="inline-flex items-center gap-2 px-4 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl transition-all shadow-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Download PDF
                             </a>
                         @endif
                     </div>
@@ -65,7 +90,7 @@
                                     @endphp
                                     @if($productImage)
                                         <img src="{{ $productImage }}"
-                                             alt="{{ $item->product->name ?? 'Product' }}"
+                                             alt="{{ $item->product->translated_name ?? 'Product' }}"
                                              class="w-full h-full object-cover"
                                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                         <div class="w-full h-full flex items-center justify-center text-2xl bg-gradient-to-br from-primary-50 to-primary-100" style="display: none;">
@@ -78,7 +103,7 @@
                                     @endif
                                 </div>
                                 <div class="flex-1">
-                                    <h3 class="font-semibold text-gray-900">{{ $item->product->name ?? 'Product' }}</h3>
+                                    <h3 class="font-semibold text-gray-900">{{ $item->product->translated_name ?? 'Product' }}</h3>
                                     <p class="text-sm text-gray-500">Quantity: {{ $item->quantity }}</p>
                                     <p class="text-sm text-gray-500">Price: ${{ number_format($item->price, 2) }} each</p>
                                 </div>
@@ -89,7 +114,44 @@
                         @endforeach
                     </div>
                 </div>
+
+                <!-- Payment & Delivery Info -->
+                <div class="border-t border-gray-100 pt-6 mt-6">
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-sm font-bold text-gray-900 mb-3">Payment Method</h3>
+                            <div class="flex items-center gap-3 text-gray-700">
+                                @if($order->payment_method === 'cash')
+                                    <span class="text-2xl">💵</span>
+                                    <span>Cash on Delivery</span>
+                                @else
+                                    <span class="text-2xl">💳</span>
+                                    <span>Card Payment</span>
+                                @endif
+                            </div>
+                            <p class="text-sm text-gray-500 mt-2">
+                                Payment Status: <span class="font-medium {{ $order->payment_status === 'paid' ? 'text-green-600' : 'text-amber-600' }}">
+                                    {{ ucfirst($order->payment_status ?? 'unknown') }}
+                                </span>
+                            </p>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-gray-900 mb-3">Delivery Address</h3>
+                            <p class="text-gray-700">{{ $order->delivery_address ?? 'No delivery address provided' }}</p>
+                            @if($order->latitude && $order->longitude)
+                                <a href="https://www.google.com/maps?q={{ $order->latitude }},{{ $order->longitude }}" 
+                                   target="_blank"
+                                   class="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 text-sm font-medium mt-2">
+                                    📍 View on Map
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Order Timeline -->
+            @include('customer.profile._order-timeline')
         </div>
 
         <!-- Sidebar -->
@@ -158,7 +220,7 @@
                 
                 <!-- Google Map Location -->
                 @if($order->latitude && $order->longitude)
-                    <div class="mt-4">
+                    <div class="mt-4" id="delivery-map">
                         <h3 class="text-sm font-semibold text-gray-700 mb-2">📍 Delivery Location on Map</h3>
                         <div class="bg-gray-100 rounded-xl overflow-hidden border-2 border-gray-200" style="height: 250px;">
                             <div id="order-map" style="height: 100%; width: 100%;"></div>
@@ -256,166 +318,31 @@
         </div>
     </div>
 
-    <!-- Order Timeline -->
-    <div class="mt-8 bg-white rounded-2xl border border-gray-100 p-6">
-        <h2 class="text-lg font-bold text-gray-900 mb-6">Order Timeline</h2>
-
-        @php
-            // Map status to numeric level for comparison (new workflow)
-            $statusLevels = [
-                'pending' => 1,
-                'preparing' => 2,
-                'ready_for_pickup' => 3,
-                'out_for_delivery' => 4,
-                'arrived' => 5,
-                'delivered' => 6,
-                'cancelled' => 0,
-            ];
-
-            // Get current status level
-            $currentStatus = strtolower($order->status);
-            $level = $statusLevels[$currentStatus] ?? 1;
-
-            $timeline = [
-                ['level' => 1, 'label' => 'Order Received', 'icon' => '📋', 'desc' => 'Your order has been placed'],
-                ['level' => 2, 'label' => 'Preparing', 'icon' => '🍳', 'desc' => 'Staff is preparing your items'],
-                ['level' => 3, 'label' => 'Ready for Pickup', 'icon' => '✅', 'desc' => 'Order ready for driver'],
-                ['level' => 4, 'label' => 'Out for Delivery', 'icon' => '🚚', 'desc' => 'Driver is on the way'],
-                ['level' => 5, 'label' => 'Arrived', 'icon' => '📍', 'desc' => 'Driver has arrived'],
-                ['level' => 6, 'label' => 'Delivered', 'icon' => '🎉', 'desc' => 'Order completed'],
-            ];
-        @endphp
-
-        @if($level === 0)
-            <div class="p-4 bg-red-50 text-red-700 rounded-xl border border-red-200 font-bold flex gap-3 items-center">
-                <span class="text-2xl">🚫</span>
-                <span>This order has been cancelled.</span>
-            </div>
-        @elseif($level >= 4)
-            <!-- Driver Info Section (shown when driver is assigned) -->
-            @if($order->driver)
-            <div class="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg flex-shrink-0 overflow-hidden">
-                        @if($order->driver->avatar || $order->driver->profile_photo_path)
-                            <img src="{{ asset('storage/' . ($order->driver->avatar ?? $order->driver->profile_photo_path)) }}" 
-                                 alt="{{ $order->driver->name }}"
-                                 class="w-full h-full object-cover"
-                                 onerror="this.style.display='none'; this.parentElement.innerText='{{ strtoupper(substr($order->driver->name ?? 'D', 0, 1)) }}'">
-                        @else
-                            {{ strtoupper(substr($order->driver->name ?? 'D', 0, 1)) }}
-                        @endif
-                    </div>
-                    <div class="flex-1">
-                        <p class="font-semibold text-gray-900">{{ $order->driver->name ?? 'Driver' }}</p>
-                        @if($order->driver->phone_number)
-                            <a href="tel:{{ $order->driver->phone_number }}" class="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
-                                </svg>
-                                {{ $order->driver->phone_number }}
-                            </a>
-                        @else
-                            <p class="text-sm text-gray-500">Phone number not available</p>
-                        @endif
-                    </div>
-                    <div class="text-right">
-                        <span class="inline-block bg-blue-600 text-white font-bold px-3 py-1 rounded-full text-xs uppercase">
-                            Your Driver
-                        </span>
-                    </div>
-                </div>
-            </div>
-            @else
-            <div class="mb-6 p-4 bg-amber-50 rounded-xl border border-amber-200">
-                <p class="text-sm text-amber-700">Driver will be assigned soon.</p>
-            </div>
-            @endif
-        @endif
-
-        @if($level === 0)
-        @elseif($level >= 6)
-            <!-- Delivered - Show all steps completed -->
-            <div class="relative ml-4">
-                <div class="absolute left-4 top-4 bottom-4 w-0.5 bg-green-500 z-0"></div>
-                <div class="space-y-6 relative z-10">
-                    @foreach($timeline as $step)
-                        <div class="flex items-start gap-4 relative z-10">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 border-2 bg-green-600 border-green-600 text-white">
-                                {{ $step['icon'] }}
-                            </div>
-                            <div class="flex-1 pt-1">
-                                <p class="font-semibold text-gray-900">{{ $step['label'] }}</p>
-                                <p class="text-sm text-gray-500">{{ $step['desc'] }}</p>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        @else
-            <!-- In Progress Timeline -->
-            <div class="relative ml-4">
-                <!-- Vertical connecting line -->
-                <div class="absolute left-4 top-4 bottom-4 w-0.5 bg-gray-300 z-0"></div>
-
-                <div class="space-y-6 relative z-10">
-                    @foreach($timeline as $step)
-                        @php
-                            $isCompleted = $level >= $step['level'];
-                            $isCurrent = $level == $step['level'];
-                        @endphp
-                        <div class="flex items-start gap-4 relative z-10">
-                            <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 border-2
-                                        {{ $isCompleted ? 'bg-green-600 border-green-600 text-white' : 'bg-white border-gray-300 text-gray-400' }}">
-                                {{ $step['icon'] }}
-                            </div>
-                            <div class="flex-1 pt-1">
-                                <p class="font-semibold {{ $isCompleted ? 'text-gray-900' : 'text-gray-400' }}">
-                                    {{ $step['label'] }}
-                                </p>
-                                <p class="text-sm {{ $isCompleted ? 'text-gray-500' : 'text-gray-400' }}">
-                                    {{ $step['desc'] }}
-                                </p>
-                                @if($isCurrent && $level < 6)
-                                    <p class="text-sm text-green-600 font-medium mt-1">
-                                        ✨ Current status
-                                    </p>
-                                @endif
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        @endif
-    </div>
-
     @if($order->latitude && $order->longitude)
     @push('scripts')
-    <!-- Google Maps API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_api_key', 'YOUR_GOOGLE_MAPS_API_KEY') }}&callback=initOrderMap" async defer></script>
-    
+    <!-- Leaflet.js for Order Map - Free OpenStreetMap -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <script>
-        function initOrderMap() {
-            const orderLat = {{ $order->latitude }};
-            const orderLng = {{ $order->longitude }};
-            
+        document.addEventListener("DOMContentLoaded", function() {
+            const orderLat = {{ $order->latitude ?? 11.5564 }};
+            const orderLng = {{ $order->longitude ?? 104.9282 }};
+
             // Create map centered on delivery location
-            const map = new google.maps.Map(document.getElementById("order-map"), {
-                zoom: 15,
-                center: { lat: orderLat, lng: orderLng },
-                mapTypeControl: false,
-                streetViewControl: false,
-                fullscreenControl: false,
-            });
+            const map = L.map('order-map').setView([orderLat, orderLng], 15);
+
+            // Load OpenStreetMap tiles (free!)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
 
             // Create marker at delivery location
-            new google.maps.Marker({
-                position: { lat: orderLat, lng: orderLng },
-                map: map,
-                title: "Delivery Location",
-                animation: google.maps.Animation.DROP,
-            });
-        }
+            L.marker([orderLat, orderLng]).addTo(map)
+                .bindPopup('<b>📍 Delivery Location</b><br>Your delivery address')
+                .openPopup();
+        });
     </script>
     @endpush
     @endif

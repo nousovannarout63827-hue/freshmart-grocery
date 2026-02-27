@@ -6,13 +6,13 @@
         <td>
             <div class="img-thumbnail">
                 @if($product->productImages && $product->productImages->isNotEmpty())
-                    <img src="{{ asset('storage/' . $product->productImages->first()->image_path) }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; border-radius: 8px; object-fit: cover;">
+                    <img src="{{ asset('storage/' . $product->productImages->first()->image_path) }}" alt="{{ $product->translated_name }}" style="width: 100%; height: 100%; border-radius: 8px; object-fit: cover;">
                 @else
                     📦
                 @endif
             </div>
         </td>
-        <td><strong>{{ $product->name }}</strong></td>
+        <td><strong>{{ $product->translated_name }}</strong></td>
         <td>{{ $product->category ? $product->category->name : 'No Category' }}</td>
         <td>
             <span style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 3px;">SKU: {{ $product->sku ?? 'N/A' }}</span>

@@ -1009,17 +1009,26 @@
             <div class="data-body">
                 @if(count($topProducts) > 0)
                     @foreach($topProducts->take(5) as $product)
+                    @php
+                        // Decode JSON name field to array (raw DB query returns JSON string)
+                        $nameArray = is_string($product->name) ? json_decode($product->name, true) : $product->name;
+                        
+                        // Get the display name based on current locale with fallback
+                        $displayName = is_array($nameArray) 
+                            ? ($nameArray[app()->getLocale()] ?? $nameArray['en'] ?? 'Product')
+                            : ($product->name ?? 'Product');
+                    @endphp
                     <div class="product-item">
                         <div class="product-thumb">
                             @if(!empty($product->image_url))
-                                <img src="{{ $product->image_url }}" alt="{{ $product->name }}">
+                                <img src="{{ $product->image_url }}" alt="{{ $displayName }}">
                             @else
                                 📦
                             @endif
                         </div>
                         <div class="product-info">
-                            <div class="product-name">{{ $product->name }}</div>
-                            <div class="product-stats">{{ $product->total_sold }} sold • ${{ number_format($product->revenue, 2) }} revenue</div>
+                            <div class="product-name">{{ $displayName }}</div>
+                            <div class="product-stats">{{ $product->total_sold ?? 0 }} sold • ${{ number_format($product->revenue ?? 0, 2) }} revenue</div>
                         </div>
                         <div style="font-weight: 700; color: #10b981;">
                             #{{ $loop->iteration }}

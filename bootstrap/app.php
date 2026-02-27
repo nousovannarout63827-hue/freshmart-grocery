@@ -17,9 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
         ]);
-        
-        // Add CheckActiveStatus to web middleware group
+
+        // Add language and active status middleware to web group
         $middleware->web(append: [
+            \App\Http\Middleware\SetLanguage::class,
             \App\Http\Middleware\CheckActiveStatus::class,
         ]);
     })

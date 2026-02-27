@@ -55,7 +55,7 @@
                         @if($item->product && $item->product->image)
                             <a href="{{ route('product.show', $item->product->slug) }}">
                                 <img src="{{ asset('storage/' . $item->product->image) }}"
-                                     alt="{{ $item->product->name }}"
+                                     alt="{{ $item->product->translated_name }}"
                                      class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                             </a>
                         @else
@@ -86,7 +86,7 @@
                             <p class="text-xs text-primary-600 font-semibold mb-2">{{ $item->product->category->name ?? 'Uncategorized' }}</p>
                             <h3 class="font-semibold text-gray-800 mb-2 truncate">
                                 <a href="{{ route('product.show', $item->product->slug) }}" class="hover:text-primary-600 transition">
-                                    {{ $item->product->name }}
+                                    {{ $item->product->translated_name }}
                                 </a>
                             </h3>
                             <div class="flex items-center justify-between mb-4">

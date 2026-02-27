@@ -140,6 +140,22 @@
         <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
+            @if ($errors->any())
+                <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-6 h-6 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+                        <div class="flex-1">
+                            <h3 class="text-sm font-bold text-red-800">Please correct the following errors:</h3>
+                            <ul class="mt-2 text-sm text-red-700 list-disc list-inside space-y-1">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <div class="product-create-layout" style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
                 
                 <!-- Left Column: Image Upload -->
@@ -170,46 +186,226 @@
                 <div>
                     <div class="product-create-details-card" style="background: white; padding: 32px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                         
-                        <div style="margin-bottom: 24px;">
-                            <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">Product Name *</label>
-                            <input type="text" name="name" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;" placeholder="e.g. Organic Carrots" required onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">
+                        <!-- Multi-Language Product Name Grid -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
+                            <div class="mb-5 border-b border-slate-100 pb-4">
+                                <h3 class="text-lg font-bold text-slate-800">Product Name Translations</h3>
+                                <p class="text-sm text-slate-500">Enter the product name in all supported languages.</p>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
+                                        🇬🇧 English <span class="text-red-500">*</span>
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        name="name_en" 
+                                        value="{{ old('name_en') }}"
+                                        placeholder="e.g., Fresh Salmon" 
+                                        class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('name_en') ? 'border-red-500 bg-red-50 ring-2 ring-red-200' : 'border-slate-200 bg-slate-50' }} focus:ring-purple-500 focus:border-purple-500 transition-colors font-sans" 
+                                        required
+                                    >
+                                    @error('name_en')
+                                        <p class="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                            {{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
+                                        🇰🇭 Khmer <span class="text-red-500">*</span>
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        name="name_km" 
+                                        value="{{ old('name_km') }}"
+                                        placeholder="ឧទាហរណ៍៖ ត្រីសាម៉ុងស្រស់" 
+                                        class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('name_km') ? 'border-red-500 bg-red-50 ring-2 ring-red-200' : 'border-slate-200 bg-slate-50' }} focus:ring-purple-500 focus:border-purple-500 transition-colors font-khmer" 
+                                        required
+                                    >
+                                    @error('name_km')
+                                        <p class="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                            {{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
+                                        🇨🇳 Chinese <span class="text-red-500">*</span>
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        name="name_zh" 
+                                        value="{{ old('name_zh') }}"
+                                        placeholder="例如：新鲜三文鱼" 
+                                        class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('name_zh') ? 'border-red-500 bg-red-50 ring-2 ring-red-200' : 'border-slate-200 bg-slate-50' }} focus:ring-purple-500 focus:border-purple-500 transition-colors font-sans" 
+                                        required
+                                    >
+                                    @error('name_zh')
+                                        <p class="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                            {{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
+
+                            </div>
                         </div>
 
-                        <div style="margin-bottom: 24px;">
-                            <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">Category *</label>
-                            <select name="category_id" id="category-select" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; background: white; cursor: pointer; box-sizing: border-box;" required onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">
-                                <option value="">Select a Category</option>
-                                @foreach($categories as $category)
-                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                @endforeach
-                            </select>
+                        <!-- Multi-Language Description Grid -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
+                            <div class="mb-5 border-b border-slate-100 pb-4">
+                                <h3 class="text-lg font-bold text-slate-800">Product Description Translations</h3>
+                                <p class="text-sm text-slate-500">Optional: Add descriptions in each language for better SEO.</p>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
+                                        🇬🇧 English
+                                    </label>
+                                    <textarea
+                                        name="description_en"
+                                        rows="4"
+                                        placeholder="Describe the product in English..."
+                                        class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('description_en') ? 'border-red-500 bg-red-50 ring-2 ring-red-200' : 'border-slate-200 bg-slate-50' }} focus:ring-purple-500 focus:border-purple-500 transition-colors font-sans resize-y"
+                                    >{{ old('description_en') }}</textarea>
+                                    @error('description_en')
+                                        <p class="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                            {{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
+                                        🇰🇭 Khmer
+                                    </label>
+                                    <textarea
+                                        name="description_km"
+                                        rows="4"
+                                        placeholder="ពិពណ៌នាអំពីផលិតផលជាភាសាខ្មែរ..."
+                                        class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('description_km') ? 'border-red-500 bg-red-50 ring-2 ring-red-200' : 'border-slate-200 bg-slate-50' }} focus:ring-purple-500 focus:border-purple-500 transition-colors font-khmer resize-y"
+                                    >{{ old('description_km') }}</textarea>
+                                    @error('description_km')
+                                        <p class="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                            {{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2 flex items-center gap-2">
+                                        🇨🇳 Chinese
+                                    </label>
+                                    <textarea
+                                        name="description_zh"
+                                        rows="4"
+                                        placeholder="用中文描述产品..."
+                                        class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('description_zh') ? 'border-red-500 bg-red-50 ring-2 ring-red-200' : 'border-slate-200 bg-slate-50' }} focus:ring-purple-500 focus:border-purple-500 transition-colors font-sans resize-y"
+                                    >{{ old('description_zh') }}</textarea>
+                                    @error('description_zh')
+                                        <p class="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                            {{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
+
+                            </div>
                         </div>
 
-                        <div class="product-create-spec-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 24px;">
-                            <div>
-                                <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">Price ($) *</label>
-                                <input type="number" name="price" step="0.01" min="0" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;" placeholder="0.00" required onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
+                            <div class="mb-5 border-b border-slate-100 pb-4">
+                                <h3 class="text-lg font-bold text-slate-800">Product Details</h3>
+                                <p class="text-sm text-slate-500">Essential product information for inventory management.</p>
                             </div>
-                            <div>
-                                <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">Stock Quantity *</label>
-                                <input type="number" name="stock" min="0" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;" placeholder="0" required onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">
-                            </div>
-                            <div>
-                                <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">Unit (Sold By) *</label>
-                                <select name="unit" id="unit-select" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; background: white; cursor: pointer; box-sizing: border-box;" required onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">
-                                    <option value="">Select Category First</option>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Category *</label>
+                                    <select name="category_id" id="category-select" class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('category_id') ? 'border-red-500 bg-red-50 ring-2 ring-red-200' : 'border-slate-200 bg-slate-50' }} focus:ring-purple-500 focus:border-purple-500 transition-colors font-sans" required>
+                                        <option value="">Select a Category</option>
+                                        @foreach($categories as $category)
+                                            <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('category_id')
+                                        <p class="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                            {{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Unit (Sold By) *</label>
+                                    <select name="unit" id="unit-select" class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('unit') ? 'border-red-500 bg-red-50 ring-2 ring-red-200' : 'border-slate-200 bg-slate-50' }} focus:ring-purple-500 focus:border-purple-500 transition-colors font-sans" required>
+                                        <option value="">Select Category First</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div style="margin-bottom: 32px;">
-                            <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">SKU / Barcode</label>
-                            <input type="text" name="sku" value="{{ old('sku') }}" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;" placeholder="Scan barcode or leave blank to auto-generate">
-                            <small style="color: #64748b; font-size: 12px; margin-top: 6px; display: block;">💡 Leave blank to auto-generate a unique code (e.g., PRD-X7B92M)</small>
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
+                            <div class="mb-5 border-b border-slate-100 pb-4">
+                                <h3 class="text-lg font-bold text-slate-800">Pricing & Inventory</h3>
+                                <p class="text-sm text-slate-500">Set your product price and stock levels.</p>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Price ($) *</label>
+                                    <input type="number" name="price" step="0.01" min="0" value="{{ old('price') }}" class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('price') ? 'border-red-500 bg-red-50 ring-2 ring-red-200' : 'border-slate-200 bg-slate-50' }} focus:ring-purple-500 focus:border-purple-500 transition-colors font-sans" placeholder="0.00" required>
+                                    @error('price')
+                                        <p class="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                            {{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Stock Quantity *</label>
+                                    <input type="number" name="stock" min="0" value="{{ old('stock') }}" class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('stock') ? 'border-red-500 bg-red-50 ring-2 ring-red-200' : 'border-slate-200 bg-slate-50' }} focus:ring-purple-500 focus:border-purple-500 transition-colors font-sans" placeholder="0" required>
+                                    @error('stock')
+                                        <p class="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                            {{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
+                            <div class="mb-5 border-b border-slate-100 pb-4">
+                                <h3 class="text-lg font-bold text-slate-800">Product Identification</h3>
+                                <p class="text-sm text-slate-500">SKU and barcode for inventory tracking.</p>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-2">SKU / Barcode</label>
+                                <input type="text" name="sku" value="{{ old('sku') }}" class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('sku') ? 'border-red-500 bg-red-50 ring-2 ring-red-200' : 'border-slate-200 bg-slate-50' }} focus:ring-purple-500 focus:border-purple-500 transition-colors font-sans" placeholder="Scan barcode or leave blank to auto-generate">
+                                @error('sku')
+                                    <p class="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+                                <small class="text-slate-500 text-xs mt-2 block">💡 Leave blank to auto-generate a unique code (e.g., PRD-X7B92M)</small>
+                            </div>
                         </div>
 
                         <div class="product-create-actions" style="display: flex; justify-content: flex-end; padding-top: 20px; border-top: 1px solid #f1f5f9;">
-                            <button type="submit" style="background: #10b981; color: white; border: none; padding: 14px 32px; border-radius: 12px; font-weight: 800; font-size: 15px; cursor: pointer; transition: background 0.2s; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);" onmouseover="this.style.background='#059669'; this.style.boxShadow='0 6px 15px rgba(5, 150, 105, 0.3)'" onmouseout="this.style.background='#10b981'; this.style.boxShadow='0 4px 10px rgba(16, 185, 129, 0.2)'">
+                            <button type="submit" class="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white font-bold py-3 px-8 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                                 Save Product
                             </button>
                         </div>

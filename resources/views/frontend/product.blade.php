@@ -1,6 +1,6 @@
 @extends('frontend.layouts.app')
 
-@section('title', $product->name . ' - FreshMart')
+@section('title', $product->translated_name . ' - FreshMart')
 
 @section('content')
     <div class="max-w-7xl mx-auto px-4 py-8">
@@ -45,7 +45,7 @@
                         <div class="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-8">
                             <img id="mainImage" 
                                  src="{{ asset('storage/' . $allImages[0]) }}"
-                                 alt="{{ $product->name }}"
+                                 alt="{{ $product->translated_name }}"
                                  class="w-full h-full object-cover hover:scale-105 transition duration-500">
                         </div>
                     </div>
@@ -57,7 +57,7 @@
                                     onclick="changeImage('{{ asset('storage/' . $image) }}')"
                                     class="thumbnail-btn bg-white rounded-xl border-2 border-gray-200 overflow-hidden hover:border-primary-600 transition aspect-square {{ $index === 0 ? 'active border-primary-600' : '' }}">
                                 <img src="{{ asset('storage/' . $image) }}"
-                                     alt="{{ $product->name }} {{ $index + 1 }}"
+                                     alt="{{ $product->translated_name }} {{ $index + 1 }}"
                                      class="w-full h-full object-cover">
                             </button>
                         @endforeach
@@ -68,7 +68,7 @@
                         <div class="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-8">
                             @if(count($allImages) > 0)
                                 <img src="{{ asset('storage/' . $allImages[0]) }}"
-                                     alt="{{ $product->name }}"
+                                     alt="{{ $product->translated_name }}"
                                      class="w-full h-full object-cover hover:scale-105 transition duration-500">
                             @else
                                 <span class="text-9xl">🥬</span>
@@ -87,7 +87,7 @@
                     {{ $product->category->name ?? 'Uncategorized' }}
                 </p>
                 
-                <h1 class="text-4xl font-bold text-gray-900 mb-4">{{ $product->name }}</h1>
+                <h1 class="text-4xl font-bold text-gray-900 mb-4 {{ app()->getLocale() === 'km' ? 'font-khmer' : '' }}">{{ $product->translated_name }}</h1>
                 
                 <!-- Rating -->
                 <div class="flex items-center gap-4 mb-6">
@@ -1123,6 +1123,8 @@
             })
             .then(response => response.json())
             .then(data => {
+                console.log('Add to cart response:', data);
+                
                 // Reset button
                 addToCartBtn.disabled = false;
                 addToCartBtn.innerHTML = originalText;
@@ -1143,8 +1145,14 @@
                         color: '#166534'
                     });
 
-                    // Update cart count in header
-                    updateCartCount();
+                    // Update cart count immediately with the count from response
+                    console.log('Cart count from server:', data.cart_count);
+                    if (data.cart_count !== undefined) {
+                        updateCartCountDisplay(data.cart_count);
+                    } else {
+                        console.log('No cart_count in response, fetching...');
+                        updateCartCount();
+                    }
                 } else {
                     // Show error
                     Swal.fire({
@@ -1171,20 +1179,34 @@
             });
         }
 
-        // Update Cart Count
+        // Update Cart Count Display with Animation
+        function updateCartCountDisplay(count) {
+            const cartCountElements = document.querySelectorAll('#cart-count, .cart-count');
+            console.log('Updating cart count to:', count, 'Found elements:', cartCountElements.length);
+            
+            if (cartCountElements.length === 0) {
+                console.warn('No cart count element found!');
+                return;
+            }
+            
+            cartCountElements.forEach(el => {
+                // Animate the badge
+                el.style.transition = 'all 0.3s ease';
+                el.style.transform = 'scale(1.3)';
+                setTimeout(() => {
+                    el.textContent = count;
+                    el.style.transform = 'scale(1)';
+                    el.classList.remove('hidden');
+                }, 150);
+            });
+        }
+
+        // Update Cart Count (fetch from server)
         function updateCartCount() {
-            fetch('/cart/count')
+            fetch('{{ route("cart.count") }}')
                 .then(response => response.json())
                 .then(data => {
-                    const cartCountEl = document.querySelector('.cart-count');
-                    if (cartCountEl) {
-                        cartCountEl.textContent = data.count;
-                        // Add animation
-                        cartCountEl.style.transform = 'scale(1.2)';
-                        setTimeout(() => {
-                            cartCountEl.style.transform = 'scale(1)';
-                        }, 200);
-                    }
+                    updateCartCountDisplay(data.count);
                 })
                 .catch(error => console.error('Error updating cart count:', error));
         }

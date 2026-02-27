@@ -1288,3 +1288,232 @@
     @endif
 </div>
 @endsection
+
+@push('scripts')
+<!-- SweetAlert2 for nice alerts -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Auto Location Tracker for Driver Dashboard
+    (function() {
+        let autoLocationEnabled = false;
+        const STORAGE_KEY = 'driver_auto_location_enabled';
+        
+        // Check if auto-tracking was previously enabled
+        function wasAutoTrackingEnabled() {
+            return localStorage.getItem(STORAGE_KEY) === 'true';
+        }
+        
+        // Save auto-tracking preference
+        function saveAutoTrackingPreference(enabled) {
+            localStorage.setItem(STORAGE_KEY, enabled ? 'true' : 'false');
+        }
+        
+        // Update driver location
+        function updateDriverLocation(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+            
+            fetch('{{ route("driver.location.update") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    latitude: latitude,
+                    longitude: longitude
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('✅ Location updated:', new Date().toLocaleTimeString());
+                }
+            })
+            .catch(error => {
+                console.error('❌ Location update failed:', error);
+            });
+        }
+        
+        // Get current location and update
+        function getCurrentLocation() {
+            if (!navigator.geolocation) {
+                console.warn('Geolocation not supported');
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    updateDriverLocation(position);
+                },
+                (error) => {
+                    console.error('Geolocation error:', error.message);
+                    if (error.code === 1 && autoLocationEnabled) {
+                        // Permission denied - show notification
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Location Access Needed',
+                            text: 'Please allow location access to enable automatic tracking.',
+                            confirmButtonColor: '#10b981',
+                            confirmButtonText: 'OK',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: true,
+                            timer: 5000
+                        });
+                        autoLocationEnabled = false;
+                        saveAutoTrackingPreference(false);
+                    }
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 30000
+                }
+            );
+        }
+        
+        // Start auto-tracking
+        function startAutoTracking() {
+            autoLocationEnabled = true;
+            saveAutoTrackingPreference(true);
+            
+            // Get location immediately
+            getCurrentLocation();
+            
+            // Then update every 30 seconds
+            setInterval(getCurrentLocation, 30000);
+            
+            console.log('🔄 Auto location tracking started');
+        }
+        
+        // Show location permission prompt on page load
+        function showLocationPrompt() {
+            const wasEnabled = wasAutoTrackingEnabled();
+            
+            if (wasEnabled) {
+                // Auto-start if previously enabled
+                startAutoTracking();
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Location Tracking Active',
+                    html: '<p>🔄 Your location is being updated automatically every 30 seconds.</p>',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
+            } else {
+                // Ask user to enable
+                Swal.fire({
+                    icon: 'question',
+                    title: 'Enable Auto Location Tracking?',
+                    html: '<p style="font-size: 14px;">Automatically update your location every 30 seconds so customers can track their delivery.</p><p style="font-size: 12px; color: #64748b; margin-top: 8px;">This uses your device GPS.</p>',
+                    showCancelButton: true,
+                    confirmButtonText: '✅ Enable',
+                    cancelButtonText: '❌ Not Now',
+                    confirmButtonColor: '#10b981',
+                    cancelButtonColor: '#64748b',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        startAutoTracking();
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Enabled! 🎉',
+                            text: 'Your location will update automatically.',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 2500,
+                            timerProgressBar: true
+                        });
+                    }
+                });
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait 2 seconds then show prompt
+            setTimeout(showLocationPrompt, 2000);
+        });
+        
+        // Add location status indicator to page
+        function addLocationStatusIndicator() {
+            const heroSection = document.querySelector('.dashboard-hero');
+            if (!heroSection) return;
+            
+            const indicator = document.createElement('div');
+            indicator.style.cssText = `
+                position: absolute;
+                top: 18px;
+                right: 18px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 12px;
+                background: rgba(255, 255, 255, 0.18);
+                border: 1px solid rgba(255, 255, 255, 0.32);
+                border-radius: 20px;
+                backdrop-filter: blur(8px);
+            `;
+            
+            const dot = document.createElement('div');
+            dot.id = 'location-status-dot';
+            dot.style.cssText = `
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: #fbbf24;
+                transition: background 0.3s;
+            `;
+            
+            const text = document.createElement('span');
+            text.id = 'location-status-text';
+            text.style.cssText = `
+                font-size: 11px;
+                font-weight: 700;
+                color: white;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            `;
+            text.textContent = 'GPS';
+            
+            indicator.appendChild(dot);
+            indicator.appendChild(text);
+            heroSection.appendChild(indicator);
+        }
+        
+        // Update status indicator
+        function updateLocationStatus(isActive) {
+            const dot = document.getElementById('location-status-dot');
+            const text = document.getElementById('location-status-text');
+            
+            if (!dot || !text) return;
+            
+            if (isActive) {
+                dot.style.background = '#10b981';
+                dot.style.boxShadow = '0 0 12px rgba(16, 185, 129, 0.6)';
+                text.textContent = 'Tracking';
+            } else {
+                dot.style.background = '#fbbf24';
+                dot.style.boxShadow = 'none';
+                text.textContent = 'GPS';
+            }
+        }
+        
+        // Add indicator and update on tracking start
+        addLocationStatusIndicator();
+        const originalStartAutoTracking = startAutoTracking;
+        startAutoTracking = function() {
+            originalStartAutoTracking();
+            updateLocationStatus(true);
+        };
+    })();
+</script>
+@endpush

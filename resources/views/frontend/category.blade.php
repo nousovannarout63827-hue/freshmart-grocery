@@ -79,11 +79,11 @@
                                 @endphp
                                 @if($productImageUrl)
                                     <img src="{{ $productImageUrl }}"
-                                         alt="{{ $product->name }}"
+                                         alt="{{ $product->translated_name }}"
                                          class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                                 @elseif($product->primaryImage)
                                     <img src="{{ asset('storage/' . $product->primaryImage->image) }}"
-                                         alt="{{ $product->name }}"
+                                         alt="{{ $product->translated_name }}"
                                          class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                                 @else
                                     <div class="w-full h-full flex items-center justify-center text-6xl bg-gradient-to-br from-primary-50 to-primary-100">
@@ -141,7 +141,7 @@
 
                             <div class="p-5">
                                 <p class="text-xs text-primary-600 font-semibold mb-2">{{ $product->category->name ?? 'Uncategorized' }}</p>
-                                <h3 class="font-semibold text-gray-800 mb-2 truncate group-hover:text-primary-600 transition">{{ $product->name }}</h3>
+                                <h3 class="font-semibold text-gray-800 mb-2 truncate group-hover:text-primary-600 transition {{ app()->getLocale() === 'km' ? 'font-khmer' : '' }}">{{ $product->translated_name }}</h3>
                                 <div class="flex items-center justify-between mb-4">
                                     <div>
                                         <span class="text-xl font-bold text-gray-900">
@@ -178,7 +178,7 @@
                             <button type="button"
                                     class="add-to-cart-btn w-full bg-primary-600 text-white py-3 rounded-xl hover:bg-primary-700 transition font-medium text-sm flex items-center justify-center gap-2 shadow-lg shadow-primary-500/30 hover:shadow-primary-500/50"
                                     data-product-id="{{ $product->id }}"
-                                    data-product-name="{{ $product->name }}"
+                                    data-product-name="{{ $product->translated_name }}"
                                     data-product-price="{{ $product->price }}">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
@@ -262,11 +262,9 @@
                         color: '#166534'
                     });
 
-                    // Update cart count
-                    if (data.cartCount !== undefined) {
-                        document.querySelectorAll('.cart-count').forEach(el => {
-                            el.textContent = data.cartCount;
-                        });
+                    // Update cart count with animation
+                    if (data.cart_count !== undefined) {
+                        updateCartCountDisplay(data.cart_count);
                     }
                 } else {
                     Swal.fire({
@@ -293,7 +291,21 @@
             }
         });
     });
-    
+
+    // Update cart count display with animation
+    function updateCartCountDisplay(count) {
+        const cartCountElements = document.querySelectorAll('.cart-count');
+        cartCountElements.forEach(el => {
+            // Animate the badge
+            el.style.transition = 'all 0.3s ease';
+            el.style.transform = 'scale(1.3)';
+            setTimeout(() => {
+                el.textContent = count;
+                el.style.transform = 'scale(1)';
+            }, 150);
+        });
+    }
+
     // Wishlist AJAX Functionality
     document.querySelectorAll('.wishlist-btn').forEach(button => {
         button.addEventListener('click', async function(e) {

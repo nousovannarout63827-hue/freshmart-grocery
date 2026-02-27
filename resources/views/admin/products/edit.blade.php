@@ -97,7 +97,7 @@
 <div class="product-edit-page" style="padding: 30px; box-sizing: border-box; max-width: 1400px; margin: 0 auto;">
 
     <div class="page-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 12px;">
-        <h1 style="margin: 0; font-size: 28px; font-weight: 900; color: #1e293b;">Edit Product: {{ $product->name }}</h1>
+        <h1 style="margin: 0; font-size: 28px; font-weight: 900; color: #1e293b;">Edit Product: {{ $product->translated_name }}</h1>
         <a href="{{ route('admin.products.index') }}" class="cancel-btn" style="background: #f1f5f9; color: #475569; text-decoration: none; padding: 10px 20px; border-radius: 10px; font-weight: 700; font-size: 14px; transition: background 0.2s; border: 1px solid #e2e8f0; white-space: nowrap;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">← Cancel</a>
     </div>
 
@@ -149,8 +149,12 @@
                     <div class="product-edit-card" style="background: white; padding: 32px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
                         
                         <div style="margin-bottom: 24px;">
-                            <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">Product Name *</label>
-                            <input type="text" name="name" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;" value="{{ old('name', $product->name) }}" required onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">
+                            <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">Product Name (English) *</label>
+                            @php
+                                $nameArray = is_array($product->name) ? $product->name : json_decode($product->name, true);
+                                $englishName = $nameArray['en'] ?? ($nameArray ?? $product->name);
+                            @endphp
+                            <input type="text" name="name_en" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;" value="{{ old('name_en', $englishName) }}" required onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">
                         </div>
 
                         <div style="margin-bottom: 24px;">

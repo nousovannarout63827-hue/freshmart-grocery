@@ -263,6 +263,24 @@ class CustomerAuthController extends Controller
     }
 
     /**
+     * Download PDF invoice for an order.
+     */
+    public function downloadInvoice($orderId)
+    {
+        // SECURITY: Customers can ONLY download their own orders
+        $order = \App\Models\Order::where('id', $orderId)
+            ->where('customer_id', Auth::id())
+            ->with('orderItems.product', 'customer')
+            ->firstOrFail();
+
+        // Generate PDF using DomPDF
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('customer.orders.invoice-pdf', compact('order'));
+        
+        // Download the file with a clean name
+        return $pdf->download('FreshMart-Invoice-' . $order->id . '.pdf');
+    }
+
+    /**
      * Update customer profile.
      */
     public function updateProfile(Request $request)

@@ -119,7 +119,7 @@
                     <tr class="border-b border-gray-100 last:border-none hover:bg-gray-50">
                         <td class="py-4 px-5 text-gray-600 text-center font-medium">{{ $index + 1 }}</td>
                         <td class="py-4 px-5">
-                            <p class="font-bold text-gray-800">{{ $item->product->name ?? 'Product' }}</p>
+                            <p class="font-bold text-gray-800">{{ $item->product->translated_name ?? 'Product' }}</p>
                         </td>
                         <td class="py-4 px-5 text-center text-gray-600 font-medium">{{ $item->quantity }}</td>
                         <td class="py-4 px-5 text-right text-gray-600">${{ number_format($item->price, 2) }}</td>

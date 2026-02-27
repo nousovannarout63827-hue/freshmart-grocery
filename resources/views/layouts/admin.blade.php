@@ -641,6 +641,9 @@
             }
         }
     </style>
+    
+    <!-- Stack for page-specific styles -->
+    @stack('styles')
 </head>
 <body style="background-color: #f8fafc; margin: 0; font-family: 'Instrument Sans', sans-serif; min-height: 100vh;">
 
@@ -734,6 +737,13 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
                     </svg>
                     <span class="sidebar-text" style="font-weight: 600; font-size: 14px; white-space: nowrap; transition: opacity 0.2s;">Team Management</span>
+                </a>
+
+                <a href="{{ route('admin.drivers.tracking') }}" class="nav-item sidebar-menu-item {{ request()->routeIs('admin.drivers.*') ? 'active' : '' }}" data-tooltip="Driver Tracking" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; text-decoration: none; color: #94a3b8; border-radius: 10px; transition: all 0.2s; margin-bottom: 4px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 20px; height: 20px; flex-shrink: 0;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
+                    </svg>
+                    <span class="sidebar-text" style="font-weight: 600; font-size: 14px; white-space: nowrap; transition: opacity 0.2s;">🚚 Driver Tracking</span>
                 </a>
 
                 <a href="{{ route('admin.customers.index') }}" class="nav-item sidebar-menu-item {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}" data-tooltip="Customer Management" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; text-decoration: none; color: #94a3b8; border-radius: 10px; transition: all 0.2s; margin-bottom: 4px;">
@@ -962,7 +972,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                                 </svg>
                                 <div style="flex: 1; min-width: 0;">
-                                    <p style="margin: 0; font-weight: 800; color: #b91c1c; font-size: 14px;">{{ $product->name }}</p>
+                                    <p style="margin: 0; font-weight: 800; color: #b91c1c; font-size: 14px;">{{ $product->translated_name }}</p>
                                     <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;">{{ $product->category->name ?? 'No Category' }}</p>
                                     <p style="margin: 6px 0 0 0; font-size: 11px; color: #dc2626; font-weight: 800; text-transform: uppercase;">0 in stock</p>
                                 </div>
@@ -989,7 +999,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                                 </svg>
                                 <div style="flex: 1; min-width: 0;">
-                                    <p style="margin: 0; font-weight: 800; color: #92400e; font-size: 14px;">{{ $product->name }}</p>
+                                    <p style="margin: 0; font-weight: 800; color: #92400e; font-size: 14px;">{{ $product->translated_name }}</p>
                                     <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b;">{{ $product->category->name ?? 'No Category' }}</p>
                                     <p style="margin: 6px 0 0 0; font-size: 11px; color: #d97706; font-weight: 800; text-transform: uppercase;">Only {{ $product->stock }} left</p>
                                 </div>
@@ -1037,7 +1047,7 @@
                     <div style="max-height: 128px; overflow-y: auto; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #f1f5f9;">
                         @foreach($pending->orderItems as $item)
                             <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; margin-bottom: 4px;">
-                                <span style="font-weight: 700; color: #334155;">{{ $item->quantity }}x {{ $item->product->name ?? 'Product' }}</span>
+                                <span style="font-weight: 700; color: #334155;">{{ $item->quantity }}x {{ $item->product->translated_name ?? 'Product' }}</span>
                             </div>
                         @endforeach
                     </div>

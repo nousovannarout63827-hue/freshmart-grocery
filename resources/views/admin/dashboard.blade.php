@@ -564,7 +564,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 12px; height: 12px; display: inline; vertical-align: middle;">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
                             </svg>
-                            {{ Str::limit($review->product->name ?? 'Product', 25) }}
+                            {{ Str::limit($review->product->translated_name ?? 'Product', 25) }}
                         </div>
                         <div style="font-size: 13px; color: #475569; line-height: 1.5;">
                             {{ Str::limit($review->comment ?? 'No comment', 60) }}
@@ -603,7 +603,7 @@
             @foreach($outOfStockItems as $item)
                 <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
                     <div>
-                        <div style="font-weight: 800; color: #7f1d1d; font-size: 14px;">{{ $item->name }}</div>
+                        <div style="font-weight: 800; color: #7f1d1d; font-size: 14px;">{{ $item->translated_name }}</div>
                         <div style="font-size: 12px; color: #991b1b; opacity: 0.8;">{{ $item->category->name ?? 'None' }}</div>
                     </div>
                     <div style="text-align: right;">
@@ -633,7 +633,7 @@
             @foreach($lowStockItems as $item)
                 <div style="background: #fff0f2; border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center;">
                     <div>
-                        <div style="font-weight: 800; color: #1e293b; font-size: 14px;">{{ $item->name }}</div>
+                        <div style="font-weight: 800; color: #1e293b; font-size: 14px;">{{ $item->translated_name }}</div>
                         <div style="font-size: 12px; color: #64748b;">{{ $item->category->name ?? 'None' }}</div>
                     </div>
                     <div style="text-align: right;">

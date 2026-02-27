@@ -106,7 +106,7 @@
                     <div class="flex-1">
                         <div class="flex items-start gap-4">
                             @if($review->product && $review->product->image)
-                                <img src="{{ asset('storage/' . $review->product->image) }}" alt="{{ $review->product->name }}" class="w-20 h-20 object-cover rounded-xl">
+                                <img src="{{ asset('storage/' . $review->product->image) }}" alt="{{ $review->product->translated_name }}" class="w-20 h-20 object-cover rounded-xl">
                             @else
                                 <div class="w-20 h-20 bg-gray-100 rounded-xl flex items-center justify-center text-3xl">
                                     🥬
@@ -116,7 +116,7 @@
                                 <h3 class="font-bold text-gray-900 mb-1">
                                     @if($review->product && $review->product->slug)
                                         <a href="{{ route('product.show', $review->product->slug) }}" class="text-primary-600 hover:text-primary-700">
-                                            {{ $review->product->name }}
+                                            {{ $review->product->translated_name }}
                                         </a>
                                     @else
                                         <span class="text-gray-400">Product Unavailable</span>

@@ -268,13 +268,13 @@
                     <div class="flex flex-col sm:flex-row gap-6">
                         <div class="w-full sm:w-32 h-32 bg-gray-100 rounded-xl flex items-center justify-center flex-shrink-0">
                             @if($review->product->image)
-                                <img src="{{ asset('storage/' . $review->product->image) }}" alt="{{ $review->product->name }}" class="w-full h-full object-cover rounded-xl">
+                                <img src="{{ asset('storage/' . $review->product->image) }}" alt="{{ $review->product->translated_name }}" class="w-full h-full object-cover rounded-xl">
                             @else
                                 <span class="text-4xl">🥬</span>
                             @endif
                         </div>
                         <div class="flex-1">
-                            <h4 class="font-bold text-gray-900 text-lg mb-2">{{ $review->product->name }}</h4>
+                            <h4 class="font-bold text-gray-900 text-lg mb-2">{{ $review->product->translated_name }}</h4>
                             <div class="space-y-2 text-sm">
                                 <div class="flex justify-between">
                                     <span class="text-gray-500">Category:</span>

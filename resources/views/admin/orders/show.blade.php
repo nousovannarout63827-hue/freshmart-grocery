@@ -411,7 +411,7 @@
                                     </div>
                                 @endif
                                 <div>
-                                    <p style="margin: 0; font-weight: 700; color: #1e293b;">{{ $item->product->name ?? 'Product' }}</p>
+                                    <p style="margin: 0; font-weight: 700; color: #1e293b;">{{ $item->product->translated_name ?? 'Product' }}</p>
                                     <p style="margin: 0; font-size: 13px; color: #64748b;">${{ number_format($item->price, 2) }} each</p>
                                 </div>
                             </td>
@@ -602,8 +602,8 @@
                 @if($order->latitude && $order->longitude)
                     <div style="margin-top: 12px;">
                         <h4 style="margin: 0 0 8px 0; font-weight: 700; color: #475569; font-size: 13px; text-transform: uppercase;">🗺️ Delivery Location Map</h4>
-                        <div style="background: #f1f5f9; border-radius: 12px; overflow: hidden; border: 2px solid #e2e8f0;" id="order-map-container" style="height: 250px;">
-                            <div id="order-map" style="height: 250px; width: 100%;"></div>
+                        <div style="background: #f1f5f9; border-radius: 12px; overflow: hidden; border: 2px solid #e2e8f0;" id="order-map-container">
+                            <div id="order-map" style="height: 300px; width: 100%;"></div>
                         </div>
                         <p style="margin: 8px 0 0 0; font-size: 12px; color: #64748b; text-align: center;">
                             📍 Coordinates: {{ number_format($order->latitude, 6) }}, {{ number_format($order->longitude, 6) }}
@@ -765,32 +765,72 @@
 </script>
 
 @if($order->latitude && $order->longitude)
+<!-- Leaflet.js CSS - Push to head -->
+@push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<style>
+    #order-map {
+        height: 300px;
+        width: 100%;
+        z-index: 1;
+    }
+</style>
+@endpush
+
+<!-- Leaflet.js JS - Push to scripts -->
+@push('scripts')
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+@endpush
+
 <script>
-    // Google Maps for Order Location
-    function initOrderMap() {
+    // Leaflet.js Map for Order Location (OpenStreetMap - Free, no API key needed)
+    document.addEventListener('DOMContentLoaded', function() {
         const orderLat = {{ $order->latitude }};
         const orderLng = {{ $order->longitude }};
-        
+
+        // Check if Leaflet is loaded
+        if (typeof L === 'undefined') {
+            console.error('Leaflet.js not loaded!');
+            return;
+        }
+
         // Create map centered on delivery location
-        const map = new google.maps.Map(document.getElementById("order-map"), {
-            zoom: 15,
-            center: { lat: orderLat, lng: orderLng },
-            mapTypeControl: false,
-            streetViewControl: false,
-            fullscreenControl: false,
+        const map = L.map('order-map', {
             zoomControl: true,
+            zoomControlOptions: {
+                position: 'bottomright'
+            },
+            attributionControl: true
+        }).setView([orderLat, orderLng], 15);
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Create custom marker icon
+        const markerIcon = L.icon({
+            iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+            iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+            shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
         });
 
-        // Create marker at delivery location
-        new google.maps.Marker({
-            position: { lat: orderLat, lng: orderLng },
-            map: map,
-            title: "Delivery Location",
-            animation: google.maps.Animation.DROP,
-        });
-    }
+        // Add marker at delivery location
+        const marker = L.marker([orderLat, orderLng], { icon: markerIcon }).addTo(map);
+
+        // Add popup
+        marker.bindPopup('<div style="text-align: center; font-weight: 600;">📍 Delivery Location<br><span style="font-size: 12px; color: #666;">Order #{{ $order->id }}</span></div>').openPopup();
+
+        // Fix map rendering issue - invalidate size after a short delay
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 100);
+    });
 </script>
-<!-- Google Maps API -->
-<script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_api_key', 'YOUR_GOOGLE_MAPS_API_KEY') }}&callback=initOrderMap" async defer></script>
 @endif
 @endsection

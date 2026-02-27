@@ -114,7 +114,7 @@
                     @foreach($order->orderItems as $index => $item)
                     <tr>
                         <td class="py-4 px-5 text-gray-600">{{ $index + 1 }}</td>
-                        <td class="py-4 px-5 font-bold text-gray-800">{{ $item->product->name ?? 'Product' }}</td>
+                        <td class="py-4 px-5 font-bold text-gray-800">{{ $item->product->translated_name ?? 'Product' }}</td>
                         <td class="py-4 px-5 text-center text-gray-600">{{ $item->quantity }}</td>
                         <td class="py-4 px-5 text-right text-gray-600">${{ number_format($item->price, 2) }}</td>
                         <td class="py-4 px-5 text-right font-bold text-gray-800">${{ number_format($item->price * $item->quantity, 2) }}</td>

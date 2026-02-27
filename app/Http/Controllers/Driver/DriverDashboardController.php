@@ -436,4 +436,77 @@ class DriverDashboardController extends Controller
         // Return tel: link for mobile devices
         return redirect("tel:{$phone}");
     }
+
+    /**
+     * Update order status through guided workflow.
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        // 1. Find the order
+        $order = Order::findOrFail($id);
+
+        // 2. Validate that the submitted status is one of our allowed options
+        $request->validate([
+            'status' => 'required|in:picked_up,out_for_delivery,completed',
+        ]);
+
+        // 3. Check if driver is authorized to update this order
+        if ($order->driver_id !== auth()->id()) {
+            return redirect()->back()->with('error', 'You are not assigned to this order.');
+        }
+
+        // 4. Validate status transitions (prevent skipping steps)
+        $allowedTransitions = [
+            'pending' => ['picked_up'],
+            'preparing' => ['picked_up'],
+            'picked_up' => ['out_for_delivery'],
+            'out_for_delivery' => ['completed', 'arrived'],
+            'arrived' => ['completed', 'out_for_delivery'],
+        ];
+
+        $currentStatus = $order->status;
+        $newStatus = $request->status;
+
+        // Allow the transition if it's in the allowed list
+        if (!in_array($newStatus, $allowedTransitions[$currentStatus] ?? [])) {
+            return redirect()->back()->with('error', 'Invalid status transition. Please follow the correct order flow.');
+        }
+
+        // 5. Update the order status
+        $order->status = $newStatus;
+        
+        // If marking as completed, update payment status too
+        if ($newStatus === 'completed') {
+            $order->payment_status = 'paid';
+        }
+        
+        $order->save();
+
+        // 6. Log the activity
+        $statusLabels = [
+            'picked_up' => 'Picked Up',
+            'out_for_delivery' => 'Out for Delivery',
+            'completed' => 'Delivered',
+            'arrived' => 'Arrived at Destination',
+        ];
+        
+        ActivityLog::log(
+            'Status Updated',
+            'Delivery',
+            'Driver ' . auth()->user()->name . ' marked Order #' . $id . ' as ' . ($statusLabels[$newStatus] ?? $newStatus)
+        );
+
+        // 7. Customize the success message based on the status
+        $message = 'Order status updated successfully!';
+        if ($newStatus == 'out_for_delivery') {
+            $message = '🛵 You are now out for delivery! Drive safely.';
+        } elseif ($newStatus == 'completed') {
+            $message = '🎉 Great job! Order delivered successfully.';
+        } elseif ($newStatus == 'picked_up') {
+            $message = '📦 Order picked up! Head to the delivery location.';
+        }
+
+        // 8. Redirect back with success flash message
+        return redirect()->back()->with('success', $message);
+    }
 }

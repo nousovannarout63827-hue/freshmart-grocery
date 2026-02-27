@@ -742,15 +742,31 @@
                         $userPerms = is_array($user->permissions) ? $user->permissions : [];
                     @endphp
 
-                    <div class="permissions-grid">
+                    <div class="permissions-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
                         @php
                             $permissions = [
+                                // Product Management
                                 ['value' => 'manage_inventory', 'label' => '📦 Manage Inventory', 'desc' => 'Can add, edit, and trash products'],
-                                ['value' => 'manage_categories', 'label' => '📁 Manage Categories', 'desc' => 'Can create and rename categories'],
-                                ['value' => 'manage_staff', 'label' => '👥 Manage Staff', 'desc' => 'Can add users and change roles'],
+                                ['value' => 'manage_categories', 'label' => '📁 Manage Categories', 'desc' => 'Can create and manage product categories'],
+                                ['value' => 'manage_products', 'label' => '🏷️ Manage Products', 'desc' => 'Full product CRUD operations'],
+                                // Order Management
                                 ['value' => 'manage_orders', 'label' => '🛒 Manage Orders', 'desc' => 'Can view and update customer orders'],
-                                ['value' => 'view_reports', 'label' => '📊 View Reports', 'desc' => 'Can access analytics and reports'],
+                                ['value' => 'process_orders', 'label' => '⚙️ Process Orders', 'desc' => 'Can confirm, prepare, and ship orders'],
+                                ['value' => 'assign_drivers', 'label' => '🚚 Assign Drivers', 'desc' => 'Can assign drivers to delivery orders'],
+                                // Staff & User Management
+                                ['value' => 'manage_staff', 'label' => '👥 Manage Staff', 'desc' => 'Can add users and change roles'],
+                                ['value' => 'manage_customers', 'label' => '😊 Manage Customers', 'desc' => 'Can view and manage customer accounts'],
+                                ['value' => 'manage_drivers', 'label' => '🚗 Manage Drivers', 'desc' => 'Can manage driver accounts and assignments'],
+                                // Marketing & Promotions
                                 ['value' => 'manage_coupons', 'label' => '🎫 Manage Coupons', 'desc' => 'Can create and manage discount codes'],
+                                ['value' => 'manage_reviews', 'label' => '⭐ Manage Reviews', 'desc' => 'Can approve, edit, or remove reviews'],
+                                // Reports & Analytics
+                                ['value' => 'view_reports', 'label' => '📊 View Reports', 'desc' => 'Can access analytics and reports'],
+                                ['value' => 'export_data', 'label' => '📥 Export Data', 'desc' => 'Can export reports to Excel/PDF'],
+                                ['value' => 'view_activity_logs', 'label' => '📜 View Activity Logs', 'desc' => 'Can view system activity logs'],
+                                // System Settings
+                                ['value' => 'manage_settings', 'label' => '⚙️ Manage Settings', 'desc' => 'Can modify system configurations'],
+                                ['value' => 'manage_roles', 'label' => '🎭 Manage Roles', 'desc' => 'Can create and edit user roles'],
                             ];
                         @endphp
 
@@ -766,6 +782,20 @@
                                 <div class="permission-description">{{ $perm['desc'] }}</div>
                             </label>
                         @endforeach
+                    </div>
+
+                    <!-- Quick Select Buttons -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; padding-top: 16px; border-top: 1px dashed #e2e8f0;">
+                        <span style="font-size: 13px; color: #64748b; font-weight: 600;">Quick Select:</span>
+                        <button type="button" onclick="selectAllPermissions()" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.2s;">
+                            ✅ Select All
+                        </button>
+                        <button type="button" onclick="selectEssentialPermissions()" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.2s;">
+                            📋 Essential Only
+                        </button>
+                        <button type="button" onclick="clearAllPermissions()" style="background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.2s;">
+                            ❌ Clear All
+                        </button>
                     </div>
                 </div>
 
@@ -887,6 +917,22 @@
             };
             roleBadge.textContent = badges[role] || '🏬 Store Staff';
         }
+    }
+
+    // Permission Quick Select Functions
+    function selectAllPermissions() {
+        document.querySelectorAll('input[name="permissions[]"]').forEach(cb => cb.checked = true);
+    }
+
+    function selectEssentialPermissions() {
+        const essential = ['manage_inventory', 'manage_orders', 'process_orders'];
+        document.querySelectorAll('input[name="permissions[]"]').forEach(cb => {
+            cb.checked = essential.includes(cb.value);
+        });
+    }
+
+    function clearAllPermissions() {
+        document.querySelectorAll('input[name="permissions[]"]').forEach(cb => cb.checked = false);
     }
 </script>
 @endsection

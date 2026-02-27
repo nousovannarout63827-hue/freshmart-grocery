@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\App;
 
 // 1. Import your Frontend Controllers
 use App\Http\Controllers\Frontend\HomeController;
@@ -26,8 +28,10 @@ use App\Http\Controllers\Admin\ReviewManagementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Customer\CustomerAuthController;
 use App\Http\Controllers\Customer\NotificationController;
+use App\Http\Controllers\Customer\OrderTrackingController;
 use App\Http\Controllers\Driver\DriverDashboardController;
 use App\Http\Controllers\Driver\DriverProfileController;
+use App\Http\Controllers\Driver\DriverLocationController;
 use App\Http\Controllers\ProfileController;
 
 // 4. Import Middleware
@@ -48,6 +52,15 @@ Route::get('/contact', [PageController::class, 'contact'])->name('contact');
 Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
 Route::get('/terms', [PageController::class, 'terms'])->name('terms');
 Route::get('/cookies', [PageController::class, 'cookies'])->name('cookies');
+
+// Language Switcher Route
+Route::get('/lang/{locale}', function ($locale) {
+    // Only allow our 3 specific languages
+    if (in_array($locale, ['en', 'km', 'zh'])) {
+        Session::put('locale', $locale);
+    }
+    return redirect()->back();
+})->name('lang.switch');
 Route::post('/contact/submit', [PageController::class, 'submitContact'])->name('contact.submit');
 
 // Cart Routes (View cart is public, but actions require auth)
@@ -117,7 +130,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/customer/profile/photo', [CustomerAuthController::class, 'uploadPhoto'])->name('customer.profile.photo');
     Route::get('/customer/orders', [HomeController::class, 'myOrders'])->name('customer.orders');
     Route::get('/customer/order/{orderId}', [CustomerAuthController::class, 'orderDetails'])->name('customer.order.details');
+    Route::get('/customer/order/{orderId}/track', [OrderTrackingController::class, 'track'])->name('customer.order.track');
+    Route::get('/customer/order/{orderId}/track-api', [OrderTrackingController::class, 'getTrackingData'])->name('customer.order.track-api');
     Route::get('/customer/order/{orderId}/invoice', [CustomerAuthController::class, 'invoice'])->name('customer.order.invoice');
+    Route::get('/customer/order/{orderId}/invoice-pdf', [CustomerAuthController::class, 'downloadInvoice'])->name('customer.order.invoice-pdf');
     Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout');
     
     // Customer Notifications
@@ -219,6 +235,10 @@ Route::group([
         // 📜 MASTER ACTIVITY LOG - Only for users with manage_staff permission
         Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity_logs.index');
 
+        // 🚚 DRIVER TRACKING - View all driver locations on map (Admins only)
+        Route::get('/drivers/tracking', [DriverLocationController::class, 'showTracking'])->name('drivers.tracking');
+        Route::get('/api/drivers/location', [DriverLocationController::class, 'getAllDriversLocation'])->name('api.drivers.location');
+
         // 💬 REVIEW MANAGEMENT - Moderate customer reviews
         Route::get('/reviews', [ReviewManagementController::class, 'index'])->name('reviews.index');
         Route::get('/reviews/{id}', [ReviewManagementController::class, 'show'])->name('reviews.show');
@@ -281,8 +301,16 @@ Route::group([
     Route::post('/order/{id}/arrival', [DriverDashboardController::class, 'confirmArrival'])->name('confirm-arrival');
     Route::post('/order/{id}/confirm-delivery', [DriverDashboardController::class, 'confirmDelivery'])->name('confirm-delivery');
     
+    // Update order status (new guided workflow)
+    Route::patch('/order/{id}/status', [DriverDashboardController::class, 'updateStatus'])->name('order.update-status');
+    
     // Order Details & Utilities
     Route::get('/order/{id}/details', [DriverDashboardController::class, 'viewOrder'])->name('order.details');
     Route::get('/order/{id}/directions', [DriverDashboardController::class, 'getDirections'])->name('get-directions');
     Route::get('/order/{id}/contact', [DriverDashboardController::class, 'contactCustomer'])->name('contact-customer');
+
+    // Location Tracking
+    Route::get('/location', [DriverLocationController::class, 'index'])->name('location');
+    Route::post('/location', [DriverLocationController::class, 'update'])->name('location.update');
+    Route::get('/location/get', [DriverLocationController::class, 'getLocation'])->name('location.get');
 });

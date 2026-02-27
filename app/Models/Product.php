@@ -36,6 +36,8 @@ class Product extends Model
             'stock' => 'integer',
             'is_active' => 'boolean',
             'images' => 'array',
+            'name' => 'array',
+            'description' => 'array',
         ];
     }
 
@@ -47,13 +49,53 @@ class Product extends Model
         parent::boot();
 
         static::creating(function ($product) {
+            // Generate slug from English name or name array
             if (empty($product->slug)) {
-                $product->slug = Str::slug($product->name);
+                $name = is_array($product->name) ? ($product->name['en'] ?? '') : $product->name;
+                $product->slug = Str::slug($name);
             }
             if (empty($product->sku)) {
                 $product->sku = 'PRD-' . strtoupper(Str::random(8));
             }
         });
+    }
+
+    /**
+     * Get the translated name based on current locale.
+     * Falls back to English if translation is missing.
+     */
+    public function getTranslatedNameAttribute(): string
+    {
+        $locale = app()->getLocale();
+        
+        // If name is an array (multi-language)
+        if (is_array($this->name)) {
+            return $this->name[$locale] ?? $this->name['en'] ?? $this->name['km'] ?? $this->name['zh'] ?? 'Unknown Product';
+        }
+        
+        // If name is a string (legacy), return as-is
+        return (string) $this->name;
+    }
+
+    /**
+     * Get the translated description based on current locale.
+     * Falls back to English if translation is missing.
+     */
+    public function getTranslatedDescriptionAttribute(): ?string
+    {
+        if (!$this->description || !is_array($this->description)) {
+            return $this->description;
+        }
+        
+        $locale = app()->getLocale();
+        
+        // Return the active language description.
+        // If it's empty, fallback to English. If English is empty, show a default message.
+        return $this->description[$locale] 
+            ?? $this->description['en'] 
+            ?? $this->description['km'] 
+            ?? $this->description['zh'] 
+            ?? 'No description available for this product.';
     }
 
     /**

@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('page-title', 'Driver Dashboard') - Grocery System</title>
     
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('grocery-icon.png') }}?v=2">
     
@@ -625,6 +628,10 @@
             <a href="{{ route('driver.profile') }}" class="driver-nav-link {{ $isProfileRoute ? 'is-active' : '' }}">
                 My Profile
             </a>
+
+            <a href="{{ route('driver.location') }}" class="driver-nav-link">
+                📍 My Location
+            </a>
         </nav>
 
         <div class="driver-profile">
@@ -700,6 +707,10 @@
     <a href="{{ route('driver.dashboard', ['filter' => 'available']) }}" class="driver-mobile-link {{ $isDashboardRoute && $currentFilter === 'available' ? 'is-active' : '' }}">
         <strong>{{ $availableOrdersCount }}</strong>
         <span>Open</span>
+    </a>
+    <a href="{{ route('driver.location') }}" class="driver-mobile-link">
+        <span>📍</span>
+        <span>My Location</span>
     </a>
     <a href="{{ route('driver.dashboard', ['filter' => 'report']) }}" class="driver-mobile-link {{ $isDashboardRoute && $currentFilter === 'report' ? 'is-active' : '' }}">
         <strong>{{ $myMonthDelivered }}</strong>

@@ -46,13 +46,13 @@
                         <td style="vertical-align: middle;">
                             <div class="img-thumbnail" style="opacity: 0.5;">
                                 @if($product->productImages && $product->productImages->count() > 0)
-                                    <img src="{{ asset('storage/' . $product->productImages->first()->image_path) }}" alt="{{ $product->name }}" style="width: 100%; height: 100%; border-radius: 8px; object-fit: cover;">
+                                    <img src="{{ asset('storage/' . $product->productImages->first()->image_path) }}" alt="{{ $product->translated_name }}" style="width: 100%; height: 100%; border-radius: 8px; object-fit: cover;">
                                 @else
                                     📦
                                 @endif
                             </div>
                         </td>
-                        <td style="vertical-align: middle;"><strong>{{ $product->name }}</strong></td>
+                        <td style="vertical-align: middle;"><strong>{{ $product->translated_name }}</strong></td>
                         <td style="vertical-align: middle;">{{ $product->category ? $product->category->name : 'No Category' }}</td>
                         <td style="vertical-align: middle;">
                             <strong>${{ number_format($product->price, 2) }}</strong>

@@ -207,7 +207,7 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <a href="{{ route('product.show', $review->product->slug) }}" target="_blank" class="text-sm text-primary-600 hover:text-primary-700 font-medium">
-                                        {{ Str::limit($review->product->name, 25) }}
+                                        {{ Str::limit($review->product->translated_name, 25) }}
                                     </a>
                                 </td>
                                 <td class="px-6 py-4">
@@ -269,7 +269,7 @@
                                                     </svg>
                                                 </button>
                                             </form>
-                                            <button onclick="document.getElementById('banModal{{ $review->id }}').classList.remove('hidden')" class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition" title="Ban">
+                                            <button onclick="openBanModal('{{ $review->id }}')" class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition" title="Ban">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
                                                 </svg>
@@ -296,25 +296,59 @@
 
                             <!-- Ban Modal -->
                             @if(!$review->is_banned)
-                            <div id="banModal{{ $review->id }}" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                                <div class="bg-white rounded-2xl max-w-md w-full p-6">
+                            <div id="banModal{{ $review->id }}" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-opacity">
+                                <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden transform transition-all">
+                                    
+                                    <div class="bg-red-50 px-6 py-4 border-b border-red-100 flex justify-between items-center">
+                                        <h3 class="text-lg font-bold text-red-700 flex items-center gap-2">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                            </svg>
+                                            Ban Review
+                                        </h3>
+                                        <button onclick="closeBanModal('{{ $review->id }}')" class="text-red-400 hover:text-red-600 transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+
                                     <form action="{{ route('admin.reviews.ban', $review->id) }}" method="POST">
                                         @csrf
-                                        <div class="flex items-center gap-3 mb-4">
-                                            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                                                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                                </svg>
+                                        @method('POST')
+                                        
+                                        <div class="px-6 py-6">
+                                            <div class="flex items-start gap-3 mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                                <div class="flex items-center h-5">
+                                                    <input id="hide_review_{{ $review->id }}" type="checkbox" checked disabled class="w-4 h-4 text-red-600 bg-slate-200 border-slate-300 rounded">
+                                                </div>
+                                                <div class="text-sm">
+                                                    <label for="hide_review_{{ $review->id }}" class="font-medium text-slate-800">Hide from public view</label>
+                                                    <p class="text-slate-500 mt-0.5">This will immediately remove the review from the FreshMart shop.</p>
+                                                </div>
                                             </div>
-                                            <h3 class="text-lg font-bold text-gray-900">Ban Review</h3>
+
+                                            <div>
+                                                <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                                    Ban Reason <span class="text-red-500">*</span>
+                                                </label>
+                                                <textarea 
+                                                    name="ban_reason" 
+                                                    rows="4" 
+                                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-red-500 focus:border-red-500 bg-slate-50 focus:bg-white transition-colors text-sm"
+                                                    placeholder="Explain why this review is being banned (e.g., inappropriate language, spam, fake review)..."
+                                                    required
+                                                ></textarea>
+                                            </div>
                                         </div>
-                                        <div class="mb-4">
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">Ban Reason <span class="text-red-500">*</span></label>
-                                            <textarea name="ban_reason" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500" required placeholder="Explain why this review is being banned..."></textarea>
-                                        </div>
-                                        <div class="flex gap-3">
-                                            <button type="button" onclick="document.getElementById('banModal{{ $review->id }}').classList.add('hidden')" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition font-semibold">Cancel</button>
-                                            <button type="submit" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition font-semibold">Ban Review</button>
+
+                                        <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex justify-end gap-3">
+                                            <button type="button" onclick="closeBanModal('{{ $review->id }}')" class="px-5 py-2.5 text-sm font-semibold text-slate-600 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors">
+                                                Cancel
+                                            </button>
+                                            <button type="submit" class="px-5 py-2.5 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-sm transition-colors">
+                                                Ban Review
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
@@ -353,7 +387,7 @@
                                 <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                 </svg>
-                                <span>{{ Str::limit($review->product->name, 30) }}</span>
+                                <span>{{ Str::limit($review->product->translated_name, 30) }}</span>
                             </div>
                             <div class="flex items-center gap-2">
                                 <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -455,4 +489,29 @@
         @endif
     </div>
 </div>
+
+<script>
+    // Ban Modal Functions
+    function openBanModal(reviewId) {
+        const modal = document.getElementById('banModal' + reviewId);
+        if (modal) {
+            modal.classList.remove('hidden');
+        }
+    }
+
+    function closeBanModal(reviewId) {
+        const modal = document.getElementById('banModal' + reviewId);
+        if (modal) {
+            modal.classList.add('hidden');
+        }
+    }
+
+    // Close modal when clicking outside (on the backdrop)
+    document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('fixed') && event.target.classList.contains('inset-0')) {
+            const modal = event.target;
+            modal.classList.add('hidden');
+        }
+    });
+</script>
 @endsection
