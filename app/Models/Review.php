@@ -10,6 +10,25 @@ use Illuminate\Support\Facades\Storage;
 class Review extends Model
 {
     /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Clear cache when review is created, updated, or deleted
+        static::saved(function ($review) {
+            \Cache::forget("product_{$review->product_id}_average_rating");
+            \Cache::forget("product_{$review->product_id}_rating_distribution");
+        });
+
+        static::deleted(function ($review) {
+            \Cache::forget("product_{$review->product_id}_average_rating");
+            \Cache::forget("product_{$review->product_id}_rating_distribution");
+        });
+    }
+
+    /**
      * The attributes that are mass assignable.
      */
     protected $fillable = [
@@ -261,12 +280,17 @@ class Review extends Model
      */
     public static function calculateAverageRating($productId): float
     {
-        $avg = static::where('product_id', $productId)
-            ->where('is_approved', true)
-            ->where('is_banned', false)
-            ->avg('rating');
+        // Cache the average rating for 5 minutes to reduce database queries
+        $cacheKey = "product_{$productId}_average_rating";
+        
+        return \Cache::remember($cacheKey, 300, function () use ($productId) {
+            $avg = static::where('product_id', $productId)
+                ->where('is_approved', true)
+                ->where('is_banned', false)
+                ->avg('rating');
 
-        return round($avg ?? 0, 1);
+            return round($avg ?? 0, 1);
+        });
     }
 
     /**
@@ -274,13 +298,18 @@ class Review extends Model
      */
     public static function getRatingDistribution($productId): array
     {
-        $distribution = [];
-        for ($i = 1; $i <= 5; $i++) {
-            $distribution[$i] = static::where('product_id', $productId)
-                ->where('rating', $i)
-                ->where('is_approved', true)
-                ->count();
-        }
-        return $distribution;
+        // Cache the rating distribution for 5 minutes
+        $cacheKey = "product_{$productId}_rating_distribution";
+        
+        return \Cache::remember($cacheKey, 300, function () use ($productId) {
+            $distribution = [];
+            for ($i = 1; $i <= 5; $i++) {
+                $distribution[$i] = static::where('product_id', $productId)
+                    ->where('rating', $i)
+                    ->where('is_approved', true)
+                    ->count();
+            }
+            return $distribution;
+        });
     }
 }

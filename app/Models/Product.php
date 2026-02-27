@@ -95,7 +95,7 @@ class Product extends Model
      */
     public function category(): BelongsTo
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class)->withDefault();
     }
 
     /**
@@ -143,6 +143,7 @@ class Product extends Model
      */
     public function getAverageRatingAttribute(): float
     {
+        // Use cached value from Review model
         return Review::calculateAverageRating($this->id);
     }
 
@@ -151,7 +152,10 @@ class Product extends Model
      */
     public function getReviewsCountAttribute(): int
     {
-        return $this->approvedReviews()->count();
+        // Cache the reviews count for 5 minutes
+        return \Cache::remember("product_{$this->id}_reviews_count", 300, function () {
+            return $this->approvedReviews()->count();
+        });
     }
 
     /**
@@ -159,6 +163,7 @@ class Product extends Model
      */
     public function getRatingDistributionAttribute(): array
     {
+        // Use cached value from Review model
         return Review::getRatingDistribution($this->id);
     }
 }

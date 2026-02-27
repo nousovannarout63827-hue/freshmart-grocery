@@ -104,7 +104,220 @@
     <!-- Dashboard Overviews -->
     <div class="overview-container" style="margin: 0; padding: 30px; background: white; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
         <h2 style="margin-top: 0; margin-bottom: 20px; color: #1e293b; font-size: 22px; font-weight: 800;">Dashboard Overviews</h2>
-        
+
+        <style>
+            .card-grid-5 {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                gap: 20px;
+            }
+            
+            .stat-card {
+                background: white;
+                border-radius: 16px;
+                padding: 24px;
+                border: 1px solid #e2e8f0;
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            .stat-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: linear-gradient(90deg, var(--card-color), var(--card-color-dark));
+            }
+            
+            .stat-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+            }
+            
+            /* Categories - Light Purple */
+            .stat-card.categories {
+                background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+                border-color: #e9d5ff;
+                --card-color: #a855f7;
+                --card-color-dark: #9333ea;
+            }
+            .stat-card.categories .icon-box {
+                background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+                color: #a855f7;
+            }
+            
+            /* Products - Light Blue */
+            .stat-card.products {
+                background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+                border-color: #bfdbfe;
+                --card-color: #3b82f6;
+                --card-color-dark: #2563eb;
+            }
+            .stat-card.products .icon-box {
+                background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+                color: #3b82f6;
+            }
+            
+            /* Total Orders - Light Teal */
+            .stat-card.total-orders {
+                background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+                border-color: #99f6e4;
+                --card-color: #14b8a6;
+                --card-color-dark: #0d9488;
+            }
+            .stat-card.total-orders .icon-box {
+                background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 100%);
+                color: #14b8a6;
+            }
+            
+            /* Delivered - Light Green */
+            .stat-card.delivered {
+                background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+                border-color: #bbf7d0;
+                --card-color: #22c55e;
+                --card-color-dark: #16a34a;
+            }
+            .stat-card.delivered .icon-box {
+                background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+                color: #22c55e;
+            }
+            
+            /* Pending - Light Amber */
+            .stat-card.pending {
+                background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+                border-color: #fde68a;
+                --card-color: #f59e0b;
+                --card-color-dark: #d97706;
+            }
+            .stat-card.pending .icon-box {
+                background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+                color: #f59e0b;
+            }
+            
+            /* Users - Light Pink */
+            .stat-card.users {
+                background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+                border-color: #fbcfe8;
+                --card-color: #ec4899;
+                --card-color-dark: #db2777;
+            }
+            .stat-card.users .icon-box {
+                background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+                color: #ec4899;
+            }
+            
+            /* Sold Amount - Light Emerald */
+            .stat-card.sold-amount {
+                background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+                border-color: #a7f3d0;
+                --card-color: #10b981;
+                --card-color-dark: #059669;
+            }
+            .stat-card.sold-amount .icon-box {
+                background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+                color: #10b981;
+            }
+            
+            /* Feedback - Light Rose */
+            .stat-card.feedback {
+                background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+                border-color: #fecdd3;
+                --card-color: #f43f5e;
+                --card-color-dark: #e11d48;
+            }
+            .stat-card.feedback .icon-box {
+                background: linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%);
+                color: #f43f5e;
+            }
+            
+            /* Canceled - Light Slate */
+            .stat-card.canceled {
+                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                border-color: #cbd5e1;
+                --card-color: #64748b;
+                --card-color-dark: #475569;
+            }
+            .stat-card.canceled .icon-box {
+                background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+                color: #64748b;
+            }
+            
+            .card-top-row {
+                display: flex;
+                align-items: flex-start;
+                gap: 16px;
+                margin-bottom: 16px;
+            }
+            
+            .icon-box {
+                width: 56px;
+                height: 56px;
+                border-radius: 14px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                transition: all 0.3s ease;
+            }
+            
+            .icon-box svg {
+                width: 28px;
+                height: 28px;
+            }
+            
+            .card-info {
+                flex: 1;
+                min-width: 0;
+            }
+            
+            .card-info .label {
+                display: block;
+                font-size: 13px;
+                font-weight: 600;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 6px;
+            }
+            
+            .card-info .value {
+                display: block;
+                font-size: 28px;
+                font-weight: 900;
+                color: #1e293b;
+                line-height: 1.2;
+            }
+            
+            .view-details {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 10px 16px;
+                background: rgba(255,255,255,0.6);
+                border-radius: 10px;
+                text-decoration: none;
+                color: #475569;
+                font-weight: 700;
+                font-size: 13px;
+                transition: all 0.2s ease;
+                backdrop-filter: blur(4px);
+            }
+            
+            .view-details:hover {
+                background: rgba(255,255,255,0.9);
+                color: #1e293b;
+                transform: translateX(4px);
+            }
+            
+            .view-details svg {
+                width: 16px;
+                height: 16px;
+            }
+        </style>
+
         <div class="card-grid-5">
             
             <div class="stat-card categories">

@@ -17,16 +17,20 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // Get all categories with product count (shows empty categories too)
-        $categories = Category::withCount('products')->get();
+        // Cache categories with product count for 10 minutes
+        $categories = \Cache::remember('homepage_categories', 600, function () {
+            return \App\Models\Category::withCount('products')->get();
+        });
 
-        // Get the latest products to show on the homepage (increased from 8 to 12)
-        $latestProducts = Product::where('stock', '>', 0)
-            ->whereNotNull('slug')
-            ->where('slug', '!=', '')
-            ->latest()
-            ->take(12)
-            ->get();
+        // Cache latest products for 5 minutes
+        $latestProducts = \Cache::remember('homepage_latest_products', 300, function () {
+            return \App\Models\Product::where('stock', '>', 0)
+                ->whereNotNull('slug')
+                ->where('slug', '!=', '')
+                ->latest()
+                ->take(12)
+                ->get();
+        });
 
         return view('frontend.home', compact('categories', 'latestProducts'));
     }
@@ -98,9 +102,12 @@ class HomeController extends Controller
                     $query->orderBy('name', 'desc');
                     break;
                 case 'rating':
-                    // Sort by average rating
-                    $query->withCount('approvedReviews as reviews_count')
-                          ->orderByDesc('reviews_count');
+                    // Sort by average rating - optimized with join
+                    $query->leftJoin('reviews', 'products.id', '=', 'reviews.product_id')
+                          ->where('reviews.is_approved', true)
+                          ->where('reviews.is_banned', false)
+                          ->groupBy('products.id')
+                          ->orderByRaw('AVG(reviews.rating) DESC');
                     break;
                 case 'latest':
                 default:
@@ -113,7 +120,11 @@ class HomeController extends Controller
         }
 
         $products = $query->paginate(12)->appends($request->all());
-        $categories = Category::withCount('products')->get();
+        
+        // Cache categories for 10 minutes
+        $categories = \Cache::remember('shop_categories', 600, function () {
+            return \App\Models\Category::withCount('products')->get();
+        });
 
         return view('frontend.shop', compact('products', 'categories'));
     }
@@ -123,7 +134,10 @@ class HomeController extends Controller
      */
     public function categoryView($slug)
     {
-        $category = Category::where('slug', $slug)->firstOrFail();
+        $category = \Cache::remember("category_slug_{$slug}", 600, function () use ($slug) {
+            return \App\Models\Category::where('slug', $slug)->firstOrFail();
+        });
+        
         $products = Product::where('category_id', $category->id)
             ->where('stock', '>', 0)
             ->whereNotNull('slug')
@@ -131,7 +145,11 @@ class HomeController extends Controller
             ->with('category')
             ->latest()
             ->paginate(12);
-        $categories = Category::withCount('products')->get();
+        
+        // Cache categories for 10 minutes
+        $categories = \Cache::remember('shop_categories', 600, function () {
+            return \App\Models\Category::withCount('products')->get();
+        });
 
         return view('frontend.category', compact('category', 'products', 'categories'));
     }
@@ -141,7 +159,10 @@ class HomeController extends Controller
      */
     public function show($slug)
     {
-        $product = Product::where('slug', $slug)->firstOrFail();
+        // Cache product by slug for 5 minutes
+        $product = \Cache::remember("product_slug_{$slug}", 300, function () use ($slug) {
+            return \App\Models\Product::where('slug', $slug)->firstOrFail();
+        });
 
         // Load reviews with user relationship and replies (include banned reviews for transparency)
         $reviews = $product->reviews()
@@ -155,6 +176,7 @@ class HomeController extends Controller
             ->get();
 
         // Get rating statistics (exclude banned reviews from stats)
+        // These are now cached in the Product model
         $averageRating = $product->average_rating;
         $reviewsCount = $product->reviews_count;
         $ratingDistribution = $product->rating_distribution;
@@ -162,18 +184,21 @@ class HomeController extends Controller
         // Check if current user has reviewed this product
         $userReview = null;
         if (auth()->check()) {
-            $userReview = Review::where('product_id', $product->id)
+            $userReview = \App\Models\Review::where('product_id', $product->id)
                 ->where('user_id', auth()->id())
                 ->first();
         }
 
-        $relatedProducts = Product::where('category_id', $product->category_id)
-            ->where('id', '!=', $product->id)
-            ->where('stock', '>', 0)
-            ->whereNotNull('slug')
-            ->where('slug', '!=', '')
-            ->take(4)
-            ->get();
+        // Cache related products for 10 minutes
+        $relatedProducts = \Cache::remember("product_{$product->id}_related", 600, function () use ($product) {
+            return \App\Models\Product::where('category_id', $product->category_id)
+                ->where('id', '!=', $product->id)
+                ->where('stock', '>', 0)
+                ->whereNotNull('slug')
+                ->where('slug', '!=', '')
+                ->take(4)
+                ->get();
+        });
 
         return view('frontend.product', compact(
             'product',
