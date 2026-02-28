@@ -147,14 +147,70 @@
                 <!-- Right Column: Product Details -->
                 <div>
                     <div class="product-edit-card" style="background: white; padding: 32px; border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                        
+
+                        <!-- Multi-Language Product Name -->
                         <div style="margin-bottom: 24px;">
-                            <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">Product Name (English) *</label>
-                            @php
-                                $nameArray = is_array($product->name) ? $product->name : json_decode($product->name, true);
-                                $englishName = $nameArray['en'] ?? ($nameArray ?? $product->name);
-                            @endphp
-                            <input type="text" name="name_en" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;" value="{{ old('name_en', $englishName) }}" required onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">
+                            <h4 style="font-weight: 800; color: #1e293b; font-size: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                                🌐 Product Name Translations
+                            </h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                                <div>
+                                    <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">🇬🇧 English *</label>
+                                    @php
+                                        $nameArray = is_array($product->name) ? $product->name : json_decode($product->name, true);
+                                        $englishName = $nameArray['en'] ?? ($nameArray ?? $product->name);
+                                        $khmerName = is_array($product->name) ? ($product->name['km'] ?? '') : '';
+                                        $chineseName = is_array($product->name) ? ($product->name['zh'] ?? '') : '';
+                                    @endphp
+                                    <input type="text" name="name_en" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;" value="{{ old('name_en', $englishName) }}" required onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">🇰🇭 Khmer *</label>
+                                    <input type="text" name="name_km" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;" value="{{ old('name_km', $khmerName) }}" required onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">🇨🇳 Chinese *</label>
+                                    <input type="text" name="name_zh" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;" value="{{ old('name_zh', $chineseName) }}" required onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Multi-Language Description -->
+                        <div style="margin-bottom: 24px;">
+                            <h4 style="font-weight: 800; color: #1e293b; font-size: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                                📝 Product Description (Optional)
+                            </h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                                <div>
+                                    <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">🇬🇧 English</label>
+                                    @php
+                                        $descArray = $product->description;
+                                        if (is_string($descArray)) {
+                                            $decoded = json_decode($descArray, true);
+                                            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                                                $descArray = $decoded;
+                                            } else {
+                                                $descArray = ['en' => $descArray, 'km' => '', 'zh' => ''];
+                                            }
+                                        }
+                                        if (!is_array($descArray)) {
+                                            $descArray = ['en' => '', 'km' => '', 'zh' => ''];
+                                        }
+                                        $enDesc = $descArray['en'] ?? '';
+                                        $kmDesc = $descArray['km'] ?? '';
+                                        $zhDesc = $descArray['zh'] ?? '';
+                                    @endphp
+                                    <textarea name="description_en" rows="4" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box; resize: vertical;" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">{{ old('description_en', $enDesc) }}</textarea>
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">🇰🇭 Khmer</label>
+                                    <textarea name="description_km" rows="4" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box; resize: vertical;" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">{{ old('description_km', $kmDesc) }}</textarea>
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">🇨🇳 Chinese</label>
+                                    <textarea name="description_zh" rows="4" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box; resize: vertical;" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">{{ old('description_zh', $zhDesc) }}</textarea>
+                                </div>
+                            </div>
                         </div>
 
                         <div style="margin-bottom: 24px;">
@@ -166,20 +222,57 @@
                             </select>
                         </div>
 
-                        <div class="product-edit-spec-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                        <div class="product-edit-spec-grid" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px;">
                             <div>
                                 <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">Price ($) *</label>
                                 <input type="number" name="price" step="0.01" min="0" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;" value="{{ old('price', $product->price) }}" required onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">
                             </div>
                             <div>
-                                <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">Stock Quantity *</label>
+                                <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">Discount %</label>
+                                <input type="number" name="discount_percent" step="0.01" min="0" max="100" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;" value="{{ old('discount_percent', $product->discount_percent ?? 0) }}" onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">
+                            </div>
+                            <div>
+                                <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">Stock *</label>
                                 <input type="number" name="stock" min="0" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;" value="{{ old('stock', $product->stock) }}" required onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">
                             </div>
                             <div>
-                                <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">Unit (Sold By) *</label>
+                                <label style="display: block; font-weight: 700; color: #475569; margin-bottom: 8px; font-size: 14px;">Unit *</label>
                                 <select name="unit" id="unit-select" style="width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 14px; outline: none; background: white; cursor: pointer; box-sizing: border-box;" required onfocus="this.style.borderColor='#10b981'" onblur="this.style.borderColor='#e2e8f0'">
                                     <option value="">Select Category First</option>
                                 </select>
+                            </div>
+                        </div>
+
+                        <!-- Discount Settings -->
+                        <div style="margin-bottom: 24px; padding: 16px; background: linear-gradient(to right, #fef3c7, #fde68a); border-radius: 12px; border: 1px solid #fcd34d;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+                                <span style="font-size: 20px;">🏷️</span>
+                                <h4 style="margin: 0; font-weight: 800; color: #78350f; font-size: 15px;">Discount & Sale Settings</h4>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                                <div>
+                                    <label style="display: block; font-weight: 700; color: #78350f; margin-bottom: 6px; font-size: 13px;">Enable Sale</label>
+                                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                        <input type="checkbox" name="is_on_sale" value="1" {{ old('is_on_sale', $product->is_on_sale ?? false) ? 'checked' : '' }} style="width: 16px; height: 16px; cursor: pointer;">
+                                        <span style="color: #78350f; font-size: 13px;">Mark as on sale</span>
+                                    </label>
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 700; color: #78350f; margin-bottom: 6px; font-size: 13px;">Sale Label</label>
+                                    <input type="text" name="sale_label" value="{{ old('sale_label', $product->sale_label ?? '') }}" style="width: 100%; padding: 8px 12px; border: 1px solid #fcd34d; border-radius: 8px; font-size: 13px; box-sizing: border-box;" placeholder="e.g., Flash Sale">
+                                </div>
+                                <div></div>
+                                <div>
+                                    <label style="display: block; font-weight: 700; color: #78350f; margin-bottom: 6px; font-size: 13px;">Discount Start</label>
+                                    <input type="datetime-local" name="discount_start" value="{{ old('discount_start', $product->discount_start ? $product->discount_start->format('Y-m-d\TH:i') : '') }}" style="width: 100%; padding: 8px 12px; border: 1px solid #fcd34d; border-radius: 8px; font-size: 13px; box-sizing: border-box;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-weight: 700; color: #78350f; margin-bottom: 6px; font-size: 13px;">Discount End</label>
+                                    <input type="datetime-local" name="discount_end" value="{{ old('discount_end', $product->discount_end ? $product->discount_end->format('Y-m-d\TH:i') : '') }}" style="width: 100%; padding: 8px 12px; border: 1px solid #fcd34d; border-radius: 8px; font-size: 13px; box-sizing: border-box;">
+                                </div>
+                                <div style="display: flex; align-items: center;">
+                                    <small style="color: #92400e; font-size: 11px;">💡 Leave empty for immediate start. Discount price auto-calculates.</small>
+                                </div>
                             </div>
                         </div>
 

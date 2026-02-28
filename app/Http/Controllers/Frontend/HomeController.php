@@ -254,6 +254,8 @@ class HomeController extends Controller
                 'name' => $product->name,
                 'quantity' => $request->quantity,
                 'price' => $product->price,
+                'discount_percent' => $product->discount_percent ?? 0,
+                'discount_price' => $product->discount_price ?? null,
                 'image' => $product->image,
             ];
         }

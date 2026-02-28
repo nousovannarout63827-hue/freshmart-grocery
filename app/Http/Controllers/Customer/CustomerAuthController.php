@@ -275,9 +275,38 @@ class CustomerAuthController extends Controller
 
         // Generate PDF using DomPDF
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('customer.orders.invoice-pdf', compact('order'));
-        
+
         // Download the file with a clean name
         return $pdf->download('FreshMart-Invoice-' . $order->id . '.pdf');
+    }
+
+    /**
+     * Cancel an order (customer can only cancel if status is pending).
+     */
+    public function cancelOrder(Request $request, $orderId)
+    {
+        $request->validate([
+            'cancellation_reason' => 'required|string|max:1000',
+        ]);
+
+        // SECURITY: Customers can ONLY cancel their own orders
+        $order = Order::where('id', $orderId)
+            ->where('customer_id', Auth::id())
+            ->firstOrFail();
+
+        // Check if order can be cancelled (only if status is pending)
+        if ($order->status !== 'pending') {
+            return back()->with('error', 'Sorry, this order cannot be cancelled. Orders can only be cancelled before they are confirmed by our staff.');
+        }
+
+        // Update order status and cancellation reason
+        $order->update([
+            'status' => 'cancelled',
+            'cancellation_reason' => $request->cancellation_reason,
+        ]);
+
+        return redirect()->route('customer.order.details', $orderId)
+            ->with('success', 'Your order has been cancelled successfully.');
     }
 
     /**

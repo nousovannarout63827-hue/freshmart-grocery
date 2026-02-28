@@ -44,12 +44,27 @@
             <div class="grid lg:grid-cols-3 gap-8">
                 <!-- Cart Items -->
                 <div class="lg:col-span-2 space-y-4">
-                    @php $total = 0; $subtotal = 0; @endphp
+                    @php
+                        $total = 0;
+                        $subtotal = 0;
+                        $totalDiscount = 0;
+                    @endphp
                     @foreach($cart as $productId => $item)
                         @php
-                            $itemTotal = $item['price'] * $item['quantity'];
+                            // Calculate item price with discount
+                            $itemPrice = $item['price'];
+                            if (isset($item['discount_percent']) && $item['discount_percent'] > 0) {
+                                if (isset($item['discount_price']) && $item['discount_price']) {
+                                    $itemPrice = $item['discount_price'];
+                                } else {
+                                    $itemPrice = $item['price'] * (1 - $item['discount_percent'] / 100);
+                                }
+                                $totalDiscount += ($item['price'] - $itemPrice) * $item['quantity'];
+                            }
+                            
+                            $itemTotal = $itemPrice * $item['quantity'];
                             $total += $itemTotal;
-                            $subtotal += $itemTotal;
+                            $subtotal += $item['price'] * $item['quantity'];
                         @endphp
                         <div id="cart-item-{{ $productId }}" class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition">
                             <div class="flex gap-6">
@@ -83,12 +98,43 @@
                                 <!-- Product Info -->
                                 <div class="flex-1">
                                     <h3 class="font-semibold text-gray-900 text-lg mb-1">{{ $displayName }}</h3>
-                                    <p class="text-primary-600 font-bold text-xl">
-                                        @php
-                                            $displayPrice = ($item['price'] == floor($item['price'])) ? '$' . number_format($item['price'], 0) : '$' . number_format($item['price'], 2);
-                                        @endphp
-                                        {{ $displayPrice }}
-                                    </p>
+                                    
+                                    @if(isset($item['discount_percent']) && $item['discount_percent'] > 0)
+                                        <div class="flex items-center gap-2 mb-2">
+                                            <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">
+                                                🏷️ {{ number_format($item['discount_percent'], 0) }}% OFF
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-gray-400 line-through text-sm">
+                                                @php
+                                                    $originalPrice = ($item['price'] == floor($item['price'])) ? '$' . number_format($item['price'], 0) : '$' . number_format($item['price'], 2);
+                                                @endphp
+                                                {{ $originalPrice }}
+                                            </span>
+                                            <span class="text-red-600 font-bold text-xl">
+                                                @if(isset($item['discount_price']) && $item['discount_price'])
+                                                    @php
+                                                        $discountedPrice = ($item['discount_price'] == floor($item['discount_price'])) ? '$' . number_format($item['discount_price'], 0) : '$' . number_format($item['discount_price'], 2);
+                                                    @endphp
+                                                    {{ $discountedPrice }}
+                                                @else
+                                                    @php
+                                                        $calcPrice = $item['price'] * (1 - $item['discount_percent'] / 100);
+                                                        $displayPrice = ($calcPrice == floor($calcPrice)) ? '$' . number_format($calcPrice, 0) : '$' . number_format($calcPrice, 2);
+                                                    @endphp
+                                                    {{ $displayPrice }}
+                                                @endif
+                                            </span>
+                                        </div>
+                                    @else
+                                        <p class="text-primary-600 font-bold text-xl">
+                                            @php
+                                                $displayPrice = ($item['price'] == floor($item['price'])) ? '$' . number_format($item['price'], 0) : '$' . number_format($item['price'], 2);
+                                            @endphp
+                                            {{ $displayPrice }}
+                                        </p>
+                                    @endif
                                     
                                     <!-- Quantity Controls -->
                                     <div class="flex items-center gap-4 mt-4">
@@ -125,7 +171,16 @@
                                 <!-- Item Total -->
                                 <div class="text-right">
                                     <p class="text-sm text-gray-500 mb-1">Total</p>
-                                    <p class="text-2xl font-bold text-gray-900">${{ number_format($itemTotal, 2) }}</p>
+                                    @if(isset($item['discount_percent']) && $item['discount_percent'] > 0)
+                                        <p class="text-xl font-bold text-red-600">${{ number_format($itemTotal, 2) }}</p>
+                                        @if($item['quantity'] > 1)
+                                            <p class="text-xs text-gray-400 line-through">
+                                                Was: ${{ number_format($item['price'] * $item['quantity'], 2) }}
+                                            </p>
+                                        @endif
+                                    @else
+                                        <p class="text-2xl font-bold text-gray-900">${{ number_format($itemTotal, 2) }}</p>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -149,7 +204,7 @@
                             $discount = session()->has('coupon') ? session()->get('coupon')['discount'] : 0;
                             
                             // Calculate final total
-                            $finalTotal = ($subtotal + $deliveryFee) - $discount;
+                            $finalTotal = ($subtotal + $deliveryFee - $totalDiscount) - $discount;
                             
                             // Calculate how much more needed for free shipping
                             $amountNeededForFreeShipping = $deliveryThreshold - $subtotal;
@@ -160,6 +215,19 @@
                                 <span>Subtotal</span>
                                 <span class="font-medium">${{ number_format($subtotal, 2) }}</span>
                             </div>
+                            
+                            @if($totalDiscount > 0)
+                                <div class="flex justify-between text-green-600 bg-green-50 p-3 rounded-xl border border-green-200">
+                                    <span class="flex items-center gap-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                                        </svg>
+                                        Product Discounts
+                                    </span>
+                                    <span class="font-medium">-${{ number_format($totalDiscount, 2) }}</span>
+                                </div>
+                            @endif
+                            
                             <div class="flex justify-between text-gray-600">
                                 <span>Delivery Fee</span>
                                 @if($deliveryFee > 0)

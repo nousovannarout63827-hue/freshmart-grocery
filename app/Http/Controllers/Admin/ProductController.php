@@ -89,6 +89,11 @@ class ProductController extends Controller
             'description_zh' => 'nullable|string|max:1000',
             'category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric|min:0',
+            'discount_percent' => 'nullable|numeric|min:0|max:100',
+            'discount_start' => 'nullable|date',
+            'discount_end' => 'nullable|date|after:discount_start',
+            'is_on_sale' => 'boolean',
+            'sale_label' => 'nullable|string|max:100',
             'stock' => 'required|integer|min:0',
             'unit' => 'required|string|max:50',
             'sku' => 'nullable|string|max:100|unique:products,sku',
@@ -104,6 +109,9 @@ class ProductController extends Controller
             'price.required' => 'Please enter a price.',
             'price.numeric' => 'Price must be a number.',
             'price.min' => 'Price cannot be negative.',
+            'discount_percent.numeric' => 'Discount must be a number.',
+            'discount_percent.min' => 'Discount cannot be negative.',
+            'discount_percent.max' => 'Discount cannot exceed 100%.',
             'stock.required' => 'Please enter stock quantity.',
             'stock.integer' => 'Stock must be a whole number.',
             'stock.min' => 'Stock cannot be negative.',
@@ -127,11 +135,17 @@ class ProductController extends Controller
             'km' => $validated['name_km'],
             'zh' => $validated['name_zh'],
         ];
-        
+
         $productDescription = [];
         if (!empty($validated['description_en'])) $productDescription['en'] = $validated['description_en'];
         if (!empty($validated['description_km'])) $productDescription['km'] = $validated['description_km'];
         if (!empty($validated['description_zh'])) $productDescription['zh'] = $validated['description_zh'];
+
+        // Calculate discount price if discount percent is provided
+        $discountPrice = null;
+        if (!empty($validated['discount_percent']) && $validated['discount_percent'] > 0) {
+            $discountPrice = $validated['price'] * (1 - $validated['discount_percent'] / 100);
+        }
 
         // Create the product first
         $product = Product::create([
@@ -139,6 +153,12 @@ class ProductController extends Controller
             'description' => !empty($productDescription) ? $productDescription : null,
             'category_id' => $validated['category_id'],
             'price' => $validated['price'],
+            'discount_percent' => $validated['discount_percent'] ?? 0,
+            'discount_price' => $discountPrice,
+            'discount_start' => $validated['discount_start'] ?? null,
+            'discount_end' => $validated['discount_end'] ?? null,
+            'is_on_sale' => $request->has('is_on_sale'),
+            'sale_label' => $validated['sale_label'] ?? null,
             'stock' => $validated['stock'],
             'unit' => $validated['unit'],
             'sku' => $finalSku,
@@ -181,9 +201,19 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name_en' => 'required|string|max:255',
+            'name_km' => 'required|string|max:255',
+            'name_zh' => 'required|string|max:255',
+            'description_en' => 'nullable|string|max:1000',
+            'description_km' => 'nullable|string|max:1000',
+            'description_zh' => 'nullable|string|max:1000',
             'category_id' => 'required|exists:categories,id',
             'price' => 'required|numeric|min:0',
+            'discount_percent' => 'nullable|numeric|min:0|max:100',
+            'discount_start' => 'nullable|date',
+            'discount_end' => 'nullable|date|after:discount_start',
+            'is_on_sale' => 'boolean',
+            'sale_label' => 'nullable|string|max:100',
             'stock' => 'required|integer|min:0',
             'unit' => 'required|string|max:50',
             'sku' => 'nullable|string|max:100|unique:products,sku,' . $id,
@@ -195,6 +225,24 @@ class ProductController extends Controller
         $finalSku = $validated['sku'] ?? null;
         if (empty($finalSku)) {
             $finalSku = 'PRD-' . strtoupper(\Illuminate\Support\Str::random(8));
+        }
+
+        // Pack multi-language name and description into JSON arrays
+        $productName = [
+            'en' => $validated['name_en'],
+            'km' => $validated['name_km'],
+            'zh' => $validated['name_zh'],
+        ];
+
+        $productDescription = [];
+        if (!empty($validated['description_en'])) $productDescription['en'] = $validated['description_en'];
+        if (!empty($validated['description_km'])) $productDescription['km'] = $validated['description_km'];
+        if (!empty($validated['description_zh'])) $productDescription['zh'] = $validated['description_zh'];
+
+        // Calculate discount price if discount percent is provided
+        $discountPrice = null;
+        if (!empty($validated['discount_percent']) && $validated['discount_percent'] > 0) {
+            $discountPrice = $validated['price'] * (1 - $validated['discount_percent'] / 100);
         }
 
         // Check if adding new images would exceed the 4-image limit
@@ -221,16 +269,23 @@ class ProductController extends Controller
         }
 
         $product->update([
-            'name' => $validated['name'],
+            'name' => $productName,
+            'description' => !empty($productDescription) ? $productDescription : null,
             'category_id' => $validated['category_id'],
             'price' => $validated['price'],
+            'discount_percent' => $validated['discount_percent'] ?? 0,
+            'discount_price' => $discountPrice,
+            'discount_start' => $validated['discount_start'] ?? null,
+            'discount_end' => $validated['discount_end'] ?? null,
+            'is_on_sale' => $request->has('is_on_sale'),
+            'sale_label' => $validated['sale_label'] ?? null,
             'stock' => $validated['stock'],
             'unit' => $validated['unit'],
             'sku' => $finalSku,
         ]);
 
         // Log the activity
-        ActivityLog::log('Updated', 'Inventory', "Updated product: {$product->name} (ID: {$product->id})");
+        ActivityLog::log('Updated', 'Inventory', "Updated product: {$productName['en']} (ID: {$product->id})");
 
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully!');
     }

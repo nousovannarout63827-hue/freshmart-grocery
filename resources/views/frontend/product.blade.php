@@ -91,6 +91,11 @@
                 
                 <!-- Rating -->
                 <div class="flex items-center gap-4 mb-6">
+                    @if($product->discount_percent > 0)
+                        <span class="bg-red-500 text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-lg animate-pulse flex items-center gap-1">
+                            🏷️ {{ number_format($product->discount_percent, 0) }}% OFF
+                        </span>
+                    @endif
                     <div class="flex items-center gap-1 text-yellow-400">
                         @for($i = 1; $i <= 5; $i++)
                             @if($i <= round($averageRating ?? 0))
@@ -109,13 +114,34 @@
                 
                 <!-- Price & Stock -->
                 <div class="flex items-baseline gap-3 mb-6">
-                    <span class="text-4xl font-bold text-primary-600">
-                        @php
-                            $displayPrice = ($product->price == floor($product->price)) ? '$' . number_format($product->price, 0) : '$' . number_format($product->price, 2);
-                        @endphp
-                        {{ $displayPrice }}
-                    </span>
-                    <span class="text-gray-500 text-lg">/{{ $product->unit ?? 'unit' }}</span>
+                    @if($product->discount_percent > 0 && $product->discounted_price)
+                        <div class="flex flex-col">
+                            <span class="text-2xl text-gray-400 line-through font-semibold">
+                                @php
+                                    $originalPrice = ($product->price == floor($product->price)) ? '$' . number_format($product->price, 0) : '$' . number_format($product->price, 2);
+                                @endphp
+                                {{ $originalPrice }}
+                            </span>
+                            <span class="text-4xl font-bold text-red-600">
+                                @php
+                                    $discountedPrice = ($product->discounted_price == floor($product->discounted_price)) ? '$' . number_format($product->discounted_price, 0) : '$' . number_format($product->discounted_price, 2);
+                                @endphp
+                                {{ $discountedPrice }}
+                            </span>
+                        </div>
+                        <span class="text-gray-500 text-lg">/{{ $product->unit ?? 'unit' }}</span>
+                        <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">
+                            Save {{ number_format($product->price - $product->discounted_price, 2) }}!
+                        </span>
+                    @else
+                        <span class="text-4xl font-bold text-primary-600">
+                            @php
+                                $displayPrice = ($product->price == floor($product->price)) ? '$' . number_format($product->price, 0) : '$' . number_format($product->price, 2);
+                            @endphp
+                            {{ $displayPrice }}
+                        </span>
+                        <span class="text-gray-500 text-lg">/{{ $product->unit ?? 'unit' }}</span>
+                    @endif
                 </div>
 
                 @if($product->stock > 0)
@@ -135,7 +161,7 @@
                 @endif
 
                 <p class="text-gray-600 mb-8 leading-relaxed">
-                    {{ $product->description ?? 'Fresh and high-quality product available at FreshMart. Perfect for your daily needs. Sourced from trusted local farms and suppliers.' }}
+                    {{ $product->translated_description ?? 'Fresh and high-quality product available at FreshMart. Perfect for your daily needs. Sourced from trusted local farms and suppliers.' }}
                 </p>
 
                 @if($product->stock > 0)

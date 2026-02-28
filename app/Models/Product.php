@@ -18,6 +18,12 @@ class Product extends Model
         'slug',
         'sku',
         'price',
+        'discount_percent',
+        'discount_price',
+        'discount_start',
+        'discount_end',
+        'is_on_sale',
+        'sale_label',
         'unit',
         'stock',
         'image',
@@ -33,11 +39,15 @@ class Product extends Model
     {
         return [
             'price' => 'decimal:2',
+            'discount_percent' => 'decimal:2',
+            'discount_price' => 'decimal:2',
             'stock' => 'integer',
-            'is_active' => 'boolean',
+            'is_on_sale' => 'boolean',
             'images' => 'array',
             'name' => 'array',
             'description' => 'array',
+            'discount_start' => 'datetime',
+            'discount_end' => 'datetime',
         ];
     }
 
@@ -67,12 +77,17 @@ class Product extends Model
     public function getTranslatedNameAttribute(): string
     {
         $locale = app()->getLocale();
-        
+
+        // If name is null or empty
+        if (empty($this->name)) {
+            return 'Unknown Product';
+        }
+
         // If name is an array (multi-language)
         if (is_array($this->name)) {
             return $this->name[$locale] ?? $this->name['en'] ?? $this->name['km'] ?? $this->name['zh'] ?? 'Unknown Product';
         }
-        
+
         // If name is a string (legacy), return as-is
         return (string) $this->name;
     }
@@ -207,5 +222,77 @@ class Product extends Model
     {
         // Use cached value from Review model
         return Review::getRatingDistribution($this->id);
+    }
+
+    /**
+     * Check if the product is currently on sale.
+     */
+    public function isOnSale(): bool
+    {
+        if (!$this->is_on_sale) {
+            return false;
+        }
+
+        $now = now();
+
+        // Check if within sale period
+        if ($this->discount_start && $now->lt($this->discount_start)) {
+            return false;
+        }
+
+        if ($this->discount_end && $now->gt($this->discount_end)) {
+            return false;
+        }
+
+        // Check if discount percent is greater than 0
+        return $this->discount_percent > 0;
+    }
+
+    /**
+     * Get the discounted price.
+     */
+    public function getDiscountedPriceAttribute(): ?float
+    {
+        if ($this->isOnSale()) {
+            return $this->discount_price ?? ($this->price * (1 - $this->discount_percent / 100));
+        }
+
+        return null;
+    }
+
+    /**
+     * Get discount percentage for display.
+     */
+    public function getDisplayDiscountAttribute(): string
+    {
+        if ($this->isOnSale() && $this->discount_percent > 0) {
+            return "{$this->discount_percent}% OFF";
+        }
+
+        return '';
+    }
+
+    /**
+     * Get sale label for display.
+     */
+    public function getDisplaySaleLabelAttribute(): string
+    {
+        if ($this->isOnSale()) {
+            return $this->sale_label ?? ($this->discount_percent > 0 ? "{$this->discount_percent}% OFF" : 'SALE');
+        }
+
+        return '';
+    }
+
+    /**
+     * Calculate savings amount.
+     */
+    public function getSavingsAmountAttribute(): float
+    {
+        if ($this->isOnSale() && $this->discounted_price) {
+            return $this->price - $this->discounted_price;
+        }
+
+        return 0;
     }
 }

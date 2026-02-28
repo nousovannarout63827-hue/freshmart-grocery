@@ -213,6 +213,11 @@
 
                                 <!-- Badges -->
                                 <div class="absolute top-2 left-2 sm:top-3 sm:left-3 z-20 flex flex-col gap-1 sm:gap-2">
+                                    @if($product->discount_percent > 0)
+                                        <span class="bg-red-500 text-white text-[10px] sm:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full font-bold shadow-lg animate-pulse">
+                                            🏷️ {{ number_format($product->discount_percent, 0) }}% OFF
+                                        </span>
+                                    @endif
                                     @if($product->stock < 10 && $product->stock > 0)
                                         <span class="bg-accent-500 text-white text-[10px] sm:text-xs px-2 sm:px-3 py-0.5 sm:py-1 rounded-full font-medium shadow-lg">
                                             Low Stock
@@ -231,13 +236,30 @@
                                 <h3 class="font-semibold text-gray-800 mb-1 sm:mb-2 text-xs sm:text-sm truncate group-hover:text-primary-600 transition {{ app()->getLocale() === 'km' ? 'font-khmer' : '' }}">{{ $product->translated_name }}</h3>
                                 <div class="flex items-center justify-between mb-2 sm:mb-4">
                                     <div>
-                                        <span class="text-sm sm:text-xl font-bold text-gray-900">
-                                            @php
-                                                $formattedPrice = number_format($product->price, 2);
-                                                $displayPrice = ($product->price == floor($product->price)) ? '$' . number_format($product->price, 0) : '$' . $formattedPrice;
-                                            @endphp
-                                            {{ $displayPrice }}
-                                        </span>
+                                        @if($product->discount_percent > 0 && $product->discounted_price)
+                                            <div class="flex flex-col">
+                                                <span class="text-xs sm:text-sm text-gray-400 line-through">
+                                                    @php
+                                                        $originalPrice = ($product->price == floor($product->price)) ? '$' . number_format($product->price, 0) : '$' . number_format($product->price, 2);
+                                                    @endphp
+                                                    {{ $originalPrice }}
+                                                </span>
+                                                <span class="text-sm sm:text-xl font-bold text-red-600">
+                                                    @php
+                                                        $discountedPrice = ($product->discounted_price == floor($product->discounted_price)) ? '$' . number_format($product->discounted_price, 0) : '$' . number_format($product->discounted_price, 2);
+                                                    @endphp
+                                                    {{ $discountedPrice }}
+                                                </span>
+                                            </div>
+                                        @else
+                                            <span class="text-sm sm:text-xl font-bold text-gray-900">
+                                                @php
+                                                    $formattedPrice = number_format($product->price, 2);
+                                                    $displayPrice = ($product->price == floor($product->price)) ? '$' . number_format($product->price, 0) : '$' . $formattedPrice;
+                                                @endphp
+                                                {{ $displayPrice }}
+                                            </span>
+                                        @endif
                                         <span class="text-[10px] sm:text-sm text-gray-500">/{{ Str::limit($product->unit ?? 'unit', 3) }}</span>
                                     </div>
                                     @php

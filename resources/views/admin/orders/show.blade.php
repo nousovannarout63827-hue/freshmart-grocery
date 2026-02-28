@@ -92,12 +92,21 @@
     @endif
 
     @if($order->status === 'cancelled' && $order->cancellation_reason)
-        <div style="background: #fef2f2; border: 1px solid #ef4444; border-left: 4px solid #ef4444; padding: 16px 20px; border-radius: 12px; margin-bottom: 24px;">
-            <div style="display: flex; align-items: flex-start; gap: 12px;">
-                <span style="font-size: 24px;">🔴</span>
-                <div>
-                    <h4 style="margin: 0 0 4px 0; font-weight: 700; color: #b91c1c;">Order Cancelled</h4>
-                    <p style="margin: 0; color: #7f1d1d; font-size: 14px; line-height: 1.5;"><strong>Reason:</strong> {{ $order->cancellation_reason }}</p>
+        <div style="background: linear-gradient(135deg, #fef2f2, #fee2e2); border: 2px solid #ef4444; border-left: 6px solid #ef4444; padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);">
+            <div style="display: flex; align-items: flex-start; gap: 16px;">
+                <span style="font-size: 32px; flex-shrink: 0;">🔴</span>
+                <div style="flex: 1;">
+                    <h4 style="margin: 0 0 8px 0; font-weight: 800; color: #b91c1c; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                        🚫 Order Cancelled
+                        <span style="font-size: 12px; font-weight: 700; background: #ef4444; color: white; padding: 4px 10px; border-radius: 20px;">{{ strtoupper($order->status) }}</span>
+                    </h4>
+                    <div style="background: white; border: 1px solid #fca5a5; border-radius: 8px; padding: 14px; margin-top: 10px;">
+                        <p style="margin: 0 0 6px 0; font-size: 12px; font-weight: 700; color: #7f1d1d; text-transform: uppercase; letter-spacing: 0.5px;">📝 Cancellation Reason:</p>
+                        <p style="margin: 0; color: #991b1b; font-size: 15px; line-height: 1.6; font-weight: 500;">{{ $order->cancellation_reason }}</p>
+                    </div>
+                    <p style="margin: 10px 0 0 0; font-size: 13px; color: #b91c1c; font-style: italic;">
+                        💡 This cancellation reason was provided by {{ $order->customer->name ?? 'the customer' }} when they cancelled the order.
+                    </p>
                 </div>
             </div>
         </div>
@@ -205,17 +214,32 @@
                 <h4 style="margin: 0 0 12px 0; font-weight: 700; color: #475569; font-size: 14px; display: flex; align-items: center; gap: 6px;">
                     🚫 Cancel Order
                 </h4>
-                
+
                 @if($order->status !== 'cancelled')
-                    <p style="margin: 0 0 12px 0; font-size: 13px; color: #64748b;">Permanently cancel this order and notify the customer.</p>
-                    
-                    <button onclick="openCancelModal()" style="width: 100%; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(239, 68, 68, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(239, 68, 68, 0.3)'">
-                        🚫 Cancel Order
-                    </button>
+                    @if($order->status === 'pending')
+                        <p style="margin: 0 0 12px 0; font-size: 13px; color: #64748b;">Permanently cancel this order and notify the customer.</p>
+                        <button onclick="openCancelModal()" style="width: 100%; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(239, 68, 68, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(239, 68, 68, 0.3)'">
+                            🚫 Cancel Order
+                        </button>
+                    @else
+                        <div style="background: #fef3c7; border-radius: 8px; padding: 12px; border: 1px solid #fcd34d;">
+                            <p style="margin: 0 0 6px 0; font-size: 13px; color: #92400e; font-weight: 700;">⚠️ Cannot Cancel</p>
+                            <p style="margin: 0; font-size: 12px; color: #78350f; line-height: 1.5;">
+                                This order is already in <strong>{{ ucfirst(str_replace('_', ' ', $order->status)) }}</strong> status. 
+                                Orders can only be cancelled when they are in <strong>Pending</strong> status.
+                            </p>
+                        </div>
+                    @endif
                 @else
                     <div style="background: #fee2e2; border-radius: 8px; padding: 12px; border: 1px solid #fca5a5;">
-                        <p style="margin: 0; font-size: 13px; color: #991b1b; font-weight: 700;">✅ Order Already Cancelled</p>
-                        <p style="margin: 4px 0 0 0; font-size: 12px; color: #7f1d1d;">This order has been cancelled.</p>
+                        <p style="margin: 0 0 6px 0; font-size: 13px; color: #991b1b; font-weight: 700;">✅ Order Already Cancelled</p>
+                        @if($order->cancellation_reason)
+                            <p style="margin: 0; font-size: 12px; color: #7f1d1d; line-height: 1.5;">
+                                <strong>Reason:</strong> {{ $order->cancellation_reason }}
+                            </p>
+                        @else
+                            <p style="margin: 4px 0 0 0; font-size: 12px; color: #7f1d1d;">This order has been cancelled.</p>
+                        @endif
                     </div>
                 @endif
             </div>

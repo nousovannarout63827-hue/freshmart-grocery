@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\CustomerManagementController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\DriverPerformanceController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\ReviewManagementController;
@@ -134,6 +135,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/customer/order/{orderId}/track-api', [OrderTrackingController::class, 'getTrackingData'])->name('customer.order.track-api');
     Route::get('/customer/order/{orderId}/invoice', [CustomerAuthController::class, 'invoice'])->name('customer.order.invoice');
     Route::get('/customer/order/{orderId}/invoice-pdf', [CustomerAuthController::class, 'downloadInvoice'])->name('customer.order.invoice-pdf');
+    Route::post('/customer/order/{orderId}/cancel', [CustomerAuthController::class, 'cancelOrder'])->name('customer.order.cancel');
     Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout');
     
     // Customer Notifications
@@ -176,6 +178,18 @@ Route::group([
 
     // 🎟️ COUPON MANAGEMENT ROUTES
     Route::resource('coupons', CouponController::class)->except(['show']);
+    
+    // 🎉 PROMOTION MANAGEMENT ROUTES
+    Route::get('/promotions', [PromotionController::class, 'index'])->name('promotions.index');
+    Route::get('/promotions/create', [PromotionController::class, 'create'])->name('promotions.create');
+    Route::post('/promotions', [PromotionController::class, 'store'])->name('promotions.store');
+    Route::get('/promotions/{id}', [PromotionController::class, 'show'])->name('promotions.show');
+    Route::get('/promotions/{id}/edit', [PromotionController::class, 'edit'])->name('promotions.edit');
+    Route::put('/promotions/{id}', [PromotionController::class, 'update'])->name('promotions.update');
+    Route::delete('/promotions/{id}', [PromotionController::class, 'destroy'])->name('promotions.destroy');
+    Route::post('/promotions/give-to-customers', [PromotionController::class, 'giveToCustomers'])->name('promotions.give-to-customers');
+    Route::post('/promotions/flash-sale', [PromotionController::class, 'createFlashSale'])->name('promotions.flash-sale');
+    Route::post('/promotions/{id}/toggle', [PromotionController::class, 'toggleStatus'])->name('promotions.toggle');
 
     // 👥 CUSTOMER MANAGEMENT ROUTES
     Route::get('/customers', [CustomerManagementController::class, 'index'])->name('customers.index');

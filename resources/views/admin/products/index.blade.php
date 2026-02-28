@@ -176,6 +176,7 @@
                     <th>Product Name</th>
                     <th>Category</th>
                     <th>Price</th>
+                    <th>Discount</th>
                     <th>Stock</th>
                     <th>Status</th>
                     <th>Actions</th>

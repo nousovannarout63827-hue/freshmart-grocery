@@ -107,6 +107,14 @@
             <h2 style="font-weight: 800; color: #1e293b; font-size: 28px; margin-bottom: 8px;">👥 Customer Management</h2>
             <p style="color: #64748b; font-size: 14px;">Manage registered customers and their access</p>
         </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <a href="{{ route('admin.promotions.index') }}" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                🎉 Promotions
+            </a>
+            <button onclick="document.getElementById('givePromotionModal').style.display='flex'" style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 10px 18px; border: none; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                🎁 Give Promotion
+            </button>
+        </div>
         <div class="customers-stats" style="display: flex; gap: 12px;">
             <div class="customers-stat-card" style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 12px 20px; border-radius: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
                 <div style="font-size: 12px; opacity: 0.9;">Total Customers</div>
@@ -257,5 +265,64 @@
         {{ $customers->links('vendor.pagination.tailwind') }}
     </div>
     @endif
+
+    <!-- Give Promotion Modal -->
+    <div id="givePromotionModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; padding: 32px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 24px;">
+                <h3 style="margin: 0; font-weight: 800; color: #1e293b; font-size: 20px;">🎁 Give Promotion to Customers</h3>
+                <button onclick="document.getElementById('givePromotionModal').style.display='none'" style="background: none; border: none; font-size: 24px; color: #64748b; cursor: pointer;">✕</button>
+            </div>
+
+            <form action="{{ route('admin.promotions.give-to-customers') }}" method="POST">
+                @csrf
+                <div style="display: grid; gap: 16px;">
+                    <div>
+                        <label style="display: block; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Select Coupon</label>
+                        <select name="coupon_id" required style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;">
+                            <option value="">-- Select a coupon --</option>
+                            @foreach(\App\Models\Coupon::where('status', true)->get() as $coupon)
+                                <option value="{{ $coupon->id }}">{{ $coupon->code }} - {{ $coupon->name }} ({{ $coupon->discount_label }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Target Customers</label>
+                        <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="target_all" value="1" checked onchange="toggleCustomerSelect()" style="width: 16px; height: 16px;">
+                                <span>All Customers</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="target_all" value="0" onchange="toggleCustomerSelect()" style="width: 16px; height: 16px;">
+                                <span>Selected Customers</span>
+                            </label>
+                        </div>
+                        <select name="customer_ids[]" id="customerSelect" multiple style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; min-height: 150px; display: none;">
+                            @foreach($customers as $customer)
+                                <option value="{{ $customer->id }}">{{ $customer->name }} ({{ $customer->email }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Custom Message (Optional)</label>
+                        <textarea name="message" rows="3" placeholder="Add a personal message to accompany the promotion..." style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; resize: vertical;"></textarea>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+                    <button type="button" onclick="document.getElementById('givePromotionModal').style.display='none'" style="background: #f1f5f9; color: #475569; padding: 12px 24px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer;">Cancel</button>
+                    <button type="submit" style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 12px 24px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer;">🎁 Send Promotion</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    function toggleCustomerSelect() {
+        const targetAll = document.querySelector('input[name="target_all"]:checked').value;
+        document.getElementById('customerSelect').style.display = targetAll === '1' ? 'none' : 'block';
+    }
+    </script>
 </div>
 @endsection

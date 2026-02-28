@@ -361,11 +361,22 @@
                                 <p class="text-sm text-slate-500">Set your product price and stock levels.</p>
                             </div>
                             
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 <div>
                                     <label class="block text-sm font-medium text-slate-700 mb-2">Price ($) *</label>
                                     <input type="number" name="price" step="0.01" min="0" value="{{ old('price') }}" class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('price') ? 'border-red-500 bg-red-50 ring-2 ring-red-200' : 'border-slate-200 bg-slate-50' }} focus:ring-purple-500 focus:border-purple-500 transition-colors font-sans" placeholder="0.00" required>
                                     @error('price')
+                                        <p class="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                            {{ $message }}
+                                        </p>
+                                    @enderror
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-slate-700 mb-2">Discount Percent (%)</label>
+                                    <input type="number" name="discount_percent" step="0.01" min="0" max="100" value="{{ old('discount_percent', 0) }}" class="w-full px-4 py-2.5 rounded-xl border {{ $errors->has('discount_percent') ? 'border-red-500 bg-red-50 ring-2 ring-red-200' : 'border-slate-200 bg-slate-50' }} focus:ring-purple-500 focus:border-purple-500 transition-colors font-sans" placeholder="0">
+                                    <small class="text-slate-500 text-xs mt-1 block">Enter 0 for no discount</small>
+                                    @error('discount_percent')
                                         <p class="text-red-500 text-xs mt-1.5 font-medium flex items-center gap-1">
                                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
                                             {{ $message }}
@@ -381,6 +392,42 @@
                                             {{ $message }}
                                         </p>
                                     @enderror
+                                </div>
+                            </div>
+
+                            <!-- Discount Settings -->
+                            <div class="mt-6 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200">
+                                <div class="flex items-center gap-2 mb-4">
+                                    <span class="text-xl">🏷️</span>
+                                    <h4 class="font-bold text-slate-800">Discount & Sale Settings</h4>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-2">Enable Sale</label>
+                                        <label class="flex items-center gap-2 cursor-pointer">
+                                            <input type="checkbox" name="is_on_sale" value="1" {{ old('is_on_sale') ? 'checked' : '' }} class="w-4 h-4 text-purple-600 border-slate-300 rounded focus:ring-purple-500">
+                                            <span class="text-sm text-slate-700">Mark as on sale</span>
+                                        </label>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-2">Sale Label</label>
+                                        <input type="text" name="sale_label" value="{{ old('sale_label') }}" class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white focus:ring-purple-500 focus:border-purple-500 transition-colors text-sm" placeholder="e.g., Flash Sale, 50% OFF">
+                                    </div>
+                                    <div></div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-2">Discount Start Date</label>
+                                        <input type="datetime-local" name="discount_start" value="{{ old('discount_start') }}" class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white focus:ring-purple-500 focus:border-purple-500 transition-colors text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-700 mb-2">Discount End Date</label>
+                                        <input type="datetime-local" name="discount_end" value="{{ old('discount_end') }}" class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white focus:ring-purple-500 focus:border-purple-500 transition-colors text-sm">
+                                    </div>
+                                    <div class="flex items-end">
+                                        <div class="text-xs text-slate-600">
+                                            <p>💡 Leave dates empty for immediate start</p>
+                                            <p>Discount price auto-calculates</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
