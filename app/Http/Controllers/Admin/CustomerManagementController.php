@@ -77,6 +77,36 @@ class CustomerManagementController extends Controller
     }
 
     /**
+     * Reset customer password.
+     */
+    public function resetPassword(Request $request, $id)
+    {
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $customer = User::where('id', $id)
+            ->where(function($q) {
+                $q->where('role', 'customer')->orWhereNull('role');
+            })
+            ->firstOrFail();
+
+        // Update password
+        $customer->password = bcrypt($request->password);
+        $customer->save();
+
+        // Log this action
+        ActivityLog::create([
+            'user_id' => auth()->id(),
+            'action' => 'customer_password_reset',
+            'module' => 'Customer Management',
+            'description' => "Reset password for customer {$customer->name} (ID: {$customer->id})",
+        ]);
+
+        return back()->with('success', 'Customer password has been reset successfully!');
+    }
+
+    /**
      * Toggle customer status (active/suspended).
      */
     public function toggleStatus($id)

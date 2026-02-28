@@ -7,9 +7,9 @@ use App\Models\Coupon;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Category;
-use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class PromotionController extends Controller
@@ -213,6 +213,7 @@ class PromotionController extends Controller
             'customer_ids' => 'nullable|array',
             'target_all' => 'boolean',
             'message' => 'nullable|string|max:500',
+            'expires_at' => 'nullable|date|after:now',
         ]);
 
         $coupon = Coupon::findOrFail($request->coupon_id);
@@ -232,24 +233,31 @@ class PromotionController extends Controller
 
         // Create notifications for each customer
         $count = 0;
+        $expiresAt = $validated['expires_at'] ?? null;
         foreach ($customers as $customer) {
-            Notification::create([
-                'user_id' => $customer->id,
+            \DB::table('notifications')->insert([
+                'id' => \Str::uuid(),
                 'type' => 'promotion',
-                'title' => '🎉 Special Discount Just for You!',
-                'message' => $request->message ?? "You've received a special discount: {$coupon->code} - {$coupon->name}",
+                'notifiable_type' => 'App\\Models\\User',
+                'notifiable_id' => $customer->id,
                 'data' => json_encode([
+                    'title' => '🎉 Special Discount Just for You!',
+                    'message' => $request->message ?? "You've received a special discount: {$coupon->code} - {$coupon->name}",
                     'coupon_id' => $coupon->id,
                     'coupon_code' => $coupon->code,
                     'discount_value' => $coupon->value,
                     'discount_type' => $coupon->type,
+                    'expires_at' => $expiresAt,
+                    'expires_formatted' => $expiresAt ? \Carbon\Carbon::parse($expiresAt)->format('M d, Y \a\t g:i A') : 'No expiry',
                 ]),
-                'is_read' => false,
+                'read_at' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
             $count++;
         }
 
-        return back()->with('success', "Promotion sent to {$count} customer(s) successfully!");
+        return back()->with('success', "Promotion sent to {$count} customer(s) successfully!" . ($expiresAt ? " Expires: " . \Carbon\Carbon::parse($expiresAt)->format('M d, Y') : ''));
     }
 
     /**
@@ -314,18 +322,22 @@ class PromotionController extends Controller
             // Notify all customers
             $customers = User::where('role', 'customer')->get();
             foreach ($customers as $customer) {
-                Notification::create([
-                    'user_id' => $customer->id,
+                \DB::table('notifications')->insert([
+                    'id' => \Str::uuid(),
                     'type' => 'flash_sale',
-                    'title' => '⚡ Flash Sale Alert!',
-                    'message' => "Get {$validated['discount_percent']}% OFF for the next {$validated['duration_hours']} hours! Use code: {$coupon->code}",
+                    'notifiable_type' => 'App\\Models\\User',
+                    'notifiable_id' => $customer->id,
                     'data' => json_encode([
+                        'title' => '⚡ Flash Sale Alert!',
+                        'message' => "Get {$validated['discount_percent']}% OFF for the next {$validated['duration_hours']} hours! Use code: {$coupon->code}",
                         'coupon_id' => $coupon->id,
                         'coupon_code' => $coupon->code,
                         'discount_percent' => $validated['discount_percent'],
                         'valid_until' => $validUntil->toDateTimeString(),
                     ]),
-                    'is_read' => false,
+                    'read_at' => null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
             }
 
@@ -348,5 +360,62 @@ class PromotionController extends Controller
         $coupon->update(['status' => !$coupon->status]);
 
         return back()->with('success', 'Promotion status updated successfully!');
+    }
+
+    /**
+     * Display customer-specific promotions.
+     */
+    public function customerPromotions(Request $request)
+    {
+        $query = \DB::table('notifications')
+            ->where('type', 'promotion')
+            ->where('notifiable_type', 'App\\Models\\User')
+            ->join('users', 'notifications.notifiable_id', '=', 'users.id')
+            ->select('notifications.*', 'users.name as customer_name', 'users.email as customer_email')
+            ->orderBy('notifications.created_at', 'desc');
+
+        // Filter by customer
+        if ($request->filled('customer_id')) {
+            $query->where('notifications.notifiable_id', $request->customer_id);
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            if ($request->status === 'expired') {
+                $query->whereRaw('JSON_EXTRACT(data, "$.expires_at") < ?', [now()]);
+            } elseif ($request->status === 'active') {
+                $query->whereRaw('(JSON_EXTRACT(data, "$.expires_at") IS NULL OR JSON_EXTRACT(data, "$.expires_at") > ?)', [now()]);
+            }
+        }
+
+        // Search
+        if ($request->filled('search')) {
+            $query->where(function($q) use ($request) {
+                $q->where('users.name', 'like', '%' . $request->search . '%')
+                  ->orWhere('users.email', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $promotions = $query->paginate(20);
+
+        $customers = User::where('role', 'customer')->get();
+        $stats = [
+            'total' => \DB::table('notifications')->where('type', 'promotion')->count(),
+            'active' => \DB::table('notifications')->where('type', 'promotion')
+                ->whereRaw('(JSON_EXTRACT(data, "$.expires_at") IS NULL OR JSON_EXTRACT(data, "$.expires_at") > ?)', [now()])->count(),
+            'expired' => \DB::table('notifications')->where('type', 'promotion')
+                ->whereRaw('JSON_EXTRACT(data, "$.expires_at") < ?', [now()])->count(),
+        ];
+
+        return view('admin.customer-promotions.index', compact('promotions', 'customers', 'stats'));
+    }
+
+    /**
+     * Revoke a customer-specific promotion.
+     */
+    public function revokeCustomerPromotion($id)
+    {
+        \DB::table('notifications')->where('id', $id)->delete();
+        return back()->with('success', 'Promotion revoked successfully!');
     }
 }

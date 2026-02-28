@@ -190,11 +190,16 @@ Route::group([
     Route::post('/promotions/give-to-customers', [PromotionController::class, 'giveToCustomers'])->name('promotions.give-to-customers');
     Route::post('/promotions/flash-sale', [PromotionController::class, 'createFlashSale'])->name('promotions.flash-sale');
     Route::post('/promotions/{id}/toggle', [PromotionController::class, 'toggleStatus'])->name('promotions.toggle');
+    
+    // 👥 CUSTOMER PROMOTION MANAGEMENT
+    Route::get('/customer-promotions', [PromotionController::class, 'customerPromotions'])->name('customer-promotions.index');
+    Route::delete('/customer-promotions/{id}', [PromotionController::class, 'revokeCustomerPromotion'])->name('customer-promotions.revoke');
 
     // 👥 CUSTOMER MANAGEMENT ROUTES
     Route::get('/customers', [CustomerManagementController::class, 'index'])->name('customers.index');
     Route::get('/customers/{id}', [CustomerManagementController::class, 'show'])->name('customers.show');
     Route::post('/customers/{id}/toggle', [CustomerManagementController::class, 'toggleStatus'])->name('customers.toggle');
+    Route::post('/customers/{id}/reset-password', [CustomerManagementController::class, 'resetPassword'])->name('customers.reset-password');
     Route::put('/customers/{id}/role', [CustomerManagementController::class, 'updateRole'])->name('customers.update-role');
     Route::delete('/customers/{id}', [CustomerManagementController::class, 'destroy'])->name('customers.destroy');
     Route::get('/customers/trash', [CustomerManagementController::class, 'trash'])->name('customers.trash');

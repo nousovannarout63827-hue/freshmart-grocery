@@ -53,15 +53,20 @@
                         $data = $notification->data;
                         $isUnread = $notification->read_at === null;
                         $timeAgo = $notification->created_at->diffForHumans();
+                        $notifType = $notification->type;
                     @endphp
-                    
+
                     <div class="notification-item bg-white rounded-2xl border {{ $isUnread ? 'border-blue-200 shadow-md' : 'border-gray-100' }} p-5 transition hover:shadow-lg {{ $isUnread ? 'bg-gradient-to-r from-blue-50 to-white' : '' }}">
                         <div class="flex items-start gap-4">
                             <!-- Icon -->
                             <div class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 {{ $isUnread ? 'bg-blue-100' : 'bg-gray-100' }}">
-                                @if($data['type'] === 'review_reply')
+                                @if($notifType === 'review_reply')
                                     <svg class="w-6 h-6 {{ $isUnread ? 'text-blue-600' : 'text-gray-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                    </svg>
+                                @elseif($notifType === 'promotion' || $notifType === 'flash_sale')
+                                    <svg class="w-6 h-6 {{ $isUnread ? 'text-green-600' : 'text-gray-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                                     </svg>
                                 @else
                                     <svg class="w-6 h-6 {{ $isUnread ? 'text-blue-600' : 'text-gray-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -75,16 +80,38 @@
 
                             <!-- Content -->
                             <div class="flex-1">
-                                @if($data['type'] === 'review_reply')
+                                @if($notifType === 'review_reply')
                                     <h3 class="font-semibold text-gray-900 mb-1">
-                                        {{ $data['replier_name'] }} replied to your review
+                                        {{ $data['replier_name'] ?? 'Someone' }} replied to your review
                                     </h3>
                                     <p class="text-gray-600 text-sm mb-2">
-                                        on <span class="font-medium">{{ $data['product_name'] }}</span>
+                                        on <span class="font-medium">{{ $data['product_name'] ?? 'a product' }}</span>
                                     </p>
                                     <div class="bg-gray-50 rounded-lg p-3 mb-3">
-                                        <p class="text-gray-700 text-sm italic">"{{ Str::limit($data['reply_comment'], 150) }}"</p>
+                                        <p class="text-gray-700 text-sm italic">"{{ Str::limit($data['reply_comment'] ?? '', 150) }}"</p>
                                     </div>
+                                @elseif($notifType === 'promotion' || $notifType === 'flash_sale')
+                                    <h3 class="font-semibold text-gray-900 mb-1">{{ $data['title'] ?? 'Special Offer!' }}</h3>
+                                    <p class="text-gray-600 text-sm mb-2">{{ $data['message'] ?? '' }}</p>
+                                    @if(isset($data['coupon_code']))
+                                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-3 mb-3">
+                                            <div class="flex items-center justify-between flex-wrap gap-2">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-2xl">🎫</span>
+                                                    <div>
+                                                        <p class="text-xs text-green-700 font-medium">Coupon Code</p>
+                                                        <p class="text-lg font-bold text-green-800 font-mono">{{ $data['coupon_code'] }}</p>
+                                                    </div>
+                                                </div>
+                                                @if(isset($data['expires_formatted']))
+                                                    <div class="text-right">
+                                                        <p class="text-xs text-green-700 font-medium">Expires</p>
+                                                        <p class="text-sm font-semibold text-green-800">{{ $data['expires_formatted'] }}</p>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
                                 @else
                                     <h3 class="font-semibold text-gray-900 mb-1">{{ $data['title'] ?? 'Notification' }}</h3>
                                     <p class="text-gray-600 text-sm mb-2">{{ $data['message'] ?? '' }}</p>
@@ -93,8 +120,8 @@
                                 <div class="flex items-center justify-between">
                                     <span class="text-xs text-gray-500">{{ $timeAgo }}</span>
                                     <div class="flex gap-2">
-                                        @if($data['type'] === 'review_reply')
-                                            <a href="{{ route('product.show', $data['product_slug']) }}#reviews" 
+                                        @if($notifType === 'review_reply')
+                                            <a href="{{ route('product.show', $data['product_slug'] ?? '#') }}#reviews"
                                                class="px-4 py-2 bg-primary-600 text-white text-sm rounded-lg hover:bg-primary-700 transition font-medium inline-flex items-center gap-1"
                                                onclick="markAsRead('{{ $notification->id }}')">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -105,12 +132,12 @@
                                             </a>
                                         @endif
                                         @if($isUnread)
-                                            <button onclick="markAsRead('{{ $notification->id }}')" 
+                                            <button onclick="markAsRead('{{ $notification->id }}')"
                                                     class="px-4 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition font-medium">
                                                 Mark as Read
                                             </button>
                                         @endif
-                                        <button onclick="deleteNotification('{{ $notification->id }}')" 
+                                        <button onclick="deleteNotification('{{ $notification->id }}')"
                                                 class="px-4 py-2 bg-red-50 text-red-600 text-sm rounded-lg hover:bg-red-100 transition font-medium">
                                             Delete
                                         </button>

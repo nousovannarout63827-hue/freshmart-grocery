@@ -5,7 +5,11 @@
 
     <div class="page-header" style="margin-bottom: 30px;">
         <h1 style="font-size: 24px; font-weight: 900; color: #1e293b; margin: 0;">
-            ⚙️ My Account Settings
+            <svg class="w-6 h-6 inline-block mr-2" style="width: 24px; height: 24px; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            My Account Settings
         </h1>
         <p style="font-size: 14px; color: #64748b; margin: 5px 0 0;">Manage your profile details and security preferences.</p>
     </div>
@@ -39,7 +43,12 @@
         {{-- Profile Information Card --}}
         <div class="profile-card" style="background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
             <div class="card-header" style="background: white; border-bottom: 1px solid #f1f5f9; padding: 20px 25px;">
-                <h2 style="font-size: 18px; font-weight: 900; color: #1e293b; margin: 0;">👤 Profile Information</h2>
+                <h2 style="font-size: 18px; font-weight: 900; color: #1e293b; margin: 0;">
+                    <svg class="w-5 h-5 inline-block mr-2" style="width: 20px; height: 20px; vertical-align: middle;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Profile Information
+                </h2>
             </div>
             <div class="card-body" style="padding: 30px 25px;">
                 
@@ -58,10 +67,14 @@
                         <form action="{{ route('admin.profile.photo') }}" method="POST" enctype="multipart/form-data" id="photo-form">
                             @csrf
                             <label for="photo-upload" class="btn-upload" id="upload-label"
-                                   style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-block;"
+                                   style="background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;"
                                    onmouseover="this.style.background='#2563eb';"
                                    onmouseout="this.style.background='#3b82f6';">
-                                📸 Change Photo
+                                <svg class="w-5 h-5" style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                Change Photo
                             </label>
                             <input type="file" name="photo" id="photo-upload" style="display: none;" accept="image/*" onchange="submitPhotoForm(this);">
                         </form>
@@ -160,11 +173,14 @@
                                required>
                     </div>
 
-                    <button type="submit" 
-                            style="width: 100%; background: #1e293b; color: white; border: none; padding: 14px 20px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px;"
+                    <button type="submit"
+                            style="width: 100%; background: #1e293b; color: white; border: none; padding: 14px 20px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;"
                             onmouseover="this.style.background='#0f172a'; this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 12px rgba(30,41,59,0.3)';"
                             onmouseout="this.style.background='#1e293b'; this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                        🔒 Update Password
+                        <svg class="w-5 h-5" style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h14a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        Update Password
                     </button>
                 </form>
             </div>

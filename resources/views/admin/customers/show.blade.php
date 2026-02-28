@@ -294,12 +294,19 @@
             <!-- Quick Actions -->
             <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #f1f5f9;">
                 <h4 style="font-weight: 700; color: #1e293b; margin-bottom: 12px; font-size: 14px;">Quick Actions</h4>
-                
+
+                <button type="button" onclick="openResetPasswordModal()"
+                        style="width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: #dbeafe; color: #1e40af; margin-bottom: 10px;"
+                        onmouseover="this.style.background='#bfdbfe'"
+                        onmouseout="this.style.background='#dbeafe'">
+                    🔑 Reset Password
+                </button>
+
                 <form action="{{ route('admin.customers.toggle', $user->id) }}" method="POST" style="margin-bottom: 10px;">
                     @csrf
-                    <button type="submit" 
+                    <button type="submit"
                             style="width: 100%; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; background: {{ $user->status === 'active' ? '#fef2f2' : '#ecfdf5' }}; color: {{ $user->status === 'active' ? '#dc2626' : '#059669' }};"
-                            onmouseover="this.style.background='{{ $user->status === 'active' ? '#fee2e2' : '#d1fae5' }}'" 
+                            onmouseover="this.style.background='{{ $user->status === 'active' ? '#fee2e2' : '#d1fae5' }}'"
                             onmouseout="this.style.background='{{ $user->status === 'active' ? '#fef2f2' : '#ecfdf5' }}'">
                         {{ $user->status === 'active' ? '🚫 Suspend Account' : '✅ Activate Account' }}
                     </button>
@@ -307,5 +314,79 @@
             </div>
         </div>
     </div>
+
+    <!-- Reset Password Modal -->
+    <div id="resetPasswordModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 16px; padding: 32px; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h3 style="margin: 0; font-weight: 800; color: #1e293b; font-size: 20px;">🔑 Reset Password</h3>
+                <button type="button" onclick="closeResetPasswordModal()" style="background: none; border: none; font-size: 24px; color: #64748b; cursor: pointer; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: background 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='none'">✕</button>
+            </div>
+
+            <div style="background: #fef3c7; border: 1px solid #fcd34d; border-left: 4px solid #f59e0b; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                <p style="margin: 0; font-size: 14px; color: #92400e; line-height: 1.6;">
+                    <strong>⚠️ Important:</strong> This will immediately reset the password for <strong>{{ $user->name }}</strong>. The customer will need to use the new password to log in.
+                </p>
+            </div>
+
+            <form action="{{ route('admin.customers.reset-password', $user->id) }}" method="POST">
+                @csrf
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-weight: 700; color: #1e293b; margin-bottom: 8px; font-size: 14px;">
+                        New Password <span style="color: #ef4444;">*</span>
+                    </label>
+                    <input type="password" name="password" required minlength="8"
+                           placeholder="Enter new password (min 8 characters)"
+                           style="width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;"
+                           onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <label style="display: block; font-weight: 700; color: #1e293b; margin-bottom: 8px; font-size: 14px;">
+                        Confirm Password <span style="color: #ef4444;">*</span>
+                    </label>
+                    <input type="password" name="password_confirmation" required minlength="8"
+                           placeholder="Confirm new password"
+                           style="width: 100%; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; transition: border-color 0.2s; box-sizing: border-box;"
+                           onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'">
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" onclick="closeResetPasswordModal()" style="background: #f1f5f9; color: #475569; padding: 12px 24px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s; border: none;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+                        Cancel
+                    </button>
+                    <button type="submit" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 12px 24px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.2s; border: none; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(59, 130, 246, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)'">
+                        🔑 Reset Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openResetPasswordModal() {
+            document.getElementById('resetPasswordModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeResetPasswordModal() {
+            document.getElementById('resetPasswordModal').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('resetPasswordModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeResetPasswordModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeResetPasswordModal();
+            }
+        });
+    </script>
 </div>
 @endsection

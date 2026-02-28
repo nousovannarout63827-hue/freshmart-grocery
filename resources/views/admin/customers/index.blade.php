@@ -108,6 +108,9 @@
             <p style="color: #64748b; font-size: 14px;">Manage registered customers and their access</p>
         </div>
         <div style="display: flex; gap: 12px; align-items: center;">
+            <a href="{{ route('admin.customer-promotions.index') }}" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                📋 Customer Promotions
+            </a>
             <a href="{{ route('admin.promotions.index') }}" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 13px; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
                 🎉 Promotions
             </a>
@@ -307,6 +310,11 @@
                     <div>
                         <label style="display: block; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Custom Message (Optional)</label>
                         <textarea name="message" rows="3" placeholder="Add a personal message to accompany the promotion..." style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; resize: vertical;"></textarea>
+                    </div>
+                    <div>
+                        <label style="display: block; font-weight: 700; color: #1e293b; margin-bottom: 6px;">Promotion Expires</label>
+                        <input type="datetime-local" name="expires_at" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1;" min="{{ now()->format('Y-m-d\TH:i') }}">
+                        <small style="color: #64748b; font-size: 11px; margin-top: 4px; display: block;">Leave empty for no expiry</small>
                     </div>
                 </div>
 

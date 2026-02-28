@@ -292,6 +292,15 @@
                                         </a>
                                     @else
                                         <a href="{{ route('customer.orders') }}" class="block px-4 py-2.5 hover:bg-primary-50 text-gray-700 hover:text-primary-600 transition">📦 My Orders</a>
+                                        <a href="{{ route('customer.notifications') }}" class="block px-4 py-2.5 hover:bg-primary-50 text-gray-700 hover:text-primary-600 transition">
+                                            🔔 Notifications
+                                            @php
+                                                $unreadCount = \App\Models\User::find(auth()->id())->unreadNotifications()->count();
+                                            @endphp
+                                            @if($unreadCount > 0)
+                                                <span class="float-right bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $unreadCount }}</span>
+                                            @endif
+                                        </a>
                                         <a href="{{ route('customer.profile.edit') }}" class="block px-4 py-2.5 hover:bg-primary-50 text-gray-700 hover:text-primary-600 transition">✏️ Edit Profile</a>
                                         <a href="{{ route('customer.profile') }}" class="block px-4 py-2.5 hover:bg-primary-50 text-gray-700 hover:text-primary-600 transition">👤 Profile Dashboard</a>
                                     @endif
@@ -438,6 +447,15 @@
                             <div class="space-y-2">
                                 <a href="{{ route('customer.orders') }}" class="block w-full px-4 py-3 bg-primary-600 text-white rounded-xl font-medium text-center hover:bg-primary-700 transition shadow-lg shadow-primary-500/30">
                                     📦 My Orders
+                                </a>
+                                <a href="{{ route('customer.notifications') }}" class="block w-full px-4 py-3 bg-white border-2 border-primary-600 text-primary-600 rounded-xl font-medium text-center hover:bg-primary-50 transition relative">
+                                    🔔 Notifications
+                                    @php
+                                        $unreadCount = \App\Models\User::find(auth()->id())->unreadNotifications()->count();
+                                    @endphp
+                                    @if($unreadCount > 0)
+                                        <span class="absolute top-2 right-3 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ $unreadCount }}</span>
+                                    @endif
                                 </a>
                                 <a href="{{ route('customer.profile.edit') }}" class="block w-full px-4 py-3 border-2 border-primary-600 text-primary-600 rounded-xl font-medium text-center hover:bg-primary-50 transition">
                                     ✏️ Edit Profile
