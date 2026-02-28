@@ -305,6 +305,19 @@ class CustomerAuthController extends Controller
             'cancellation_reason' => $request->cancellation_reason,
         ]);
 
+        // Create notification for the customer
+        $order->customer->notifications()->create([
+            'id' => \Illuminate\Support\Str::orderedUuid(),
+            'type' => 'order_cancelled',
+            'data' => [
+                'title' => 'Order Cancelled',
+                'message' => "Your order #{$order->id} has been cancelled successfully.",
+                'reason' => $request->cancellation_reason,
+                'order_id' => $order->id,
+                'cancelled_by' => 'You',
+            ],
+        ]);
+
         return redirect()->route('customer.order.details', $orderId)
             ->with('success', 'Your order has been cancelled successfully.');
     }

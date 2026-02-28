@@ -54,6 +54,11 @@
                         $isUnread = $notification->read_at === null;
                         $timeAgo = $notification->created_at->diffForHumans();
                         $notifType = $notification->type;
+                        
+                        // Debug: Ensure data is array
+                        if (is_string($data)) {
+                            $data = json_decode($data, true);
+                        }
                     @endphp
 
                     <div class="notification-item bg-white rounded-2xl border {{ $isUnread ? 'border-blue-200 shadow-md' : 'border-gray-100' }} p-5 transition hover:shadow-lg {{ $isUnread ? 'bg-gradient-to-r from-blue-50 to-white' : '' }}">
@@ -63,6 +68,10 @@
                                 @if($notifType === 'review_reply')
                                     <svg class="w-6 h-6 {{ $isUnread ? 'text-blue-600' : 'text-gray-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                                    </svg>
+                                @elseif($notifType === 'order_cancelled')
+                                    <svg class="w-6 h-6 {{ $isUnread ? 'text-red-600' : 'text-gray-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 @elseif($notifType === 'promotion' || $notifType === 'flash_sale')
                                     <svg class="w-6 h-6 {{ $isUnread ? 'text-green-600' : 'text-gray-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,6 +99,32 @@
                                     <div class="bg-gray-50 rounded-lg p-3 mb-3">
                                         <p class="text-gray-700 text-sm italic">"{{ Str::limit($data['reply_comment'] ?? '', 150) }}"</p>
                                     </div>
+                                @elseif($notifType === 'order_cancelled')
+                                    {{-- Debug: order_id={{ is_array($data) ? ($data['order_id'] ?? 'NULL') : 'NOT_ARRAY' }} --}}
+                                    <h3 class="font-semibold text-gray-900 mb-1">
+                                        ❌ {{ $data['title'] ?? 'Order Cancelled' }}
+                                    </h3>
+                                    <p class="text-gray-600 text-sm mb-2">{{ $data['message'] ?? '' }}</p>
+                                    @if(isset($data['reason']))
+                                        <div class="bg-red-50 border border-red-200 rounded-xl p-3 mb-3">
+                                            <p class="text-xs text-red-700 font-medium mb-1">Reason for cancellation:</p>
+                                            <p class="text-sm text-red-800">{{ $data['reason'] }}</p>
+                                            @if(isset($data['cancelled_by']))
+                                                <p class="text-xs text-red-600 mt-2">— Cancelled by: {{ $data['cancelled_by'] }}</p>
+                                            @endif
+                                        </div>
+                                    @endif
+                                    @if(isset($data['order_id']))
+                                        <a href="{{ route('customer.order.details', $data['order_id']) }}"
+                                           class="inline-flex items-center gap-1 text-sm text-red-700 font-medium hover:text-red-800">
+                                            View Order Details
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </a>
+                                    @else
+                                        <p class="text-red-500 text-xs">No order_id in data</p>
+                                    @endif
                                 @elseif($notifType === 'promotion' || $notifType === 'flash_sale')
                                     <h3 class="font-semibold text-gray-900 mb-1">{{ $data['title'] ?? 'Special Offer!' }}</h3>
                                     <p class="text-gray-600 text-sm mb-2">{{ $data['message'] ?? '' }}</p>

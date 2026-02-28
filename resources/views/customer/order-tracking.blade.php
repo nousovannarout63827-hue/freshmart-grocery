@@ -208,7 +208,7 @@
 
             <!-- Contact Support -->
             <div style="text-align: center; padding-top: 16px; border-top: 1px solid #e2e8f0;">
-                <a href="{{ route('customer.orders') }}" style="font-size: 13px; color: #3b82f6; text-decoration: none; font-weight: 700;">← Back to My Orders</a>
+                <a href="{{ route('customer.order.details', $order->id) }}" style="font-size: 13px; color: #3b82f6; text-decoration: none; font-weight: 700;">← Back to Order Details</a>
             </div>
         </div>
     </div>

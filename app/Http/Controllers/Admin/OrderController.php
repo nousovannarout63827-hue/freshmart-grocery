@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -44,7 +45,7 @@ class OrderController extends Controller
 
         // Keep the pending count for the top alert badge
         $pendingCount = Order::whereIn('status', ['pending', 'preparing'])->count();
-        
+
         // Calculate total sold amount for delivered orders (filtered)
         $totalSoldAmount = (clone $query)->where('status', 'delivered')->sum('total_amount');
 
@@ -70,11 +71,11 @@ class OrderController extends Controller
 
         $order = Order::findOrFail($id);
         $oldStatus = $order->status;
-        
+
         // Handle driver assignment
         if ($request->has('driver_id')) {
             $order->driver_id = $request->driver_id;
-            
+
             // If assigning a driver and order is not yet out for delivery, update status
             if ($request->driver_id && !in_array($order->status, ['out_for_delivery', 'arrived', 'delivered'])) {
                 $order->status = 'out_for_delivery';
@@ -85,7 +86,7 @@ class OrderController extends Controller
                 }
             }
         }
-        
+
         // Handle status update
         if ($request->has('status')) {
             $order->status = $request->status;
@@ -93,6 +94,9 @@ class OrderController extends Controller
             // Save cancellation reason if status is cancelled
             if ($request->status === 'cancelled') {
                 $order->cancellation_reason = $request->cancellation_reason;
+                
+                // Send notification to customer about order cancellation
+                $this->notifyCustomerAboutCancellation($order, $request->cancellation_reason);
             } else {
                 // Clear cancellation reason if status is changed away from cancelled
                 $order->cancellation_reason = null;
@@ -107,6 +111,28 @@ class OrderController extends Controller
         $order->save();
 
         return back()->with('success', 'Order has been updated successfully!');
+    }
+
+    /**
+     * Send notification to customer when their order is cancelled by Admin/Staff
+     */
+    private function notifyCustomerAboutCancellation($order, $reason)
+    {
+        $customer = User::find($order->customer_id);
+        
+        if ($customer) {
+            $customer->notifications()->create([
+                'id' => \Illuminate\Support\Str::orderedUuid(),
+                'type' => 'order_cancelled',
+                'data' => [
+                    'title' => 'Order Cancelled',
+                    'message' => "Your order #{$order->id} has been cancelled by our staff.",
+                    'reason' => $reason,
+                    'order_id' => $order->id,
+                    'cancelled_by' => auth()->user()->name ?? 'Admin/Staff',
+                ],
+            ]);
+        }
     }
 
     /**
