@@ -252,7 +252,7 @@
                                     @endphp
                                     @if($productImageUrl)
                                         <img src="{{ $productImageUrl }}"
-                                             alt="{{ $related->name }}"
+                                             alt="{{ $related->translated_name }}"
                                              class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
                                     @else
                                         <div class="w-full h-full flex items-center justify-center text-6xl bg-gradient-to-br from-primary-50 to-primary-100">
@@ -263,7 +263,7 @@
 
                                 <div class="p-3 sm:p-5">
                                     <p class="text-[10px] sm:text-xs text-primary-600 font-semibold mb-1 sm:mb-2">{{ $related->category->name ?? 'Uncategorized' }}</p>
-                                    <h3 class="font-semibold text-gray-800 mb-1 sm:mb-2 text-xs sm:text-sm truncate group-hover:text-primary-600 transition">{{ $related->name }}</h3>
+                                    <h3 class="font-semibold text-gray-800 mb-1 sm:mb-2 text-xs sm:text-sm truncate group-hover:text-primary-600 transition">{{ $related->translated_name }}</h3>
                                     <div class="flex items-center justify-between mb-2 sm:mb-4">
                                         <span class="text-sm sm:text-xl font-bold text-gray-900">
                                             @php

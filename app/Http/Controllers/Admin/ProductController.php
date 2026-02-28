@@ -296,7 +296,7 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
-        $productName = $product->name;
+        $productName = is_array($product->name) ? ($product->name['en'] ?? 'Product') : $product->name;
         $product->delete();
 
         // Log the activity
@@ -356,10 +356,11 @@ class ProductController extends Controller
         $product->restore();
 
         // Log the restore action
+        $productName = is_array($product->name) ? ($product->name['en'] ?? 'Product') : $product->name;
         ActivityLog::log(
             'RESTORED',
             'Inventory',
-            "Restored product: {$product->name} (ID: {$product->id})"
+            "Restored product: {$productName} (ID: {$product->id})"
         );
 
         return redirect()->route('admin.products.index')->with('success', 'Product restored!');

@@ -169,17 +169,13 @@
                     <!-- Actions -->
                     <div class="flex flex-col gap-2 lg:w-48">
                         @if($review->is_approved && !$review->is_banned)
-                            <button onclick="openEditModal({{ $review->id }}, {{ $review->rating }}, {!! json_encode($review->comment) !!})" class="w-full px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition font-semibold text-sm">
+                            <button type="button" onclick="openEditModal({{ $review->id }}, {{ $review->rating }}, {{ json_encode($review->comment) }})" class="w-full px-4 py-2 bg-primary-600 text-white rounded-xl hover:bg-primary-700 transition font-semibold text-sm">
                                 Edit Review
                             </button>
                         @endif
-                        <form action="{{ route('reviews.destroy', $review->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this review?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="w-full px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition font-semibold text-sm">
-                                Delete
-                            </button>
-                        </form>
+                        <button type="button" onclick="openDeleteModal({{ $review->id }})" class="w-full px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition font-semibold text-sm">
+                            Delete
+                        </button>
                         @if($review->is_approved && !$review->is_banned && $review->product && $review->product->slug)
                             <a href="{{ route('product.show', $review->product->slug) }}" class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-semibold text-sm text-center">
                                 View Product
@@ -258,11 +254,22 @@
 @push('scripts')
 <script>
     function openEditModal(reviewId, rating, comment) {
+        // Set form action to update route
         document.getElementById('editReviewForm').action = '/reviews/' + reviewId;
+        
+        // Set rating
         document.querySelectorAll('#editRatingStars input').forEach(input => input.checked = false);
-        document.getElementById('edit-star' + rating).checked = true;
+        const ratingInput = document.getElementById('edit-star' + rating);
+        if (ratingInput) {
+            ratingInput.checked = true;
+        }
         updateEditStars(rating);
-        document.getElementById('editComment').value = comment || '';
+        
+        // Set comment (handle null/undefined)
+        const commentField = document.getElementById('editComment');
+        commentField.value = comment || '';
+        
+        // Show modal
         document.getElementById('editReviewModal').classList.remove('hidden');
     }
 
@@ -300,6 +307,66 @@
         modal.addEventListener('click', function(e) {
             if (e.target === modal) modal.remove();
         });
+    }
+
+    // Delete Review Modal
+    function openDeleteModal(reviewId) {
+        const modal = document.createElement('div');
+        modal.id = 'deleteModal';
+        modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 backdrop-blur-sm';
+        modal.innerHTML = `
+            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all scale-100">
+                <div class="text-center mb-6">
+                    <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Delete Review?</h3>
+                    <p class="text-gray-600">This action cannot be undone. Are you sure you want to permanently delete this review?</p>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button onclick="closeDeleteModal()" class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition font-semibold">
+                        Cancel
+                    </button>
+                    <form action="#" method="POST" id="deleteForm" class="flex-1">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="w-full px-4 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition font-semibold">
+                            Delete Review
+                        </button>
+                    </form>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        // Fix form action
+        const form = modal.querySelector('#deleteForm');
+        form.action = '/reviews/' + reviewId;
+        
+        // Close on backdrop click
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) closeDeleteModal();
+        });
+        
+        // Close on Escape key
+        document.addEventListener('keydown', function handleEscape(e) {
+            if (e.key === 'Escape') {
+                closeDeleteModal();
+                document.removeEventListener('keydown', handleEscape);
+            }
+        });
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        if (modal) {
+            modal.style.opacity = '0';
+            modal.style.transform = 'scale(0.95)';
+            setTimeout(() => modal.remove(), 200);
+        }
     }
 </script>
 @endpush
