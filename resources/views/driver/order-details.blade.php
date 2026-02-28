@@ -740,21 +740,21 @@
                                     onmouseout="this.style.background='#f97316'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px rgba(249, 115, 22, 0.2)'">
                                 🛵 Out for Delivery
                             </button>
-                        @elseif(in_array($order->status, ['out_for_delivery', 'arrived', 'delivered', 'completed']))
-                            <button type="button" disabled 
+                        @elseif(in_array($order->status, ['out_for_delivery', 'arrived', 'delivered']))
+                            <button type="button" disabled
                                     style="width: 100%; background: #f1f5f9; color: #94a3b8; font-weight: 700; padding: 14px 20px; border-radius: 12px; border: 2px solid #e2e8f0; cursor: not-allowed; text-align: center;">
                                 ✓ Out for Delivery
                             </button>
                         @endif
 
                         @if(in_array($order->status, ['out_for_delivery', 'arrived']))
-                            <button type="submit" name="status" value="completed" 
+                            <button type="submit" name="status" value="delivered"
                                     style="width: 100%; background: #16a34a; color: white; font-weight: 700; padding: 14px 20px; border-radius: 12px; border: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px rgba(22, 163, 74, 0.2);"
                                     onmouseover="this.style.background='#15803d'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(22, 163, 74, 0.3)'"
                                     onmouseout="this.style.background='#16a34a'; this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px rgba(22, 163, 74, 0.2)'">
-                                ✅ Mark as Completed
+                                ✅ Mark as Delivered
                             </button>
-                        @elseif($order->status == 'completed')
+                        @elseif($order->status == 'delivered')
                             <div style="width: 100%; background: #f0fdf4; border: 2px solid #bbf7d0; color: #16a34a; text-align: center; font-weight: 700; padding: 14px 20px; border-radius: 12px;">
                                 🎉 Delivery Completed Successfully!
                             </div>
@@ -849,7 +849,7 @@
                             <p style="margin: 0; font-size: 12px; color: #0c4a6e; font-weight: 600;">
                                 Lat: {{ number_format($order->latitude, 6) }}, Lng: {{ number_format($order->longitude, 6) }}
                             </p>
-                            <a href="https://www.google.com/maps/dir/?api=1&destination={{$order->latitude}},{{$order->longitude}}"
+                            <a href="{{ route('driver.get-directions', $order->id) }}"
                                target="_blank"
                                rel="noopener"
                                style="display: inline-block; margin-top: 6px; font-size: 11px; color: #0284c7; text-decoration: none; font-weight: 700;">

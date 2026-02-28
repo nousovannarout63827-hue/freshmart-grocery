@@ -51,7 +51,7 @@
                     </svg>
                 </div>
                 <div>
-                    <p class="text-sm text-gray-500">Completed</p>
+                    <p class="text-sm text-gray-500">Delivered</p>
                     <p class="text-2xl font-bold text-gray-900">{{ $completedOrders }}</p>
                 </div>
             </div>

@@ -427,8 +427,8 @@
                 console.log('Drivers with orders:', data.drivers_with_orders);
                 
                 driversData = data.drivers || [];
-                customersData = data.unassigned_orders || [];
-                
+                customersData = data.active_orders || [];
+
                 updateDriverList();
                 updateMapMarkers();
             })
@@ -724,8 +724,8 @@
             }
             
             popupContent += `
-                    <a href="https://www.google.com/maps/dir/?api=1&destination=${driver.latitude},${driver.longitude}" 
-                       target="_blank" 
+                    <a href="{{ url('/driver/order') }}/${driver.assigned_order.id}/directions"
+                       target="_blank"
                        style="display: inline-block; margin-top: 10px; font-size: 11px; color: #3b82f6; text-decoration: none; font-weight: 700;">
                         Get Directions →
                     </a>
@@ -737,7 +737,7 @@
             allMarkers.push(marker);
         });
 
-        // Add customer markers (unassigned orders)
+        // Add customer markers (all active orders)
         customersData.forEach(customer => {
             const customerIcon = L.divIcon({
                 html: `<div style="background: white; border: 3px solid #ef4444; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 800; color: #ef4444; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">🏠</div>`,
@@ -755,9 +755,11 @@
                         </div>
                         <span style="font-size: 11px; color: #64748b; display: block; margin-bottom: 4px;">Order #${String(customer.id).padStart(8, '0')}</span>
                         <span style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 6px;">${customer.address}</span>
-                        <span style="display: inline-block; background: #fef3c7; color: #b45309; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 700;">${customer.status}</span><br>
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=${customer.latitude},${customer.longitude}" 
-                           target="_blank" 
+                        <span style="display: inline-block; background: #fef3c7; color: #b45309; padding: 3px 8px; border-radius: 12px; font-size: 10px; font-weight: 700;">${customer.status}</span>
+                        ${customer.driver_id ? `<span style="display: inline-block; background: #dbeafe; color: #1e40af; padding: 3px 8px; border-radius: 12px; font-size: 9px; font-weight: 700; margin-left: 4px;">🚚 Assigned</span>` : ''}
+                        <br>
+                        <a href="{{ url('/driver/order') }}/${customer.id}/directions"
+                           target="_blank"
                            style="display: inline-block; margin-top: 8px; font-size: 11px; color: #3b82f6; text-decoration: none; font-weight: 700;">
                             Get Directions →
                         </a>

@@ -118,21 +118,21 @@ class DriverLocationController extends Controller
             }])
             ->get(['id', 'name', 'latitude', 'longitude', 'location_updated_at', 'phone_number', 'avatar', 'profile_photo_path']);
 
-        // Get active orders with customer locations (not yet assigned to drivers)
-        $unassignedOrders = \App\Models\Order::with('customer')
-            ->whereIn('status', ['pending', 'preparing', 'ready_for_pickup'])
+        // Get active orders with customer locations
+        // Include all active orders: pending, preparing, ready_for_pickup, out_for_delivery, arrived
+        $activeOrders = \App\Models\Order::with(['customer', 'driver'])
+            ->whereIn('status', ['pending', 'preparing', 'ready_for_pickup', 'out_for_delivery', 'arrived'])
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
-            ->whereNull('driver_id')
-            ->get(['id', 'customer_id', 'latitude', 'longitude', 'delivery_address', 'status', 'created_at']);
+            ->get(['id', 'customer_id', 'driver_id', 'latitude', 'longitude', 'delivery_address', 'status', 'created_at']);
 
         return response()->json([
             'drivers' => $drivers->map(function ($driver) {
-                $hasLocation = $driver->latitude !== null && $driver->longitude !== null 
+                $hasLocation = $driver->latitude !== null && $driver->longitude !== null
                                && is_numeric($driver->latitude) && is_numeric($driver->longitude);
-                
+
                 $assignedOrder = $driver->assignedOrders->first();
-                
+
                 return [
                     'id' => $driver->id,
                     'name' => $driver->name,
@@ -154,7 +154,7 @@ class DriverLocationController extends Controller
                     'is_on_duty' => $assignedOrder !== null, // Only true if has active order
                 ];
             }),
-            'unassigned_orders' => $unassignedOrders->map(function ($order) {
+            'active_orders' => $activeOrders->map(function ($order) {
                 return [
                     'id' => $order->id,
                     'customer_name' => $order->customer->name ?? 'Customer',
@@ -163,11 +163,13 @@ class DriverLocationController extends Controller
                     'address' => $order->delivery_address ?? 'Delivery address',
                     'status' => str_replace('_', ' ', $order->status),
                     'order_time' => $order->created_at?->diffForHumans(),
+                    'driver_id' => $order->driver_id,
                 ];
             }),
             'total_drivers' => $drivers->count(),
             'drivers_with_location' => $drivers->whereNotNull('latitude')->whereNotNull('longitude')->count(),
             'drivers_with_orders' => $drivers->filter(fn($d) => $d->assignedOrders->isNotEmpty())->count(),
+            'active_orders_count' => $activeOrders->count(),
         ]);
     }
 }

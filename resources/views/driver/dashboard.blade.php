@@ -845,7 +845,7 @@
                 <p class="hero-metric-value">{{ $stats['available'] }}</p>
             </div>
             <div class="hero-metric">
-                <p class="hero-metric-label">Completed Today</p>
+                <p class="hero-metric-label">Delivered Today</p>
                 <p class="hero-metric-value">{{ $stats['completed_today'] }}</p>
             </div>
         </div>

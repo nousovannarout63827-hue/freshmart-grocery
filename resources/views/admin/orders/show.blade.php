@@ -383,7 +383,7 @@
                         🏡
                     </div>
                     <h4 style="margin: 0; font-weight: 700; font-size: 12px; {{ $level >= 6 ? 'color: #10b981;' : 'color: #64748b;' }}">De-<br>livered</h4>
-                    <p style="margin: 4px 0 0 0; font-size: 10px; {{ $level >= 6 ? 'color: #475569;' : 'color: #cbd5e1;' }}">Completed</p>
+                    <p style="margin: 4px 0 0 0; font-size: 10px; {{ $level >= 6 ? 'color: #475569;' : 'color: #cbd5e1;' }}">✓ Done</p>
                 </div>
 
             </div>

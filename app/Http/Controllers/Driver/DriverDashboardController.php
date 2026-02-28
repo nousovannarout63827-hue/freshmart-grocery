@@ -382,23 +382,31 @@ class DriverDashboardController extends Controller
     public function getDirections($id)
     {
         $order = Order::findOrFail($id);
+        $driver = auth()->user();
 
-        // Validate order belongs to this driver
-        if ($order->driver_id !== auth()->id()) {
+        // Allow Admin to access any order, drivers can only access their assigned orders
+        if (!$driver->isAdmin() && $order->driver_id !== auth()->id()) {
             return redirect()->back()->with('error', 'This order is not assigned to you.');
         }
+
+        // Get the assigned driver for start point (or current user if admin)
+        $assignedDriver = $order->driver_id ? User::find($order->driver_id) : null;
 
         // Log activity
         ActivityLog::log(
             'Requested Directions',
             'Delivery',
-            'Driver ' . auth()->user()->name . ' requested directions for Order #' . $id
+            ($driver->isAdmin() ? 'Admin ' : 'Driver ') . auth()->user()->name . ' requested directions for Order #' . $id
         );
 
-        // Build Google Maps URL - Use coordinates if available, otherwise use address
-        if ($order->latitude && $order->longitude) {
-            // Use exact GPS coordinates for precise navigation
-            $mapsUrl = "https://www.google.com/maps/dir/?api=1&destination={$order->latitude},{$order->longitude}";
+        // Build Google Maps URL
+        // Use driver's stored location as start point if available
+        if ($assignedDriver && $assignedDriver->latitude && $assignedDriver->longitude && $order->latitude && $order->longitude) {
+            // Both driver and customer have coordinates - create full route
+            $mapsUrl = "https://www.google.com/maps/dir/{$assignedDriver->latitude},{$assignedDriver->longitude}/{$order->latitude},{$order->longitude}";
+        } elseif ($order->latitude && $order->longitude) {
+            // Only customer coordinates - use empty start point with flags to prevent auto-location
+            $mapsUrl = "https://www.google.com/maps/dir//{$order->latitude},{$order->longitude}?dirflg=d";
         } else {
             // Fallback to address if coordinates not available
             $destination = urlencode($order->delivery_address ?? $order->address);
@@ -447,7 +455,7 @@ class DriverDashboardController extends Controller
 
         // 2. Validate that the submitted status is one of our allowed options
         $request->validate([
-            'status' => 'required|in:picked_up,out_for_delivery,completed',
+            'status' => 'required|in:picked_up,out_for_delivery,delivered',
         ]);
 
         // 3. Check if driver is authorized to update this order
@@ -460,8 +468,8 @@ class DriverDashboardController extends Controller
             'pending' => ['picked_up'],
             'preparing' => ['picked_up'],
             'picked_up' => ['out_for_delivery'],
-            'out_for_delivery' => ['completed', 'arrived'],
-            'arrived' => ['completed', 'out_for_delivery'],
+            'out_for_delivery' => ['delivered', 'arrived'],
+            'arrived' => ['delivered', 'out_for_delivery'],
         ];
 
         $currentStatus = $order->status;
@@ -474,22 +482,22 @@ class DriverDashboardController extends Controller
 
         // 5. Update the order status
         $order->status = $newStatus;
-        
-        // If marking as completed, update payment status too
-        if ($newStatus === 'completed') {
+
+        // If marking as delivered, update payment status too
+        if ($newStatus === 'delivered') {
             $order->payment_status = 'paid';
         }
-        
+
         $order->save();
 
         // 6. Log the activity
         $statusLabels = [
             'picked_up' => 'Picked Up',
             'out_for_delivery' => 'Out for Delivery',
-            'completed' => 'Delivered',
+            'delivered' => 'Delivered',
             'arrived' => 'Arrived at Destination',
         ];
-        
+
         ActivityLog::log(
             'Status Updated',
             'Delivery',
@@ -500,7 +508,7 @@ class DriverDashboardController extends Controller
         $message = 'Order status updated successfully!';
         if ($newStatus == 'out_for_delivery') {
             $message = '🛵 You are now out for delivery! Drive safely.';
-        } elseif ($newStatus == 'completed') {
+        } elseif ($newStatus == 'delivered') {
             $message = '🎉 Great job! Order delivered successfully.';
         } elseif ($newStatus == 'picked_up') {
             $message = '📦 Order picked up! Head to the delivery location.';
