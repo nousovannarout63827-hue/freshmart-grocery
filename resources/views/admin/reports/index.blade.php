@@ -705,7 +705,7 @@
             </button>
             <button type="button" onclick="exportPdf()" class="btn btn-pdf">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 16px; height: 16px;">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v4.5a2.25 2.25 0 01-2.25 2.25h-10.5A2.25 2.25 0 014.5 18.75v-4.5m15 0l-3.75-3.75m3.75 3.75L15.75 18m0-7.5v9m-7.5-9v9m-3.75-3.75L8.25 18m0 0l3.75-3.75" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                 </svg>
                 Export PDF
             </button>
