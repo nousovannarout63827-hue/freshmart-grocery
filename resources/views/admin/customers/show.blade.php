@@ -203,6 +203,7 @@
                                     'delivered' => '#10b981',
                                     'cancelled' => '#ef4444',
                                     'arrived' => '#d800b4',
+                                    'ready_for_pickup' => '#f97316',
                                 ];
                             @endphp
                             <span style="padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; background: {{ $statusColors[$order->status] ?? '#f1f5f9' }}; color: white; text-transform: uppercase;">
