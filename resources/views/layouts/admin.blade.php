@@ -738,21 +738,27 @@
                     </svg>
                     <span class="sidebar-text" style="font-weight: 600; font-size: 14px; white-space: nowrap; transition: opacity 0.2s;">Team Management</span>
                 </a>
+            @endif
 
+            @if(auth()->user()->hasPermission('manage_drivers'))
                 <a href="{{ route('admin.drivers.tracking') }}" class="nav-item sidebar-menu-item {{ request()->routeIs('admin.drivers.*') ? 'active' : '' }}" data-tooltip="Driver Tracking" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; text-decoration: none; color: #94a3b8; border-radius: 10px; transition: all 0.2s; margin-bottom: 4px;">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 20px; height: 20px; flex-shrink: 0;">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" />
                     </svg>
                     <span class="sidebar-text" style="font-weight: 600; font-size: 14px; white-space: nowrap; transition: opacity 0.2s;">🚚 Driver Tracking</span>
                 </a>
+            @endif
 
+            @if(auth()->user()->hasPermission('manage_customers'))
                 <a href="{{ route('admin.customers.index') }}" class="nav-item sidebar-menu-item {{ request()->routeIs('admin.customers.*') ? 'active' : '' }}" data-tooltip="Customer Management" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; text-decoration: none; color: #94a3b8; border-radius: 10px; transition: all 0.2s; margin-bottom: 4px;">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 20px; height: 20px; flex-shrink: 0;">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                     </svg>
                     <span class="sidebar-text" style="font-weight: 600; font-size: 14px; white-space: nowrap; transition: opacity 0.2s;">Customer Management</span>
                 </a>
+            @endif
 
+            @if(auth()->user()->hasPermission('view_activity_logs'))
                 <a href="{{ route('admin.activity_logs.index') }}" class="nav-item sidebar-menu-item {{ request()->routeIs('admin.activity_logs.*') ? 'active' : '' }}" data-tooltip="System Audit Logs" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; text-decoration: none; color: #94a3b8; border-radius: 10px; transition: all 0.2s; margin-bottom: 4px;">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 20px; height: 20px; flex-shrink: 0;">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
@@ -771,14 +777,18 @@
                 </a>
             @endif
 
-            @if(auth()->user()->isAdmin())
+            {{-- Coupons - Requires manage_coupons permission --}}
+            @if(auth()->user()->hasPermission('manage_coupons'))
                 <a href="{{ route('admin.coupons.index') }}" class="nav-item sidebar-menu-item {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}" data-tooltip="Coupons" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; text-decoration: none; color: #94a3b8; border-radius: 10px; transition: all 0.2s; margin-bottom: 4px;">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 20px; height: 20px; flex-shrink: 0;">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />
                     </svg>
                     <span class="sidebar-text" style="font-weight: 600; font-size: 14px; white-space: nowrap; transition: opacity 0.2s;">Coupons</span>
                 </a>
+            @endif
 
+            {{-- Reviews - Requires manage_reviews permission --}}
+            @if(auth()->user()->hasPermission('manage_reviews'))
                 <a href="{{ route('admin.reviews.index') }}" class="nav-item sidebar-menu-item {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}" data-tooltip="Reviews" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; text-decoration: none; color: #94a3b8; border-radius: 10px; transition: all 0.2s; margin-bottom: 4px;">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 20px; height: 20px; flex-shrink: 0;">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
@@ -791,14 +801,20 @@
                         <span class="badge bg-danger ms-auto" style="font-size: 10px;">{{ $flaggedReviewsCount }}</span>
                     @endif
                 </a>
+            @endif
 
+            {{-- Driver Performance - Requires manage_drivers or view_reports permission --}}
+            @if(auth()->user()->hasPermission('manage_drivers') || auth()->user()->hasPermission('view_reports'))
                 <a href="{{ route('admin.driver-performance.index') }}" class="nav-item sidebar-menu-item {{ request()->routeIs('admin.driver-performance.*') ? 'active' : '' }}" data-tooltip="Driver Performance" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; text-decoration: none; color: #94a3b8; border-radius: 10px; transition: all 0.2s; margin-bottom: 4px;">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 20px; height: 20px; flex-shrink: 0;">
                         <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9 1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
                     </svg>
                     <span class="sidebar-text" style="font-weight: 600; font-size: 14px; white-space: nowrap; transition: opacity 0.2s;">Driver Performance</span>
                 </a>
+            @endif
 
+            {{-- Reports - Requires view_reports or export_data permission --}}
+            @if(auth()->user()->hasPermission('view_reports') || auth()->user()->hasPermission('export_data'))
                 <a href="{{ route('admin.reports.index') }}" class="nav-item sidebar-menu-item {{ request()->routeIs('admin.reports.*') ? 'active' : '' }}" data-tooltip="Reports" style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; text-decoration: none; color: #94a3b8; border-radius: 10px; transition: all 0.2s; margin-bottom: 4px;">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 20px; height: 20px; flex-shrink: 0;">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
@@ -850,15 +866,15 @@
                                 } elseif ($userRole === 'staff') {
                                     $badgeColor = '#2563eb';
                                     $badgeText = 'Staff';
-                                    $badgeIcon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width: 10px; height: 10px;"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5M12 6.75h1.5M15 6.75h1.5M9 11.25h1.5M12 11.25h1.5M15 11.25h1.5M9 15.75h1.5M12 15.75h1.5M15 15.75h1.5M9 20.25h1.5M12 20.25h1.5M15 20.25h1.5" /></svg>';
+                                    $badgeIcon = '🏬';
                                 } elseif ($userRole === 'driver') {
                                     $badgeColor = '#d97706';
                                     $badgeText = 'Driver';
-                                    $badgeIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style="width: 10px; height: 10px;"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm13.5-9 1.96 2.5H17V9.5h2.5zm-1.5 9c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>';
+                                    $badgeIcon = '🚚';
                                 } else {
                                     $badgeColor = '#64748b';
                                     $badgeText = ucfirst($userRole);
-                                    $badgeIcon = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width: 10px; height: 10px;"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>';
+                                    $badgeIcon = '👤';
                                 }
                                 $loginTime = session('login_time');
                             @endphp

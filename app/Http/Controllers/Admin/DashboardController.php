@@ -425,7 +425,7 @@ class DashboardController extends Controller
     public function showStaff($id)
     {
         $staff = User::findOrFail($id);
-        
+
         // Get assigned orders for drivers
         $assignedOrders = null;
         if ($staff->role === 'driver') {
@@ -434,14 +434,20 @@ class DashboardController extends Controller
                 ->latest()
                 ->paginate(10);
         }
-        
+
         // Get activity logs for this user
         $activityLogs = \App\Models\ActivityLog::where('user_id', $id)
             ->latest()
             ->take(20)
             ->get();
-        
+
         return view('admin.staff.show', compact('staff', 'assignedOrders', 'activityLogs'));
+    }
+
+    public function debugRoles()
+    {
+        $users = User::orderBy('id')->get();
+        return view('admin.staff.debug-roles', compact('users'));
     }
 
     public function storeStaff(Request $request)
@@ -480,13 +486,35 @@ class DashboardController extends Controller
             }
         }
 
-        // 3. Create the new user
+        // 3. Set permissions based on role
+        $permissions = $data['permissions'] ?? [];
+        
+        // If role is admin/super_user, no need for permissions (they have full access)
+        // If role is staff and NO permissions selected, assign basic default permissions
+        // This ensures staff can see and use basic features
+        if ($data['role'] === 'staff' && empty($permissions)) {
+            $permissions = [
+                'manage_inventory',    // Can manage products
+                'manage_categories',   // Can manage categories
+                'manage_orders',       // Can manage orders
+                'process_orders',      // Can process orders
+                'manage_customers',    // Can manage customers
+                'view_reports',        // Can view reports
+            ];
+        }
+        
+        // If role is driver, no permissions needed (they have driver panel)
+        if ($data['role'] === 'driver') {
+            $permissions = [];
+        }
+
+        // 4. Create the new user
         $user = \App\Models\User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
             'role' => $data['role'],
-            'permissions' => $data['permissions'] ?? [],
+            'permissions' => $permissions,
             'status' => 'active',
             'avatar' => $imagePath,
             'profile_photo_path' => $imagePath,

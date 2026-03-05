@@ -737,6 +737,21 @@
                         <span>🔐</span> Access Permissions
                     </h3>
                     <p class="form-section-description">Control which modules this staff member can access</p>
+                    
+                    <!-- Info Box -->
+                    <div style="background: #ecfdf5; border: 2px solid #10b981; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+                        <div style="display: flex; align-items: flex-start; gap: 12px;">
+                            <span style="font-size: 24px; flex-shrink: 0;">ℹ️</span>
+                            <div>
+                                <h4 style="margin: 0 0 6px 0; color: #065f46; font-weight: 700; font-size: 14px;">Default Permissions Applied</h4>
+                                <p style="margin: 0; color: #047857; font-size: 13px; line-height: 1.6;">
+                                    <strong>Staff members without assigned permissions automatically get basic access:</strong><br>
+                                    Manage Inventory, Categories, Orders, Customers, and View Reports.<br>
+                                    Use the checkboxes below to customize their permissions.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
 
                     @php
                         $userPerms = is_array($user->permissions) ? $user->permissions : [];

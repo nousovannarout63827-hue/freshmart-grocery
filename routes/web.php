@@ -243,6 +243,7 @@ Route::group([
         Route::get('/staff', [DashboardController::class, 'staffIndex'])->name('staff.index');
         Route::get('/staff/create', [DashboardController::class, 'createStaff'])->name('staff.create');
         Route::get('/staff/{id}', [DashboardController::class, 'showStaff'])->name('staff.show');
+        Route::get('/staff/debug-roles', [DashboardController::class, 'debugRoles'])->name('staff.debug-roles');
         Route::post('/staff/store', [DashboardController::class, 'storeStaff'])->name('staff.store');
         Route::get('/staff/{id}/edit', [DashboardController::class, 'editStaff'])->name('staff.edit');
         Route::put('/staff/{id}', [DashboardController::class, 'updateStaff'])->name('staff.update');
@@ -251,12 +252,16 @@ Route::group([
         Route::post('/staff/{id}/change-role', [DashboardController::class, 'changeRole'])->name('staff.change-role');
         Route::get('/staff/{id}/history', [DashboardController::class, 'staffHistory'])->name('staff.history');
 
-        // 📜 MASTER ACTIVITY LOG - Only for users with manage_staff permission
-        Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity_logs.index');
+        // 📜 MASTER ACTIVITY LOG - Requires view_activity_logs permission
+        Route::middleware(['permission:view_activity_logs'])->group(function () {
+            Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity_logs.index');
+        });
 
-        // 🚚 DRIVER TRACKING - View all driver locations on map (Admins only)
-        Route::get('/drivers/tracking', [DriverLocationController::class, 'showTracking'])->name('drivers.tracking');
-        Route::get('/api/drivers/location', [DriverLocationController::class, 'getAllDriversLocation'])->name('api.drivers.location');
+        // 🚚 DRIVER TRACKING - Requires manage_drivers permission
+        Route::middleware(['permission:manage_drivers'])->group(function () {
+            Route::get('/drivers/tracking', [DriverLocationController::class, 'showTracking'])->name('drivers.tracking');
+            Route::get('/api/drivers/location', [DriverLocationController::class, 'getAllDriversLocation'])->name('api.drivers.location');
+        });
 
         // 💬 REVIEW MANAGEMENT - Moderate customer reviews
         Route::get('/reviews', [ReviewManagementController::class, 'index'])->name('reviews.index');
@@ -279,14 +284,14 @@ Route::group([
         Route::put('/reviews/reply/{id}', [ReviewManagementController::class, 'updateReply'])->name('reviews.reply.update');
     });
 
-    // 📈 REPORTS - Admin only
-    Route::middleware(['role:admin,super_user'])->group(function () {
+    // 📈 REPORTS - Requires view_reports or export_data permission
+    Route::middleware(['permission:view_reports'])->group(function () {
         // Main Reports Page - Financial & Driver Analytics
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/export-financial', [ReportController::class, 'exportFinancial'])->name('reports.export-financial');
         Route::get('/reports/export-driver', [ReportController::class, 'exportDriver'])->name('reports.export-driver');
         Route::get('/reports/export-pdf', [ReportController::class, 'exportPdf'])->name('reports.export-pdf');
-        
+
         // Legacy driver reports route
         Route::get('/reports/drivers', [DashboardController::class, 'driverPerformance'])->name('reports.drivers');
         Route::get('/driver-performance', [DriverPerformanceController::class, 'index'])->name('driver-performance.index');

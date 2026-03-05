@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 27, 2026 at 01:06 PM
+-- Generation Time: Mar 02, 2026 at 11:32 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -589,7 +589,9 @@ INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `module`, `description`,
 (544, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-02-28 13:45:26', '2026-02-28 13:45:26'),
 (545, 2, 'Logged Out', 'Auth', 'Delivery Driver logged out', '2026-02-28 13:47:08', '2026-02-28 13:47:08'),
 (546, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-02-28 13:47:48', '2026-02-28 13:47:48'),
-(547, 2, 'Logged Out', 'Auth', 'Delivery Driver logged out', '2026-02-28 13:54:41', '2026-02-28 13:54:41');
+(547, 2, 'Logged Out', 'Auth', 'Delivery Driver logged out', '2026-02-28 13:54:41', '2026-02-28 13:54:41'),
+(548, 2, 'Logged Out', 'Auth', 'Delivery Driver logged out', '2026-03-01 05:37:46', '2026-03-01 05:37:46'),
+(549, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-01 06:06:09', '2026-03-01 06:06:09');
 
 -- --------------------------------------------------------
 
@@ -1599,7 +1601,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `name`, `email`, `phone_number`, `gender`, `dob`, `pob`, `current_address`, `latitude`, `longitude`, `location_updated_at`, `bio`, `profile_photo_path`, `role`, `status`, `permissions`, `avatar`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
 (1, 'Super Admin', 'admin@grocery.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'profile-photos/SkWDyOznC2Dk57XQvitrnb6y08PgMyyJvThlyWeV.png', 'admin', 'active', NULL, 'profile-photos/SkWDyOznC2Dk57XQvitrnb6y08PgMyyJvThlyWeV.png', NULL, '$2y$12$W/1ClW/ZYkTf8lYX2A03suhU1nEeNrwte3Me8.MTc6vDDySWIP/w2', NULL, '2026-02-20 00:57:34', '2026-02-23 09:22:06'),
-(2, 'Delivery Driver', 'driver@grocery.com', '01234545465', NULL, NULL, NULL, NULL, 11.51327900, 104.88916800, '2026-02-28 13:54:38', NULL, 'profile-photos/NdARXECREhZUN7CXdSZ9DtVzU0UuR8hXkM2fh9xs.jpg', 'driver', 'active', '[]', NULL, NULL, '$2y$12$hWtix2NM4Tu.Y0AvfHXYn.HIhQtYfw6.GRmmuG/6UI8j8f60a7i96', NULL, '2026-02-20 00:57:34', '2026-02-28 13:54:38'),
+(2, 'Delivery Driver', 'driver@grocery.com', '01234545465', NULL, NULL, NULL, NULL, 11.51327900, 104.88916800, '2026-03-01 05:37:37', NULL, 'profile-photos/NdARXECREhZUN7CXdSZ9DtVzU0UuR8hXkM2fh9xs.jpg', 'driver', 'active', '[]', NULL, NULL, '$2y$12$hWtix2NM4Tu.Y0AvfHXYn.HIhQtYfw6.GRmmuG/6UI8j8f60a7i96', NULL, '2026-02-20 00:57:34', '2026-03-01 05:37:37'),
 (3, 'Store Staff', 'staff@grocery.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'profile-photos/pSdU1ozHEjT6zXQwddOEGtAAvQd3FpS7vy8GVAj8.png', 'staff', 'active', '[\"manage_inventory\",\"manage_staff\"]', NULL, NULL, '$2y$12$jE3fRDtuZT2Q/rz6zg.SYOMPn4hzAdnBZTuccMbZY4iFpiNGYCbCC', NULL, '2026-02-20 22:22:45', '2026-02-21 03:32:26'),
 (4, 'Supervisor', 'spv@123.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'profile-photos/ARsA8kxdBIFd6r2FaMXV4OrjIl8EbUImbIAyZLno.jpg', 'staff', 'active', '[\"manage_inventory\",\"manage_categories\",\"manage_staff\"]', NULL, NULL, '$2y$12$eEU/BtsjaeIzwYVl5xA28OOOo05GzPTpBhrcKSOifVrWmfgk.9dte', NULL, '2026-02-21 02:55:10', '2026-02-21 03:21:01'),
 (6, 'Berry', 'bb@123.com', '01234545465', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'profile-photos/Njk8zSA4uz8bU6gfBoMQwP13PzxcSaWKfv9FxDU8.jpg', 'driver', 'active', '[]', 'profile-photos/Njk8zSA4uz8bU6gfBoMQwP13PzxcSaWKfv9FxDU8.jpg', NULL, '$2y$12$kPk5Df3yqbtQ5pc64FEAeOClkTw4K/kh8o1nJE2sHArqQLQf8y.9q', NULL, '2026-02-21 12:11:33', '2026-02-24 10:41:45'),
@@ -1865,7 +1867,7 @@ ALTER TABLE `wishlists`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=548;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=550;
 
 --
 -- AUTO_INCREMENT for table `categories`

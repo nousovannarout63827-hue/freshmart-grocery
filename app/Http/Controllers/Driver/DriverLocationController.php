@@ -80,27 +80,27 @@ class DriverLocationController extends Controller
     }
 
     /**
-     * Show the driver tracking page (Admin only)
+     * Show the driver tracking page (Requires manage_drivers permission)
      */
     public function showTracking()
     {
-        $admin = Auth::user();
+        $user = Auth::user();
 
-        if ($admin->role !== 'admin') {
-            abort(403, 'Access denied. Only admins can access this page.');
+        if (!$user->hasPermission('manage_drivers')) {
+            abort(403, 'Access denied. You need manage_drivers permission to access this page.');
         }
 
         return view('admin.drivers.tracking');
     }
 
     /**
-     * Get all active drivers location (Admin only - API endpoint)
+     * Get all active drivers location (Requires manage_drivers permission - API endpoint)
      */
     public function getAllDriversLocation()
     {
-        $admin = Auth::user();
+        $user = Auth::user();
 
-        if ($admin->role !== 'admin') {
+        if (!$user->hasPermission('manage_drivers')) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 

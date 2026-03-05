@@ -125,20 +125,44 @@ class User extends Authenticatable
     /**
      * Check if the user has a specific permission.
      * Admins automatically have access to everything.
+     * Staff members need explicit permissions assigned (or get defaults).
      */
     public function hasPermission($permission)
     {
-        // 1. SuperAdmin Override: If they are the main admin, always return true.
+        // 1. SuperAdmin & Admin Override: If they are the main admin, always return true.
         if ($this->role === 'admin' || $this->role === 'super_user') {
             return true;
         }
 
-        // 2. Safety Check: Make sure the permissions array actually exists
+        // 2. STAFF DEFAULT PERMISSIONS: If staff has no permissions array or empty array,
+        // give them basic default permissions to prevent empty dashboard issue
+        if ($this->role === 'staff') {
+            // If permissions is null or empty, treat them as having basic permissions
+            // This fixes existing staff members who were created without permissions
+            if (empty($this->permissions)) {
+                $defaultStaffPermissions = [
+                    'manage_inventory',
+                    'manage_categories',
+                    'manage_orders',
+                    'process_orders',
+                    'manage_customers',
+                    // Note: view_reports is NOT included by default - must be explicitly assigned
+                    // This ensures menu items only appear when admin explicitly grants access
+                ];
+                return in_array($permission, $defaultStaffPermissions);
+            }
+            // If they have permissions set, use those
+            if (is_array($this->permissions)) {
+                return in_array($permission, $this->permissions);
+            }
+            return false;
+        }
+
+        // 3. For other roles (driver, customer), check their permissions array
         if (!is_array($this->permissions)) {
             return false;
         }
 
-        // 3. Check if the requested permission is inside their JSON array
         return in_array($permission, $this->permissions);
     }
 

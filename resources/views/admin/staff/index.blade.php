@@ -172,17 +172,24 @@
                     </td>
 
                     <td style="padding: 15px 20px; vertical-align: middle;">
-                        @if($member->role == 'admin')
+                        @php
+                            $role = trim(strtolower($member->role ?? ''));
+                        @endphp
+                        @if($role === 'admin' || $role === 'super_user')
                             <span style="background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: 700; display: inline-block; box-shadow: 0 2px 8px rgba(124,58,237,0.3);">
-                                👑 Admin
+                                👑 {{ $role === 'super_user' ? 'Super User' : 'Admin' }}
                             </span>
-                        @elseif($member->role == 'driver')
+                        @elseif($role === 'driver')
                             <span style="background: #fffbeb; color: #d97706; border: 1px solid #fde68a; padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block;">
                                 🚚 Driver
                             </span>
-                        @else
+                        @elseif($role === 'staff')
                             <span style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block;">
                                 🏬 Store Staff
+                            </span>
+                        @else
+                            <span style="background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; padding: 6px 15px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-block;">
+                                👤 {{ ucfirst($role ?: 'User') }}
                             </span>
                         @endif
                     </td>

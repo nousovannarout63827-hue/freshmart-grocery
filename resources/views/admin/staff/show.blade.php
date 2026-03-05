@@ -48,6 +48,7 @@
                 <!-- Role Badge -->
                 <div style="text-align: center; margin-bottom: 24px;">
                     @php
+                        $role = trim(strtolower($staff->role ?? ''));
                         $roleColors = [
                             'admin' => '#7c3aed',
                             'super_user' => '#dc2626',
@@ -60,9 +61,19 @@
                             'staff' => '🏬',
                             'driver' => '🚚'
                         ];
+                        $roleLabels = [
+                            'admin' => 'Admin',
+                            'super_user' => 'Super User',
+                            'staff' => 'Store Staff',
+                            'driver' => 'Driver'
+                        ];
+                        
+                        $badgeColor = $roleColors[$role] ?? '#64748b';
+                        $badgeIcon = $roleIcons[$role] ?? '👤';
+                        $badgeLabel = $roleLabels[$role] ?? ucfirst(str_replace('_', ' ', $role));
                     @endphp
-                    <span style="background: {{ $roleColors[$staff->role] ?? '#64748b' }}; color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; display: inline-flex; align-items: center; gap: 6px;">
-                        {{ $roleIcons[$staff->role] ?? '👤' }} {{ ucfirst(str_replace('_', ' ', $staff->role)) }}
+                    <span style="background: {{ $badgeColor }}; color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; display: inline-flex; align-items: center; gap: 6px;">
+                        {{ $badgeIcon }} {{ $badgeLabel }}
                     </span>
                 </div>
 

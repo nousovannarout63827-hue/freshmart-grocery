@@ -114,6 +114,21 @@
         <div style="background: white; border-radius: 16px; padding: 24px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
             <h3 style="margin: 0 0 20px 0; font-weight: 800; color: #1e293b; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">3. Access Permissions</h3>
             <p style="color: #64748b; margin-bottom: 20px; font-size: 13px;">Select the permissions this team member should have. Admins have unrestricted access.</p>
+            
+            <!-- Info Box -->
+            <div style="background: #ecfdf5; border: 2px solid #10b981; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <span style="font-size: 24px; flex-shrink: 0;">ℹ️</span>
+                    <div>
+                        <h4 style="margin: 0 0 6px 0; color: #065f46; font-weight: 700; font-size: 14px;">Default Permissions for Staff</h4>
+                        <p style="margin: 0; color: #047857; font-size: 13px; line-height: 1.6;">
+                            <strong>If no permissions are selected, staff will automatically receive basic permissions:</strong><br>
+                            Manage Inventory, Categories, Orders, Customers, and View Reports.<br>
+                            You can customize these permissions below or edit them later.
+                        </p>
+                    </div>
+                </div>
+            </div>
 
             <!-- Permission Categories -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 24px;">

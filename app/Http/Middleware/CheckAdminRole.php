@@ -17,14 +17,14 @@ class CheckAdminRole
     {
         // 1. Check if the user is logged in at all
         if (auth()->check()) {
-            
-            // 2. Check if their role is admin or staff
-            if (auth()->user()->role === 'admin' || auth()->user()->role === 'staff') {
+
+            // 2. Check if their role is admin, super_user, or staff
+            if (in_array(auth()->user()->role, ['admin', 'super_user', 'staff'])) {
                 // Let them pass through to the dashboard
-                return $next($request); 
+                return $next($request);
             }
-            
-            // 3. If they are just a "customer", log them out and redirect to customer login
+
+            // 3. If they are just a "customer" or "driver", log them out and redirect
             auth()->logout();
             return redirect()->route('customer.login')->with('error', 'You do not have permission to access the Admin panel. Please log in with your customer account.');
         }
