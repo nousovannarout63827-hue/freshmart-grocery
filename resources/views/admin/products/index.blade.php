@@ -92,7 +92,7 @@
 
         <h1 style="display: flex; align-items: center; gap: 10px; margin: 0; font-size: 24px; font-weight: 900;">
             {{ $pageTitle }}
-            
+
             <span style="background-color: {{ $badgeColor }}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 16px; font-weight: bold;">
                 {{ $products->total() }}
             </span>
