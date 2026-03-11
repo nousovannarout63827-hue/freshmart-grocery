@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AuthController extends Controller
 {
@@ -22,8 +23,20 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
+        // 2. Rate Limiting - Prevent brute force attacks
+        // Allow max 5 login attempts per minute per IP address
+        if (RateLimiter::tooManyAttempts($request->ip(), 5)) {
+            $seconds = RateLimiter::availableIn($request->ip());
+            return back()->withErrors([
+                'email' => 'Too many login attempts. Please try again in ' . $seconds . ' seconds.',
+            ])->withInput($request->only('email'));
+        }
+
         // 2. Attempt to log the user in (and check if they clicked "Remember me")
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            // Login successful - clear rate limiter counter
+            RateLimiter::clear($request->ip());
+            
             $user = Auth::user();
 
             // Check if the account is suspended
@@ -31,6 +44,8 @@ class AuthController extends Controller
                 Auth::logout();
                 // Clear any intended URL to prevent redirect loops
                 $request->session()->forget('url.intended');
+                // Clear rate limiter on logout
+                RateLimiter::clear($request->ip());
                 return redirect('/login')->withErrors([
                     'email' => 'Your account has been suspended. Please contact admin for assistance.'
                 ])->withInput($request->only('email'));
@@ -40,6 +55,8 @@ class AuthController extends Controller
             if ($user->isCustomer()) {
                 Auth::logout();
                 $request->session()->forget('url.intended');
+                // Clear rate limiter on logout
+                RateLimiter::clear($request->ip());
                 return redirect('/customer/login')->with('info', 'You are logging in with a customer account. Please use the customer login portal.');
             }
 
@@ -61,6 +78,9 @@ class AuthController extends Controller
         }
 
         // 4. If login fails, send them right back with the red error message
+        // Increment rate limiter counter for failed attempt
+        RateLimiter::hit($request->ip());
+        
         return redirect('/login')->withErrors([
             'email' => 'The provided credentials do not match our records.',
         ])->withInput($request->only('email')); // Keeps the email so they don't have to retype it!
