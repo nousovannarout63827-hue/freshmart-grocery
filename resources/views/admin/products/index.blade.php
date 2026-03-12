@@ -218,18 +218,18 @@
             console.log('Bulk delete button not found (expected for non-admin users)');
         }
 
-    function fetchFilteredProducts() {
+    function fetchFilteredProducts(page = 1) {
         let searchQuery = searchInput.value;
         let categoryId = categoryFilter.value;
 
         // 1. Start with just the search and category in the URL
-        let url = `/admin/products?search=${searchQuery}&category=${categoryId}`;
+        let url = `/admin/products?search=${searchQuery}&category=${categoryId}&page=${page}`;
 
         // 2. ONLY add low_stock to the URL if the box is checked!
         if (lowStockFilter && lowStockFilter.checked) {
             url += `&low_stock=1`;
         }
-        
+
         // 3. ONLY add out_of_stock to the URL if the box is checked!
         if (outOfStockFilter && outOfStockFilter.checked) {
             url += `&out_of_stock=1`;
@@ -241,14 +241,39 @@
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(response => response.text())
-        .then(html => {
-            tableBody.innerHTML = html;
+        .then(response => response.json())
+        .then(data => {
+            // Update table body
+            tableBody.innerHTML = data.table;
+            
+            // Update pagination
+            const oldPagination = document.querySelector('.pagination-wrapper');
+            if (oldPagination && data.pagination) {
+                oldPagination.innerHTML = data.pagination;
+                // Re-attach pagination event listeners after update
+                attachPaginationListeners();
+            }
         })
         .catch(error => {
             console.error('Filter error:', error);
         });
     }
+
+    // Function to attach click listeners to pagination links
+    function attachPaginationListeners() {
+        const paginationLinks = document.querySelectorAll('.pagination a[href*="page"]');
+        paginationLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const url = new URL(this.href);
+                const page = url.searchParams.get('page') || 1;
+                fetchFilteredProducts(page);
+            });
+        });
+    }
+
+    // Attach pagination listeners on initial load
+    attachPaginationListeners();
 
     // Event Listeners
     if (searchInput) {

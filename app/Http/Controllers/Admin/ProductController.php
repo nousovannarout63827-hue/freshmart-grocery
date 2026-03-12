@@ -47,11 +47,16 @@ class ProductController extends Controller
             $pageTitle = 'Low Stock Products';
         }
 
-        $products = $query->paginate(10)->appends($request->all());
+        $products = $query->paginate(10)->withQueryString();
 
         // Return Partial HTML for AJAX
         if ($request->ajax()) {
-            return view('admin.products.partials.table-rows', compact('products'))->render();
+            $tableRows = view('admin.products.partials.table-rows', compact('products'))->render();
+            $pagination = view('admin.products.partials.pagination', compact('products'))->render();
+            return response()->json([
+                'table' => $tableRows,
+                'pagination' => $pagination
+            ]);
         }
 
         $categories = Category::all();

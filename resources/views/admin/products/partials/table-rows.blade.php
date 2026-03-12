@@ -56,20 +56,20 @@
         </td>
         <td style="vertical-align: middle;">
             <div style="display: flex; align-items: center; gap: 15px;">
-                
+
                 <a href="{{ route('admin.products.edit', $product->id) }}" class="action-btn edit">Edit</a>
 
                 @if(auth()->user()->isAdmin())
                     <form action="{{ route('admin.products.delete', $product->id) }}" method="POST" class="delete-form" style="margin: 0; display: flex; align-items: center;">
                         @csrf
                         @method('DELETE')
-                        
+
                         <button type="submit" class="action-btn delete" style="background: none; border: none; padding: 0; cursor: pointer; text-decoration: none;">
                             Delete
                         </button>
                     </form>
                 @endif
-                
+
             </div>
         </td>
     </tr>

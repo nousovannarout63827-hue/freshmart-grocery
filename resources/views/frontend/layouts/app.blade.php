@@ -112,6 +112,14 @@
             transform: translateY(-8px);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
+
+        /* Product Card Image - Override global height:auto */
+        .product-card img {
+            height: 100% !important;
+            width: 100% !important;
+            object-fit: cover !important;
+            display: block !important;
+        }
         
         /* Mobile Menu */
         .mobile-menu {
