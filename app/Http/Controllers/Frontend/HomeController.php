@@ -341,9 +341,26 @@ class HomeController extends Controller
 
         if ($request->expectsJson()) {
             $cart = session()->get('cart', []);
-            $itemTotal = isset($cart[$productId]) ? $cart[$productId]['price'] * $cart[$productId]['quantity'] : 0;
-            $itemPrice = isset($cart[$productId]) ? $cart[$productId]['price'] : 0;
             
+            // Calculate item total with discount
+            $itemTotal = 0;
+            $itemPrice = 0;
+            if (isset($cart[$productId])) {
+                $itemPrice = $cart[$productId]['price'];
+                $quantity = $cart[$productId]['quantity'];
+                
+                // Apply discount if exists
+                if (isset($cart[$productId]['discount_percent']) && $cart[$productId]['discount_percent'] > 0) {
+                    if (isset($cart[$productId]['discount_price']) && $cart[$productId]['discount_price']) {
+                        $itemPrice = $cart[$productId]['discount_price'];
+                    } else {
+                        $itemPrice = $cart[$productId]['price'] * (1 - $cart[$productId]['discount_percent'] / 100);
+                    }
+                }
+                
+                $itemTotal = $itemPrice * $quantity;
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => $message,

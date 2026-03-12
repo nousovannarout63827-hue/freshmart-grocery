@@ -173,14 +173,14 @@
                                 <div class="text-right sm:mt-0">
                                     <p class="text-xs sm:text-sm text-gray-500 mb-1">Total</p>
                                     @if(isset($item['discount_percent']) && $item['discount_percent'] > 0)
-                                        <p class="text-lg sm:text-xl font-bold text-red-600">${{ number_format($itemTotal, 2) }}</p>
+                                        <p class="item-total text-lg sm:text-xl font-bold text-red-600" data-product-id="{{ $productId }}">${{ number_format($itemTotal, 2) }}</p>
                                         @if($item['quantity'] > 1)
                                             <p class="text-xs text-gray-400 line-through">
                                                 Was: ${{ number_format($item['price'] * $item['quantity'], 2) }}
                                             </p>
                                         @endif
                                     @else
-                                        <p class="text-xl sm:text-2xl font-bold text-gray-900">${{ number_format($itemTotal, 2) }}</p>
+                                        <p class="item-total text-xl sm:text-2xl font-bold text-gray-900" data-product-id="{{ $productId }}">${{ number_format($itemTotal, 2) }}</p>
                                     @endif
                                 </div>
                             </div>
@@ -214,11 +214,11 @@
                         <div class="space-y-4 mb-6">
                             <div class="flex justify-between text-gray-600">
                                 <span>Subtotal</span>
-                                <span class="font-medium">${{ number_format($subtotal, 2) }}</span>
+                                <span id="summary-subtotal" class="font-medium">${{ number_format($subtotal, 2) }}</span>
                             </div>
-                            
+
                             @if($totalDiscount > 0)
-                                <div class="flex justify-between text-green-600 bg-green-50 p-3 rounded-xl border border-green-200">
+                                <div id="summary-discount" class="flex justify-between text-green-600 bg-green-50 p-3 rounded-xl border border-green-200">
                                     <span class="flex items-center gap-2">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
@@ -228,14 +228,16 @@
                                     <span class="font-medium">-${{ number_format($totalDiscount, 2) }}</span>
                                 </div>
                             @endif
-                            
+
                             <div class="flex justify-between text-gray-600">
                                 <span>Delivery Fee</span>
-                                @if($deliveryFee > 0)
-                                    <span class="font-medium text-gray-800">${{ number_format($deliveryFee, 2) }}</span>
-                                @else
-                                    <span class="font-bold text-green-600">FREE</span>
-                                @endif
+                                <span id="summary-delivery" class="@if($deliveryFee > 0) font-medium text-gray-800 @else font-bold text-green-600 @endif">
+                                    @if($deliveryFee > 0)
+                                        ${{ number_format($deliveryFee, 2) }}
+                                    @else
+                                        FREE
+                                    @endif
+                                </span>
                             </div>
 
                             @if($discount > 0)
@@ -252,24 +254,26 @@
 
                             <div class="border-t-2 border-gray-200 pt-4 flex justify-between text-xl font-bold text-gray-900">
                                 <span>Total</span>
-                                <span class="text-primary-600">${{ number_format($finalTotal, 2) }}</span>
+                                <span id="summary-total" class="text-primary-600">${{ number_format($finalTotal, 2) }}</span>
                             </div>
                         </div>
 
                         <!-- Free Shipping Progress -->
-                        @if($amountNeededForFreeShipping > 0)
-                            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
-                                <p class="text-amber-800 text-sm">
-                                    <span class="font-semibold">💡 Tip:</span> Add ${{ number_format($amountNeededForFreeShipping, 2) }} more to get <strong>FREE delivery</strong>!
-                                </p>
-                            </div>
-                        @else
-                            <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
-                                <p class="text-green-800 text-sm">
-                                    <span class="font-semibold">🎉 Awesome!</span> You qualify for <strong>FREE standard delivery</strong>!
-                                </p>
-                            </div>
-                        @endif
+                        <div id="shipping-progress-container">
+                            @if($amountNeededForFreeShipping > 0)
+                                <div id="shipping-progress" class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+                                    <p class="text-amber-800 text-sm">
+                                        <span class="font-semibold">💡 Tip:</span> Add ${{ number_format($amountNeededForFreeShipping, 2) }} more to get <strong>FREE delivery</strong>!
+                                    </p>
+                                </div>
+                            @else
+                                <div id="shipping-progress" class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+                                    <p class="text-green-800 text-sm">
+                                        <span class="font-semibold">🎉 Awesome!</span> You qualify for <strong>FREE standard delivery</strong>!
+                                    </p>
+                                </div>
+                            @endif
+                        </div>
 
                         <!-- Coupon Section -->
                         @if(!session()->has('coupon'))
@@ -329,7 +333,6 @@
                            class="w-full border-2 border-gray-200 text-gray-700 py-3 sm:py-4 rounded-xl hover:bg-gray-50 transition font-semibold text-center block text-sm sm:text-base">
                             Continue Shopping
                         </a>
-                        </a>
 
                         <!-- Clear Cart -->
                         <form action="{{ route('cart.clear') }}" method="POST" class="mt-4">
@@ -364,22 +367,39 @@
     @push('scripts')
     <!-- SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
+
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
         console.log('Cart page loaded, CSRF token:', csrfToken ? 'found' : 'NOT FOUND');
 
+        // Track loading state for each product to prevent rapid clicks
+        const loadingProducts = new Set();
+
         // Helper functions for quantity buttons
         function increaseQuantity(productId) {
+            // Prevent action if this product is already being updated
+            if (loadingProducts.has(productId)) {
+                console.log('Product', productId, 'is already updating, ignoring click');
+                return;
+            }
+
             const input = document.getElementById(`quantity-${productId}`);
-            const newQty = parseInt(input.value) + 1;
+            const currentValue = parseInt(input.value) || 0;
+            const newQty = currentValue + 1;
             console.log('Increasing quantity for product', productId, 'to', newQty);
             updateQuantityAjax(productId, newQty);
         }
 
         function decreaseQuantity(productId) {
+            // Prevent action if this product is already being updated
+            if (loadingProducts.has(productId)) {
+                console.log('Product', productId, 'is already updating, ignoring click');
+                return;
+            }
+
             const input = document.getElementById(`quantity-${productId}`);
-            const newQty = parseInt(input.value) - 1;
+            const currentValue = parseInt(input.value) || 0;
+            const newQty = currentValue - 1;
             console.log('Decreasing quantity for product', productId, 'to', newQty);
             if (newQty < 1) {
                 if (!confirm('Remove this item from cart?')) return;
@@ -392,7 +412,13 @@
         // Update Quantity with AJAX
         function updateQuantityAjax(productId, quantity) {
             console.log('Updating quantity for product', productId, 'to', quantity);
-            
+
+            // Prevent duplicate requests
+            if (loadingProducts.has(productId)) {
+                console.log('Product', productId, 'is already updating, skipping');
+                return;
+            }
+
             if (quantity < 1) {
                 if (!confirm('Remove this item from cart?')) return;
                 removeItemAjax(productId);
@@ -401,6 +427,9 @@
 
             const quantityInput = document.getElementById(`quantity-${productId}`);
             const originalValue = quantityInput.value;
+
+            // Mark as loading
+            loadingProducts.add(productId);
 
             // Show loading state
             quantityInput.disabled = true;
@@ -422,22 +451,25 @@
             .then(response => response.json())
             .then(data => {
                 console.log('Success:', data);
-                
+
+                // Release the loading lock
+                loadingProducts.delete(productId);
+
                 if (data.success) {
                     // Update cart count badge
                     if (data.cart_count !== undefined) {
                         updateCartCountDisplay(data.cart_count);
                     }
-                    
-                    // Update item total
+
+                    // Update item total using the item-total class
                     const cartItem = document.getElementById(`cart-item-${productId}`);
                     if (cartItem && data.item_total) {
-                        const totalEl = cartItem.querySelector('.text-2xl.font-bold');
+                        const totalEl = cartItem.querySelector('.item-total');
                         if (totalEl) {
                             totalEl.textContent = '$' + data.item_total.toFixed(2);
                         }
                     }
-                    
+
                     // Update all totals dynamically
                     try {
                         updateCartTotalsImproved();
@@ -477,10 +509,12 @@
             })
             .catch(error => {
                 console.error('Error:', error);
+                // Release the loading lock
+                loadingProducts.delete(productId);
                 // Re-enable input on error
                 quantityInput.disabled = false;
                 quantityInput.value = originalValue;
-                
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -494,20 +528,29 @@
         // Remove Item with AJAX (No Refresh)
         async function removeItemAjax(productId) {
             console.log('Removing item', productId);
-            
+
+            // Prevent duplicate remove requests
+            if (loadingProducts.has(productId)) {
+                console.log('Product', productId, 'is already updating, ignoring remove');
+                return;
+            }
+
             const cartItem = document.getElementById(`cart-item-${productId}`);
             console.log('Cart item element:', cartItem);
-            
+
             if (!cartItem) {
                 console.error('Cart item not found!');
                 return;
             }
-            
+
+            // Mark as loading
+            loadingProducts.add(productId);
+
             try {
                 // Use POST method with _method spoofing for Laravel
                 const url = '{{ url('cart/remove') }}/' + productId;
                 console.log('Delete URL:', url);
-                
+
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: {
@@ -529,7 +572,10 @@
 
                 const data = await response.json();
                 console.log('Success:', data);
-                
+
+                // Release the loading lock
+                loadingProducts.delete(productId);
+
                 // Show success message
                 Swal.fire({
                     icon: 'success',
@@ -554,19 +600,19 @@
                 cartItem.style.padding = '0';
                 cartItem.style.margin = '0';
                 cartItem.style.overflow = 'hidden';
-                
+
                 setTimeout(() => {
                     console.log('Removing element from DOM');
                     cartItem.remove();
-                    
+
                     // Update cart count badge
                     if (data.cart_count !== undefined) {
                         updateCartCountDisplay(data.cart_count);
                     }
-                    
+
                     // Recalculate totals
                     updateCartTotalsImproved();
-                    
+
                     // Check if cart is empty
                     const remainingItems = document.querySelectorAll('[id^="cart-item-"]');
                     console.log('Remaining items:', remainingItems.length);
@@ -580,6 +626,8 @@
                 
             } catch (error) {
                 console.error('Error removing item:', error);
+                // Release the loading lock
+                loadingProducts.delete(productId);
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -684,67 +732,74 @@
         function updateCartTotalsImproved() {
             console.log('Updating cart totals (improved)...');
             let subtotal = 0;
+            const deliveryThreshold = 50.00;
+            const standardDeliveryFee = 6.00;
 
-            // Calculate from cart items
-            document.querySelectorAll('[id^="cart-item-"]').forEach(item => {
-                const priceText = item.querySelector('.text-2xl.font-bold');
-                if (priceText) {
-                    subtotal += parseFloat(priceText.textContent.replace('$', ''));
-                }
+            // Calculate from cart items using the item-total class
+            document.querySelectorAll('.item-total').forEach(item => {
+                const priceText = item.textContent.replace('$', '').replace(',', '');
+                subtotal += parseFloat(priceText) || 0;
             });
 
-            // Find summary by looking for "Order Summary" text
-            const allHeaders = document.querySelectorAll('h2');
-            let summarySection = null;
-            allHeaders.forEach(h2 => {
-                if (h2.textContent.includes('Order Summary')) {
-                    summarySection = h2.closest('.bg-white');
-                }
-            });
+            // Calculate delivery fee
+            const deliveryFee = (subtotal >= deliveryThreshold) ? 0 : standardDeliveryFee;
 
-            if (!summarySection) {
-                console.warn('Could not find order summary section');
-                return;
+            // Update subtotal using ID
+            const subtotalEl = document.getElementById('summary-subtotal');
+            if (subtotalEl) {
+                subtotalEl.textContent = '$' + subtotal.toFixed(2);
             }
 
-            // Update all values
-            const rows = summarySection.querySelectorAll('.flex.justify-between');
-            rows.forEach(row => {
-                const text = row.textContent;
-                if (text.includes('Subtotal')) {
-                    const el = row.querySelectorAll('span')[1] || row.lastElementChild;
-                    if (el) el.textContent = '$' + subtotal.toFixed(2);
-                } else if (text.includes('Delivery')) {
-                    const fee = (subtotal >= 50) ? 0 : 6;
-                    const el = row.querySelectorAll('span')[1] || row.lastElementChild;
-                    if (el) {
-                        el.textContent = fee === 0 ? 'FREE' : '$' + fee.toFixed(2);
-                        el.className = fee === 0 ? 'font-bold text-green-600' : 'font-medium text-gray-800';
-                    }
-                } else if (text.includes('Total')) {
-                    const discountEl = summarySection.querySelector('.bg-green-50 .font-medium');
-                    const discount = discountEl ? parseFloat(discountEl.textContent.replace('$', '')) : 0;
-                    const fee = (subtotal >= 50) ? 0 : 6;
-                    const total = subtotal + fee - discount;
-                    const el = row.querySelector('.text-primary-600');
-                    if (el) el.textContent = '$' + total.toFixed(2);
-                }
-            });
-
-            // Update progress
-            const progress = summarySection.querySelector('.bg-amber-50') || summarySection.querySelector('.bg-green-50');
-            if (progress) {
-                const needed = 50 - subtotal;
-                if (needed > 0) {
-                    progress.className = 'bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6';
-                    progress.innerHTML = '<p class="text-amber-800 text-sm"><strong>💡 Tip:</strong> Add $' + needed.toFixed(2) + ' more for <strong>FREE delivery</strong>!</p>';
+            // Update delivery fee using ID
+            const deliveryEl = document.getElementById('summary-delivery');
+            if (deliveryEl) {
+                if (deliveryFee === 0) {
+                    deliveryEl.textContent = 'FREE';
+                    deliveryEl.className = 'font-bold text-green-600';
                 } else {
-                    progress.className = 'bg-green-50 border border-green-200 rounded-xl p-4 mb-6';
-                    progress.innerHTML = '<p class="text-green-800 text-sm"><strong>🎉 Awesome!</strong> You get <strong>FREE delivery</strong>!</p>';
+                    deliveryEl.textContent = '$' + deliveryFee.toFixed(2);
+                    deliveryEl.className = 'font-medium text-gray-800';
                 }
             }
 
-            console.log('Totals updated!');
+            // Get coupon discount if exists
+            let couponDiscount = 0;
+            const couponDiscountEl = document.querySelector('#summary-discount .font-medium');
+            if (couponDiscountEl) {
+                couponDiscount = parseFloat(couponDiscountEl.textContent.replace('$', '').replace('-', '')) || 0;
+            }
+
+            // Update total using ID
+            const totalEl = document.getElementById('summary-total');
+            if (totalEl) {
+                const finalTotal = subtotal + deliveryFee - couponDiscount;
+                totalEl.textContent = '$' + finalTotal.toFixed(2);
+            }
+
+            // Update shipping progress bar using ID
+            const progressContainer = document.getElementById('shipping-progress-container');
+            if (progressContainer) {
+                const amountNeeded = deliveryThreshold - subtotal;
+                if (amountNeeded > 0) {
+                    progressContainer.innerHTML = `
+                        <div id="shipping-progress" class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+                            <p class="text-amber-800 text-sm">
+                                <span class="font-semibold">💡 Tip:</span> Add $${amountNeeded.toFixed(2)} more to get <strong>FREE delivery</strong>!
+                            </p>
+                        </div>
+                    `;
+                } else {
+                    progressContainer.innerHTML = `
+                        <div id="shipping-progress" class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+                            <p class="text-green-800 text-sm">
+                                <span class="font-semibold">🎉 Awesome!</span> You qualify for <strong>FREE standard delivery</strong>!
+                            </p>
+                        </div>
+                    `;
+                }
+            }
+
+            console.log('Totals updated! Subtotal:', subtotal, 'Delivery:', deliveryFee);
         }
     </script>
     @endpush

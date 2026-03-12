@@ -170,21 +170,26 @@
         // Update Cart Totals
         function updateCartTotals() {
             let subtotal = 0;
+            const deliveryThreshold = 50.00;
+            const standardDeliveryFee = 6.00;
 
-            document.querySelectorAll('[id^="cart-item-"]').forEach(item => {
-                const priceText = item.querySelector('.text-2xl.font-bold').textContent.replace('$', '');
-                subtotal += parseFloat(priceText);
+            // Calculate subtotal from all cart items
+            document.querySelectorAll('.item-total').forEach(item => {
+                const priceText = item.textContent.replace('$', '').replace(',', '');
+                subtotal += parseFloat(priceText) || 0;
             });
 
+            // Calculate delivery fee
+            const deliveryFee = (subtotal >= deliveryThreshold) ? 0 : standardDeliveryFee;
+
             // Update subtotal
-            const subtotalEl = document.querySelector('.flex.justify-between.text-gray-600 .font-medium');
+            const subtotalEl = document.getElementById('summary-subtotal');
             if (subtotalEl) {
                 subtotalEl.textContent = '$' + subtotal.toFixed(2);
             }
 
-            // Update delivery
-            const deliveryFee = (subtotal >= 50.00) ? 0 : 6.00;
-            const deliveryEl = document.querySelector('.flex.justify-between.text-gray-600 .font-medium');
+            // Update delivery fee
+            const deliveryEl = document.getElementById('summary-delivery');
             if (deliveryEl) {
                 if (deliveryFee === 0) {
                     deliveryEl.textContent = 'FREE';
@@ -196,21 +201,31 @@
             }
 
             // Update total
-            const totalEl = document.querySelector('.text-primary-600');
+            const totalEl = document.getElementById('summary-total');
             if (totalEl) {
                 totalEl.textContent = '$' + (subtotal + deliveryFee).toFixed(2);
             }
 
-            // Update progress
-            const progressEl = document.querySelector('.bg-amber-50, .bg-green-50');
-            if (progressEl) {
-                const amountNeeded = 50.00 - subtotal;
+            // Update shipping progress bar
+            const progressContainer = document.getElementById('shipping-progress-container');
+            if (progressContainer) {
+                const amountNeeded = deliveryThreshold - subtotal;
                 if (amountNeeded > 0) {
-                    progressEl.className = 'bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6';
-                    progressEl.innerHTML = `<p class="text-amber-800 text-sm"><span class="font-semibold">💡 Tip:</span> Add $${amountNeeded.toFixed(2)} more to get <strong>FREE delivery</strong>!</p>`;
+                    progressContainer.innerHTML = `
+                        <div id="shipping-progress" class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+                            <p class="text-amber-800 text-sm">
+                                <span class="font-semibold">💡 Tip:</span> Add $${amountNeeded.toFixed(2)} more to get <strong>FREE delivery</strong>!
+                            </p>
+                        </div>
+                    `;
                 } else {
-                    progressEl.className = 'bg-green-50 border border-green-200 rounded-xl p-4 mb-6';
-                    progressEl.innerHTML = `<p class="text-green-800 text-sm"><span class="font-semibold">🎉 Awesome!</span> You qualify for <strong>FREE standard delivery</strong>!</p>`;
+                    progressContainer.innerHTML = `
+                        <div id="shipping-progress" class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+                            <p class="text-green-800 text-sm">
+                                <span class="font-semibold">🎉 Awesome!</span> You qualify for <strong>FREE standard delivery</strong>!
+                            </p>
+                        </div>
+                    `;
                 }
             }
         }
