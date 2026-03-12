@@ -3,12 +3,12 @@
 @section('title', 'Shopping Cart - FreshMart')
 
 @section('content')
-    <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
         <!-- Page Header -->
-        <div class="bg-gradient-to-r from-primary-700 via-primary-600 to-emerald-600 text-white py-12 rounded-3xl mb-8">
-            <div class="text-center">
-                <h1 class="text-4xl font-bold mb-2">🛒 Shopping Cart</h1>
-                <p class="text-green-100">Review your items before checkout</p>
+        <div class="bg-gradient-to-r from-primary-700 via-primary-600 to-emerald-600 text-white py-8 sm:py-12 rounded-2xl sm:rounded-3xl mb-6 sm:mb-8">
+            <div class="text-center px-4">
+                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">🛒 Shopping Cart</h1>
+                <p class="text-sm sm:text-base text-green-100">Review your items before checkout</p>
             </div>
         </div>
 
@@ -41,9 +41,9 @@
         @endif
 
         @if(count($cart) > 0)
-            <div class="grid lg:grid-cols-3 gap-8">
+            <div class="grid lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                 <!-- Cart Items -->
-                <div class="lg:col-span-2 space-y-4">
+                <div class="lg:col-span-2 space-y-3 sm:space-y-4">
                     @php
                         $total = 0;
                         $subtotal = 0;
@@ -66,10 +66,10 @@
                             $total += $itemTotal;
                             $subtotal += $item['price'] * $item['quantity'];
                         @endphp
-                        <div id="cart-item-{{ $productId }}" class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition">
-                            <div class="flex gap-6">
+                        <div id="cart-item-{{ $productId }}" class="bg-white rounded-xl sm:rounded-2xl border border-gray-100 p-3 sm:p-4 lg:p-6 shadow-sm hover:shadow-md transition">
+                            <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
                                 <!-- Product Image -->
-                                <div class="w-28 h-28 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl flex-shrink-0 overflow-hidden">
+                                <div class="w-full sm:w-28 lg:w-28 h-48 sm:h-28 lg:h-28 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl flex-shrink-0 overflow-hidden">
                                     @php
                                         // Try session image first, fallback to database if null
                                         $imagePath = $item['image'] ?? \App\Models\Product::find($productId)?->image;
@@ -97,8 +97,8 @@
 
                                 <!-- Product Info -->
                                 <div class="flex-1">
-                                    <h3 class="font-semibold text-gray-900 text-lg mb-1">{{ $displayName }}</h3>
-                                    
+                                    <h3 class="font-semibold text-gray-900 text-base sm:text-lg mb-1">{{ $displayName }}</h3>
+
                                     @if(isset($item['discount_percent']) && $item['discount_percent'] > 0)
                                         <div class="flex items-center gap-2 mb-2">
                                             <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold">
@@ -106,13 +106,13 @@
                                             </span>
                                         </div>
                                         <div class="flex items-center gap-3">
-                                            <span class="text-gray-400 line-through text-sm">
+                                            <span class="text-gray-400 line-through text-xs sm:text-sm">
                                                 @php
                                                     $originalPrice = ($item['price'] == floor($item['price'])) ? '$' . number_format($item['price'], 0) : '$' . number_format($item['price'], 2);
                                                 @endphp
                                                 {{ $originalPrice }}
                                             </span>
-                                            <span class="text-red-600 font-bold text-xl">
+                                            <span class="text-red-600 font-bold text-lg sm:text-xl">
                                                 @if(isset($item['discount_price']) && $item['discount_price'])
                                                     @php
                                                         $discountedPrice = ($item['discount_price'] == floor($item['discount_price'])) ? '$' . number_format($item['discount_price'], 0) : '$' . number_format($item['discount_price'], 2);
@@ -128,29 +128,29 @@
                                             </span>
                                         </div>
                                     @else
-                                        <p class="text-primary-600 font-bold text-xl">
+                                        <p class="text-primary-600 font-bold text-lg sm:text-xl">
                                             @php
                                                 $displayPrice = ($item['price'] == floor($item['price'])) ? '$' . number_format($item['price'], 0) : '$' . number_format($item['price'], 2);
                                             @endphp
                                             {{ $displayPrice }}
                                         </p>
                                     @endif
-                                    
+
                                     <!-- Quantity Controls -->
-                                    <div class="flex items-center gap-4 mt-4">
+                                    <div class="flex items-center gap-3 sm:gap-4 mt-3 sm:mt-4 flex-wrap">
                                         <div class="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden">
                                             <button type="button" onclick="decreaseQuantity({{ $productId }})"
-                                                    class="px-4 py-2 text-gray-600 hover:text-primary-600 hover:bg-gray-50 transition"
+                                                    class="px-3 sm:px-4 py-2 text-gray-600 hover:text-primary-600 hover:bg-gray-50 transition"
                                                     {{ $item['quantity'] <= 1 ? 'disabled' : '' }}>
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
                                                 </svg>
                                             </button>
                                             <input type="number" id="quantity-{{ $productId }}" value="{{ $item['quantity'] }}" min="1"
-                                                   class="w-16 text-center border-x-2 border-gray-200 py-2 focus:outline-none font-semibold"
+                                                   class="w-12 sm:w-16 text-center border-x-2 border-gray-200 py-2 focus:outline-none font-semibold text-sm sm:text-base"
                                                    onchange="updateQuantityAjax({{ $productId }}, this.value)">
                                             <button type="button" onclick="increaseQuantity({{ $productId }})"
-                                                    class="px-4 py-2 text-gray-600 hover:text-primary-600 hover:bg-gray-50 transition">
+                                                    class="px-3 sm:px-4 py-2 text-gray-600 hover:text-primary-600 hover:bg-gray-50 transition">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                                 </svg>
@@ -159,27 +159,28 @@
 
                                         <!-- Remove Button -->
                                         <button type="button" onclick="removeItemAjax({{ $productId }})"
-                                                class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition"
+                                                class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition flex items-center gap-2"
                                                 title="Remove item">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                             </svg>
+                                            <span class="text-xs sm:hidden">Remove</span>
                                         </button>
                                     </div>
                                 </div>
 
                                 <!-- Item Total -->
-                                <div class="text-right">
-                                    <p class="text-sm text-gray-500 mb-1">Total</p>
+                                <div class="text-right sm:mt-0">
+                                    <p class="text-xs sm:text-sm text-gray-500 mb-1">Total</p>
                                     @if(isset($item['discount_percent']) && $item['discount_percent'] > 0)
-                                        <p class="text-xl font-bold text-red-600">${{ number_format($itemTotal, 2) }}</p>
+                                        <p class="text-lg sm:text-xl font-bold text-red-600">${{ number_format($itemTotal, 2) }}</p>
                                         @if($item['quantity'] > 1)
                                             <p class="text-xs text-gray-400 line-through">
                                                 Was: ${{ number_format($item['price'] * $item['quantity'], 2) }}
                                             </p>
                                         @endif
                                     @else
-                                        <p class="text-2xl font-bold text-gray-900">${{ number_format($itemTotal, 2) }}</p>
+                                        <p class="text-xl sm:text-2xl font-bold text-gray-900">${{ number_format($itemTotal, 2) }}</p>
                                     @endif
                                 </div>
                             </div>
@@ -189,7 +190,7 @@
 
                 <!-- Order Summary -->
                 <div class="lg:col-span-1">
-                    <div class="bg-white rounded-2xl border border-gray-100 p-6 sticky top-24 shadow-sm">
+                    <div class="bg-white rounded-xl sm:rounded-2xl border border-gray-100 p-4 sm:p-6 lg:sticky lg:top-24 shadow-sm">
                         <h2 class="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
 
                         @php
@@ -303,21 +304,21 @@
 
                         @auth
                             <a href="{{ route('checkout') }}"
-                               class="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white py-4 rounded-xl hover:from-primary-700 hover:to-primary-800 transition font-semibold text-center block mb-3 shadow-lg shadow-primary-500/30">
-                                <svg class="w-5 h-5 inline-block -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               class="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white py-3 sm:py-4 rounded-xl hover:from-primary-700 hover:to-primary-800 transition font-semibold text-center block mb-3 shadow-lg shadow-primary-500/30 text-sm sm:text-base">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 inline-block -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                                 </svg>
                                 Secure Checkout
                             </a>
                         @else
-                            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-                                <p class="text-blue-800 text-sm">
+                            <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4 mb-6">
+                                <p class="text-blue-800 text-xs sm:text-sm">
                                     <span class="font-semibold">🔐 Login Required:</span> Please sign in to complete your order.
                                 </p>
                             </div>
                             <a href="{{ route('customer.login') }}"
-                               class="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white py-4 rounded-xl hover:from-primary-700 hover:to-primary-800 transition font-semibold text-center block mb-3 shadow-lg shadow-primary-500/30">
-                                <svg class="w-5 h-5 inline-block -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                               class="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white py-3 sm:py-4 rounded-xl hover:from-primary-700 hover:to-primary-800 transition font-semibold text-center block mb-3 shadow-lg shadow-primary-500/30 text-sm sm:text-base">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5 inline-block -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                                 </svg>
                                 Sign In to Checkout
@@ -325,8 +326,9 @@
                         @endauth
 
                         <a href="{{ route('shop') }}"
-                           class="w-full border-2 border-gray-200 text-gray-700 py-4 rounded-xl hover:bg-gray-50 transition font-semibold text-center block">
+                           class="w-full border-2 border-gray-200 text-gray-700 py-3 sm:py-4 rounded-xl hover:bg-gray-50 transition font-semibold text-center block text-sm sm:text-base">
                             Continue Shopping
+                        </a>
                         </a>
 
                         <!-- Clear Cart -->

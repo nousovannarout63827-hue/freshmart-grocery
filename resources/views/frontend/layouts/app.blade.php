@@ -112,12 +112,18 @@
             transform: translateY(-8px);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
-
-        /* Product Card Image - Override global height:auto */
+        
+        /* Product Card Image Container */
+        .product-card .relative {
+            position: relative !important;
+        }
+        
+        /* Product Card Image */
         .product-card img {
-            height: 100% !important;
             width: 100% !important;
+            height: 100% !important;
             object-fit: cover !important;
+            object-position: center !important;
             display: block !important;
         }
         
@@ -160,7 +166,8 @@
     <!-- Header -->
     <header class="bg-white shadow-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
+            <!-- Top Row: Logo, Mobile Menu Button, Cart, Language -->
+            <div class="flex justify-between items-center py-4 gap-4">
                 <!-- Logo & Mobile Menu Button -->
                 <div class="flex items-center gap-4">
                     <button id="mobileMenuBtn" class="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition">
@@ -168,7 +175,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
                     </button>
-                    <a href="{{ route('home') }}" class="flex items-center gap-2 group">
+                    <a href="{{ route('home') }}" class="flex items-center gap-2 group flex-shrink-0">
                         <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center text-white text-xl shadow-lg group-hover:shadow-primary-500/30 transition">
                             🛒
                         </div>
@@ -179,52 +186,11 @@
                     </a>
                 </div>
 
-                <!-- Desktop Navigation -->
-                <nav class="hidden lg:flex items-center gap-8">
-                    <a href="{{ route('home') }}" class="font-medium {{ request()->routeIs('home') ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600' }} transition">
-                        {{ __('messages.home') }}
-                    </a>
-                    <a href="{{ route('shop') }}" class="font-medium {{ request()->routeIs('shop') ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600' }} transition">
-                        {{ __('messages.shop') }}
-                    </a>
-                    @if(isset($categories) && $categories->isNotEmpty())
-                        <div class="relative group">
-                            <button class="font-medium text-gray-600 hover:text-primary-600 transition flex items-center gap-1">
-                                {{ __('messages.categories') }}
-                                <svg class="w-4 h-4 transition group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                </svg>
-                            </button>
-                            <div class="absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2">
-                                <div class="py-2">
-                                    @foreach($categories as $cat)
-                                        <a href="{{ route('category.view', $cat->slug) }}" class="block px-4 py-2.5 hover:bg-primary-50 text-gray-700 hover:text-primary-600 transition first:rounded-t-xl last:rounded-b-xl">
-                                            {{ $cat->name }}
-                                        </a>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-                    <a href="{{ route('about') }}" class="font-medium {{ request()->routeIs('about') ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600' }} transition">{{ __('messages.about') }}</a>
-                    <a href="{{ route('contact') }}" class="font-medium {{ request()->routeIs('contact') ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600' }} transition">{{ __('messages.contact') }}</a>
-                </nav>
-
-                <!-- Right Actions -->
-                <div class="flex items-center gap-3">
-                    <!-- Search -->
-                    <div class="relative">
-                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                        <input type="text" name="search" placeholder="Search products..."
-                               class="w-64 h-[44px] pl-9 pr-4 text-sm text-gray-700 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 shadow-sm transition-all"
-                               value="{{ request('search') }}">
-                    </div>
-
+                <!-- Right Actions: Cart, Language, Auth -->
+                <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                     <!-- Cart (Only for Guests and Customers) -->
                     @if(!auth()->check() || auth()->user()->role === 'customer')
-                        <a href="{{ route('cart') }}" class="relative group">
+                        <a href="{{ route('cart') }}" class="relative group flex-shrink-0">
                             <div class="w-[44px] h-[44px] bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center text-white shadow-lg shadow-primary-500/30 group-hover:shadow-primary-500/50 transition">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
@@ -237,12 +203,12 @@
                     @endif
 
                     <!-- Language Switcher -->
-                    <div class="relative group">
+                    <div class="relative group flex-shrink-0">
                         <button class="flex items-center justify-center gap-2 px-4 h-[44px] bg-gray-50 border border-gray-100 hover:bg-gray-100 rounded-full text-sm font-semibold text-gray-700 transition-colors">
                             <span>🌐</span>
                             <span class="uppercase">{{ app()->getLocale() }}</span>
                         </button>
-                        
+
                         <div class="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 overflow-hidden">
                             <a href="{{ route('lang.switch', 'en') }}" class="block px-4 py-3 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition border-b border-gray-100 {{ app()->getLocale() === 'en' ? 'bg-primary-50 text-primary-600 font-semibold' : '' }}">
                                 🇬🇧 English
@@ -258,7 +224,7 @@
 
                     <!-- Auth -->
                     @auth
-                        <div class="relative group">
+                        <div class="relative group hidden sm:block flex-shrink-0">
                             <button class="flex items-center gap-2 pl-1.5 pr-4 h-[44px] bg-gray-50 border border-gray-100 hover:bg-gray-100 rounded-full text-sm font-semibold text-gray-700 transition-colors">
                                 <div class="w-8 h-8 rounded-full overflow-hidden border-2 border-primary-500 flex-shrink-0">
                                     @if(auth()->user()->avatar ?? auth()->user()->profile_photo_path)
@@ -321,10 +287,66 @@
                             </div>
                         </div>
                     @else
-                        <a href="{{ route('customer.login') }}" class="hidden md:block px-4 py-2.5 bg-primary-600 text-white rounded-full font-medium hover:bg-primary-700 transition shadow-lg shadow-primary-500/30">
+                        <a href="{{ route('customer.login') }}" class="hidden lg:block px-4 py-2.5 bg-primary-600 text-white rounded-full font-medium hover:bg-primary-700 transition shadow-lg shadow-primary-500/30 flex-shrink-0">
                             Sign In
                         </a>
                     @endauth
+                </div>
+            </div>
+
+            <!-- Bottom Row: Desktop Nav + Search -->
+            <div class="hidden lg:flex items-center justify-between py-3 border-t border-gray-100 mt-2">
+                <!-- Desktop Navigation -->
+                <nav class="flex items-center gap-8">
+                    <a href="{{ route('home') }}" class="font-medium {{ request()->routeIs('home') ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600' }} transition">
+                        {{ __('messages.home') }}
+                    </a>
+                    <a href="{{ route('shop') }}" class="font-medium {{ request()->routeIs('shop') ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600' }} transition">
+                        {{ __('messages.shop') }}
+                    </a>
+                    @if(isset($categories) && $categories->isNotEmpty())
+                        <div class="relative group">
+                            <button class="font-medium text-gray-600 hover:text-primary-600 transition flex items-center gap-1">
+                                {{ __('messages.categories') }}
+                                <svg class="w-4 h-4 transition group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <div class="absolute left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2">
+                                <div class="py-2">
+                                    @foreach($categories as $cat)
+                                        <a href="{{ route('category.view', $cat->slug) }}" class="block px-4 py-2.5 hover:bg-primary-50 text-gray-700 hover:text-primary-600 transition first:rounded-t-xl last:rounded-b-xl">
+                                            {{ $cat->name }}
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                    <a href="{{ route('about') }}" class="font-medium {{ request()->routeIs('about') ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600' }} transition">{{ __('messages.about') }}</a>
+                    <a href="{{ route('contact') }}" class="font-medium {{ request()->routeIs('contact') ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600' }} transition">{{ __('messages.contact') }}</a>
+                </nav>
+
+                <!-- Search Bar -->
+                <div class="relative">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <input type="text" name="search" placeholder="Search products..."
+                           class="w-80 h-[44px] pl-9 pr-4 text-sm text-gray-700 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 shadow-sm transition-all"
+                           value="{{ request('search') }}">
+                </div>
+            </div>
+
+            <!-- Mobile Search Bar (Full Width) -->
+            <div class="lg:hidden py-3 border-t border-gray-100 mt-2">
+                <div class="relative">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <input type="text" name="search" placeholder="Search products..."
+                           class="w-full h-[44px] pl-9 pr-4 text-sm text-gray-700 bg-white border border-gray-200 rounded-full focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 shadow-sm transition-all"
+                           value="{{ request('search') }}">
                 </div>
             </div>
         </div>

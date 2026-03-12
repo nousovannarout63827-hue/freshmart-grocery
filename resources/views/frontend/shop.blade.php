@@ -13,10 +13,10 @@
         </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 py-8">
+    <div class="max-w-[1920px] mx-auto px-4 py-8">
         <div class="flex flex-col lg:flex-row gap-8">
             <!-- Sidebar Filters -->
-            <aside class="w-full lg:w-72 flex-shrink-0">
+            <aside class="w-full lg:w-64 xl:w-72 flex-shrink-0">
                 <div class="bg-white rounded-2xl border border-gray-100 p-6 sticky top-24 shadow-sm">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="font-bold text-gray-900 text-lg flex items-center gap-2">
@@ -118,7 +118,7 @@
             </aside>
 
             <!-- Products Grid -->
-            <div class="flex-1">
+            <div class="flex-1 min-w-0">
                 <!-- Results Header -->
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-6 border-b border-gray-200">
                     <p class="text-gray-600">
@@ -148,7 +148,7 @@
                 </div>
 
                 @if($products->count() > 0)
-                    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
                         @foreach($products as $product)
                             @include('frontend.product-card', ['product' => $product])
                         @endforeach

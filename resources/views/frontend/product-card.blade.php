@@ -2,7 +2,7 @@
     @if($product->slug)
     <a href="{{ route('product.show', $product->slug) }}" class="block group">
     @endif
-        <div class="relative w-full h-32 sm:h-40 lg:h-48 bg-gray-100 overflow-hidden">
+        <div class="relative w-full overflow-hidden" style="padding-bottom: 100%;">
             @php
                 $productImageUrl = null;
                 if ($product->image) {
@@ -15,9 +15,10 @@
             @if($productImageUrl)
                 <img src="{{ $productImageUrl }}"
                         alt="{{ $product->translated_name }}"
-                        class="w-full h-full object-cover block group-hover:scale-110 transition duration-500">
+                        style="width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; position: absolute; top: 0; left: 0;"
+                        class="group-hover:scale-110 transition duration-500">
             @else
-                <div class="w-full h-full flex items-center justify-center text-6xl bg-gradient-to-br from-primary-50 to-primary-100">
+                <div style="position: absolute; inset: 0;" class="flex items-center justify-center text-6xl bg-gradient-to-br from-primary-50 to-primary-100">
                     🥬
                 </div>
             @endif

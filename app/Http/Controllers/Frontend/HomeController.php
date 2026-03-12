@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -112,12 +113,17 @@ class HomeController extends Controller
                     $query->orderBy('name', 'desc');
                     break;
                 case 'rating':
-                    // Sort by average rating - optimized with join
-                    $query->leftJoin('reviews', 'products.id', '=', 'reviews.product_id')
-                          ->where('reviews.is_approved', true)
-                          ->where('reviews.is_banned', false)
-                          ->groupBy('products.id')
-                          ->orderByRaw('AVG(reviews.rating) DESC');
+                    // Sort by average rating - use subquery to avoid GROUP BY issues
+                    $query->joinSub(
+                        DB::table('reviews')
+                            ->select('product_id', DB::raw('AVG(rating) as avg_rating'))
+                            ->where('is_approved', true)
+                            ->where('is_banned', false)
+                            ->groupBy('product_id'),
+                        'ratings',
+                        'products.id',
+                        'ratings.product_id'
+                    )->orderBy('ratings.avg_rating', 'desc');
                     break;
                 case 'latest':
                 default:
