@@ -12,13 +12,14 @@
             </div>
         </div>
 
-        <form action="{{ route('checkout.process') }}" method="POST">
-            @csrf
-            <div class="grid lg:grid-cols-3 gap-8">
-                <!-- Checkout Form -->
-                <div class="lg:col-span-2 space-y-6">
-                    <!-- Contact Information -->
-                    <div class="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
+        <!-- Main Grid Layout -->
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Left Column: Checkout Form -->
+            <div class="lg:col-span-2">
+                <form action="{{ route('checkout.process') }}" method="POST" id="checkout-form">
+                    @csrf
+                    <div class="space-y-6">
+                        <div class="bg-white rounded-2xl border border-gray-100 p-8 shadow-sm">
                         <div class="flex items-center gap-3 mb-6">
                             <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center text-white">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,107 +274,109 @@
                         </label>
                     </div>
                 </div>
+            </div>
+            </form>
 
-                <!-- Order Summary -->
-                <div class="lg:col-span-1">
-                    <div class="bg-white rounded-2xl border border-gray-100 p-6 sticky top-24 shadow-sm">
-                        <h2 class="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
+            <!-- Right Column: Order Summary -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-2xl border border-gray-100 p-6 sticky top-24 shadow-sm">
+                    <h2 class="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
 
-                        <!-- Cart Items -->
-                        <div class="space-y-4 mb-6 max-h-80 overflow-y-auto pr-2">
-                            @foreach($cart as $productId => $item)
-                                @php 
-                                    $itemTotal = $item['price'] * $item['quantity'];
-                                    
-                                    // Handle multi-language name array from session
-                                    $displayName = is_array($item['name']) 
-                                        ? ($item['name'][app()->getLocale()] ?? $item['name']['en'] ?? 'Product')
-                                        : $item['name'];
-                                @endphp
-                                <div class="flex gap-4 p-3 bg-gray-50 rounded-xl">
-                                    <div class="w-16 h-16 bg-white rounded-lg flex-shrink-0 overflow-hidden border border-gray-100">
+                    <!-- Cart Items -->
+                    <div class="space-y-4 mb-6 max-h-80 overflow-y-auto pr-2">
+                        @foreach($cart as $productId => $item)
+                            @php
+                                $itemTotal = $item['price'] * $item['quantity'];
+
+                                // Handle multi-language name array from session
+                                $displayName = is_array($item['name'])
+                                    ? ($item['name'][app()->getLocale()] ?? $item['name']['en'] ?? 'Product')
+                                    : $item['name'];
+                            @endphp
+                            <div class="flex gap-4 p-3 bg-gray-50 rounded-xl">
+                                <div class="w-16 h-16 bg-white rounded-lg flex-shrink-0 overflow-hidden border border-gray-100">
+                                    @php
+                                        // Try session image first, fallback to database if null
+                                        $imagePath = $item['image'] ?? \App\Models\Product::find($productId)?->image;
+                                        $imageUrl = $imagePath ? asset('storage/' . $imagePath) : null;
+                                    @endphp
+                                    @if($imageUrl)
+                                        <img src="{{ $imageUrl }}"
+                                             alt="{{ $displayName }}"
+                                             class="w-full h-full object-cover"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="w-full h-full flex items-center justify-center text-2xl bg-gradient-to-br from-primary-50 to-primary-100" style="display: none;">
+                                            🥬
+                                        </div>
+                                    @else
+                                        <div class="w-full h-full flex items-center justify-center text-2xl bg-gradient-to-br from-primary-50 to-primary-100">
+                                            🥬
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-medium text-gray-900 text-sm truncate">{{ $displayName }}</p>
+                                    <p class="text-sm text-gray-500">
                                         @php
-                                            // Try session image first, fallback to database if null
-                                            $imagePath = $item['image'] ?? \App\Models\Product::find($productId)?->image;
-                                            $imageUrl = $imagePath ? asset('storage/' . $imagePath) : null;
+                                            $displayPrice = ($item['price'] == floor($item['price'])) ? '$' . number_format($item['price'], 0) : '$' . number_format($item['price'], 2);
                                         @endphp
-                                        @if($imageUrl)
-                                            <img src="{{ $imageUrl }}"
-                                                 alt="{{ $displayName }}"
-                                                 class="w-full h-full object-cover"
-                                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                            <div class="w-full h-full flex items-center justify-center text-2xl bg-gradient-to-br from-primary-50 to-primary-100" style="display: none;">
-                                                🥬
-                                            </div>
-                                        @else
-                                            <div class="w-full h-full flex items-center justify-center text-2xl bg-gradient-to-br from-primary-50 to-primary-100">
-                                                🥬
-                                            </div>
-                                        @endif
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <p class="font-medium text-gray-900 text-sm truncate">{{ $displayName }}</p>
-                                        <p class="text-sm text-gray-500">
-                                            @php
-                                                $displayPrice = ($item['price'] == floor($item['price'])) ? '$' . number_format($item['price'], 0) : '$' . number_format($item['price'], 2);
-                                            @endphp
-                                            {{ $item['quantity'] }} x {{ $displayPrice }}
-                                        </p>
-                                    </div>
-                                    <p class="font-semibold text-gray-900 text-sm">${{ number_format($itemTotal, 2) }}</p>
+                                        {{ $item['quantity'] }} x {{ $displayPrice }}
+                                    </p>
                                 </div>
-                            @endforeach
+                                <p class="font-semibold text-gray-900 text-sm">${{ number_format($itemTotal, 2) }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    @php
+                        $discount = session()->has('coupon') ? session()->get('coupon')['discount'] : 0;
+                        // Get selected shipping cost from the radio button value (default to first option)
+                        $defaultShipping = $costStandard;
+                        $finalTotal = ($subtotal + $defaultShipping) - $discount;
+                    @endphp
+
+                    <!-- Totals -->
+                    <div class="border-t-2 border-gray-200 pt-4 space-y-3 mb-6">
+                        <div class="flex justify-between text-gray-600">
+                            <span>Subtotal</span>
+                            <span id="summary-subtotal" class="font-medium">${{ number_format($subtotal, 2) }}</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>Shipping Fee</span>
+                            <span id="summary-delivery" class="font-medium text-primary-600">
+                                @php
+                                    $displayDelivery = (6.00 == floor(6.00)) ? '$' . number_format(6.00, 0) : '$' . number_format(6.00, 2);
+                                @endphp
+                                {{ $displayDelivery }}
+                            </span>
                         </div>
 
-                        @php
-                            $discount = session()->has('coupon') ? session()->get('coupon')['discount'] : 0;
-                            // Get selected shipping cost from the radio button value (default to first option)
-                            $defaultShipping = $costStandard;
-                            $finalTotal = ($subtotal + $defaultShipping) - $discount;
-                        @endphp
-
-                        <!-- Totals -->
-                        <div class="border-t-2 border-gray-200 pt-4 space-y-3 mb-6">
-                            <div class="flex justify-between text-gray-600">
-                                <span>Subtotal</span>
-                                <span id="summary-subtotal" class="font-medium">${{ number_format($subtotal, 2) }}</span>
+                        @if(session()->has('coupon'))
+                            <div id="summary-discount-row" class="flex justify-between text-green-600 bg-green-50 p-3 rounded-xl border border-green-200">
+                                <span>Discount ({{ session()->get('coupon')['code'] }})</span>
+                                <span id="summary-discount" class="font-medium">-${{ number_format($discount, 2) }}</span>
                             </div>
-                            <div class="flex justify-between text-gray-600">
-                                <span>Shipping Fee</span>
-                                <span id="summary-delivery" class="font-medium text-primary-600">
-                                    @php
-                                        $displayDelivery = (6.00 == floor(6.00)) ? '$' . number_format(6.00, 0) : '$' . number_format(6.00, 2);
-                                    @endphp
-                                    {{ $displayDelivery }}
-                                </span>
+                        @else
+                            <div id="summary-discount-row" class="flex justify-between text-gray-600 bg-gray-50 p-3 rounded-xl">
+                                <span>Discount</span>
+                                <span id="summary-discount" class="font-medium">$0.00</span>
                             </div>
+                        @endif
 
-                            @if(session()->has('coupon'))
-                                <div class="flex justify-between text-green-600 bg-green-50 p-3 rounded-xl border border-green-200">
-                                    <span>Discount ({{ session()->get('coupon')['code'] }})</span>
-                                    <span id="summary-discount" class="font-medium">-${{ number_format($discount, 2) }}</span>
-                                </div>
-                            @else
-                                <div class="flex justify-between text-gray-600 bg-gray-50 p-3 rounded-xl">
-                                    <span>Discount</span>
-                                    <span id="summary-discount" class="font-medium">$0.00</span>
-                                </div>
-                            @endif
-
-                            <div class="border-t-2 border-gray-200 pt-3 flex justify-between text-xl font-bold text-gray-900">
-                                <span>Total</span>
-                                <span id="summary-total" class="text-primary-600">
-                                    @php
-                                        $displayTotal = ($finalTotal == floor($finalTotal)) ? '$' . number_format($finalTotal, 0) : '$' . number_format($finalTotal, 2);
-                                    @endphp
-                                    {{ $displayTotal }}
-                                </span>
-                            </div>
+                        <div class="border-t-2 border-gray-200 pt-3 flex justify-between text-xl font-bold text-gray-900">
+                            <span>Total</span>
+                            <span id="summary-total" class="text-primary-600">
+                                @php
+                                    $displayTotal = ($finalTotal == floor($finalTotal)) ? '$' . number_format($finalTotal, 0) : '$' . number_format($finalTotal, 2);
+                                @endphp
+                                {{ $displayTotal }}
+                            </span>
                         </div>
+                    </div>
 
                         <!-- Coupon Section -->
                         @if(!session()->has('coupon'))
-                            <form action="{{ route('coupon.apply') }}" method="POST" class="mb-6">
+                            <form action="{{ route('coupon.apply') }}" method="POST" class="mb-6" id="coupon-apply-form">
                                 @csrf
                                 <label class="block text-sm font-bold text-gray-800 mb-2">Have a Coupon?</label>
                                 <div class="flex border-2 border-primary-600 rounded-xl overflow-hidden bg-white">
@@ -386,7 +389,7 @@
                                 </div>
                             </form>
                         @else
-                            <form action="{{ route('coupon.remove') }}" method="POST" class="mb-6">
+                            <form action="{{ route('coupon.remove') }}" method="POST" class="mb-6" id="coupon-applied-form">
                                 @csrf
                                 <div class="flex justify-between items-center bg-green-50 border border-green-200 px-4 py-3 rounded-xl">
                                     <div class="flex items-center gap-2">
@@ -403,7 +406,7 @@
                         @endif
 
                         <!-- Place Order Button -->
-                        <button type="submit"
+                        <button type="submit" form="checkout-form"
                                 class="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white py-4 rounded-xl hover:from-primary-700 hover:to-primary-800 transition font-semibold mb-4 shadow-lg shadow-primary-500/30 flex items-center justify-center gap-2 mt-6">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -429,15 +432,52 @@
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 
     @push('scripts')
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <!-- Leaflet.js CSS & JS - Free OpenStreetMap -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
     <script>
+        // Show flash messages for coupon actions
+        @if(session('success'))
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: '{{ session('success') }}',
+                confirmButtonColor: '#16a34a',
+                timer: 3000,
+                timerProgressBar: true
+            });
+        @endif
+
+        @if(session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: '{{ session('error') }}',
+                confirmButtonColor: '#dc2626',
+                timer: 4000,
+                timerProgressBar: true
+            });
+        @endif
+
+        @if(session('warning'))
+            Swal.fire({
+                icon: 'warning',
+                title: 'Warning',
+                text: '{{ session('warning') }}',
+                confirmButtonColor: '#d97706',
+                timer: 4000,
+                timerProgressBar: true
+            });
+        @endif
+
         document.addEventListener("DOMContentLoaded", function() {
             // Grab PHP values so JS knows the starting math
             const subtotal = {{ $subtotal ?? 0 }};

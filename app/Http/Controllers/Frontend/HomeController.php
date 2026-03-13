@@ -341,14 +341,14 @@ class HomeController extends Controller
 
         if ($request->expectsJson()) {
             $cart = session()->get('cart', []);
-            
+
             // Calculate item total with discount
             $itemTotal = 0;
             $itemPrice = 0;
             if (isset($cart[$productId])) {
                 $itemPrice = $cart[$productId]['price'];
                 $quantity = $cart[$productId]['quantity'];
-                
+
                 // Apply discount if exists
                 if (isset($cart[$productId]['discount_percent']) && $cart[$productId]['discount_percent'] > 0) {
                     if (isset($cart[$productId]['discount_price']) && $cart[$productId]['discount_price']) {
@@ -357,7 +357,7 @@ class HomeController extends Controller
                         $itemPrice = $cart[$productId]['price'] * (1 - $cart[$productId]['discount_percent'] / 100);
                     }
                 }
-                
+
                 $itemTotal = $itemPrice * $quantity;
             }
 
@@ -366,7 +366,9 @@ class HomeController extends Controller
                 'message' => $message,
                 'cart_count' => count($cart),
                 'item_total' => $itemTotal,
-                'item_price' => $itemPrice
+                'item_price' => $itemPrice,
+                'coupon_removed' => $couponRemoved,
+                'has_coupon' => session()->has('coupon'),
             ]);
         }
 
@@ -396,7 +398,9 @@ class HomeController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => $message,
-                    'cart_count' => count($cart)
+                    'cart_count' => count($cart),
+                    'coupon_removed' => $couponRemoved,
+                    'has_coupon' => session()->has('coupon'),
                 ]);
             }
 
@@ -466,15 +470,21 @@ class HomeController extends Controller
             return redirect()->route('login')
                 ->with('error', 'Please log in to complete your checkout.');
         }
-        
+
         $cart = session()->get('cart', []);
         $categories = Category::has('products')->get();
-        
+
         if (empty($cart)) {
             return redirect()->route('cart')->with('error', 'Your cart is empty.');
         }
-        
-        return view('frontend.checkout', compact('cart', 'categories'));
+
+        // Calculate subtotal for the checkout page
+        $subtotal = 0;
+        foreach ($cart as $item) {
+            $subtotal += $item['price'] * $item['quantity'];
+        }
+
+        return view('frontend.checkout', compact('cart', 'categories', 'subtotal'));
     }
 
     /**

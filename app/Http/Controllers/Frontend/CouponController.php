@@ -30,7 +30,7 @@ class CouponController extends Controller
 
         // Check if coupon is expired
         if (!$coupon->isValid()) {
-            return back()->with('error', 'This coupon has expired.');
+            return back()->with('error', 'This coupon has expired or is no longer active.');
         }
 
         // Calculate cart subtotal from session
@@ -40,16 +40,21 @@ class CouponController extends Controller
             $subtotal += $item['price'] * $item['quantity'];
         }
 
-        // Check minimum purchase requirement
+        // Check if cart is empty
+        if (empty($cart)) {
+            return back()->with('error', 'Your cart is empty. Add items before applying a coupon.');
+        }
+
+        // Check minimum purchase requirement BEFORE calculating discount
         if ($subtotal < $coupon->min_purchase) {
-            return back()->with('error', 'Minimum purchase of $' . number_format($coupon->min_purchase, 2) . ' required for this coupon.');
+            return back()->with('error', 'Minimum purchase of $' . number_format($coupon->min_purchase, 2) . ' required for this coupon. Your current subtotal is $' . number_format($subtotal, 2) . '.');
         }
 
         // Calculate the discount
         $discountAmount = $coupon->calculateDiscount($subtotal);
 
         if ($discountAmount <= 0) {
-            return back()->with('error', 'This coupon cannot be applied to your current order.');
+            return back()->with('error', 'This coupon cannot be applied to your current order. Please check the coupon requirements.');
         }
 
         // Save the coupon data into the session

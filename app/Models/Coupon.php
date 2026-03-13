@@ -23,11 +23,10 @@ class Coupon extends Model
         'valid_until',
         'usage_limit',
         'usage_count',
-        'min_purchase_amount',
+        'min_purchase',
         'status',
         'auto_apply',
         'created_by',
-        'min_purchase',
         'expires_at',
     ];
 
@@ -39,7 +38,6 @@ class Coupon extends Model
         return [
             'value' => 'decimal:2',
             'min_purchase' => 'decimal:2',
-            'min_purchase_amount' => 'decimal:2',
             'status' => 'boolean',
             'auto_apply' => 'boolean',
             'product_ids' => 'array',
@@ -141,8 +139,8 @@ class Coupon extends Model
             return 0;
         }
 
-        // Check minimum purchase requirement
-        if ($subtotal < $this->min_purchase_amount) {
+        // Check minimum purchase requirement (use min_purchase column)
+        if ($subtotal < $this->min_purchase) {
             return 0;
         }
 
@@ -155,7 +153,7 @@ class Coupon extends Model
 
         if ($this->type === 'fixed') {
             $discount = $this->value;
-        } elseif ($this->type === 'percentage') {
+        } elseif ($this->type === 'percent' || $this->type === 'percentage') {
             $discount = ($subtotal * $this->value) / 100;
         } elseif ($this->type === 'free_delivery') {
             // Free delivery discount would be calculated based on delivery fee

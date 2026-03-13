@@ -277,11 +277,11 @@
 
                         <!-- Coupon Section -->
                         @if(!session()->has('coupon'))
-                            <form action="{{ route('coupon.apply') }}" method="POST" class="mb-6">
+                            <form action="{{ route('coupon.apply') }}" method="POST" class="mb-6" id="coupon-apply-form">
                                 @csrf
                                 <label class="block text-sm font-bold text-gray-800 mb-2">Have a Coupon?</label>
                                 <div class="flex border-2 border-primary-600 rounded-xl overflow-hidden bg-white">
-                                    <input type="text" name="coupon_code" placeholder="Enter coupon code" 
+                                    <input type="text" name="coupon_code" placeholder="Enter coupon code"
                                            class="w-full px-4 py-3 outline-none border-none text-sm text-gray-700 placeholder-gray-400"
                                            value="{{ old('coupon_code') }}">
                                     <button type="submit" class="bg-primary-600 text-white font-bold px-6 py-3 border-l border-primary-600 hover:bg-primary-700 transition cursor-pointer">
@@ -290,7 +290,7 @@
                                 </div>
                             </form>
                         @else
-                            <form action="{{ route('coupon.remove') }}" method="POST" class="mb-6">
+                            <form action="{{ route('coupon.remove') }}" method="POST" class="mb-6" id="coupon-applied-form">
                                 @csrf
                                 <div class="flex justify-between items-center bg-green-50 border border-green-200 px-4 py-3 rounded-xl">
                                     <div class="flex items-center gap-2">
@@ -477,24 +477,40 @@
                         console.error('Error updating totals:', error);
                     }
 
+                    // 🛡️ Check if coupon was removed due to subtotal dropping below minimum
+                    if (data.coupon_removed) {
+                        // Remove coupon section from Order Summary
+                        removeCouponSection();
+                        
+                        // Show warning that coupon was removed
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Coupon Removed',
+                            html: 'Your cart subtotal is now below the minimum requirement.<br>Coupon has been automatically removed.',
+                            confirmButtonColor: '#16a34a',
+                            timer: 4000,
+                            timerProgressBar: true
+                        });
+                    } else {
+                        // Show success toast
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Updated!',
+                            text: 'Cart quantity updated',
+                            iconColor: '#16a34a',
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: true,
+                            background: '#f0fdf4',
+                            color: '#166534'
+                        });
+                    }
+
                     // Re-enable input
                     quantityInput.disabled = false;
                     quantityInput.value = quantity;
-
-                    // Show success toast
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Updated!',
-                        text: 'Cart quantity updated',
-                        iconColor: '#16a34a',
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 1500,
-                        timerProgressBar: true,
-                        background: '#f0fdf4',
-                        color: '#166534'
-                    });
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -576,20 +592,36 @@
                 // Release the loading lock
                 loadingProducts.delete(productId);
 
-                // Show success message
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Removed!',
-                    text: 'Item has been removed from your cart',
-                    iconColor: '#16a34a',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                    background: '#f0fdf4',
-                    color: '#166534'
-                });
+                // 🛡️ Check if coupon was removed
+                if (data.coupon_removed) {
+                    // Remove coupon section from Order Summary
+                    removeCouponSection();
+                    
+                    // Show warning that coupon was removed
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Coupon Removed',
+                        html: 'Your cart subtotal is now below the minimum requirement.<br>Coupon has been automatically removed.',
+                        confirmButtonColor: '#16a34a',
+                        timer: 4000,
+                        timerProgressBar: true
+                    });
+                } else {
+                    // Show success message
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Removed!',
+                        text: 'Item has been removed from your cart',
+                        iconColor: '#16a34a',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true,
+                        background: '#f0fdf4',
+                        color: '#166534'
+                    });
+                }
 
                 // Animate and remove the item
                 console.log('Animating removal...');
@@ -762,11 +794,14 @@
                 }
             }
 
-            // Get coupon discount if exists
+            // Check if coupon section exists and get discount
             let couponDiscount = 0;
-            const couponDiscountEl = document.querySelector('#summary-discount .font-medium');
-            if (couponDiscountEl) {
-                couponDiscount = parseFloat(couponDiscountEl.textContent.replace('$', '').replace('-', '')) || 0;
+            const couponSection = document.getElementById('summary-discount');
+            if (couponSection) {
+                const couponDiscountEl = couponSection.querySelector('.font-medium');
+                if (couponDiscountEl) {
+                    couponDiscount = parseFloat(couponDiscountEl.textContent.replace('$', '').replace('-', '')) || 0;
+                }
             }
 
             // Update total using ID
@@ -799,7 +834,57 @@
                 }
             }
 
-            console.log('Totals updated! Subtotal:', subtotal, 'Delivery:', deliveryFee);
+            console.log('Totals updated! Subtotal:', subtotal, 'Delivery:', deliveryFee, 'Coupon Discount:', couponDiscount);
+        }
+
+        // Remove coupon section from Order Summary
+        function removeCouponSection() {
+            console.log('Removing coupon section...');
+            
+            // 1. Remove the coupon discount row from Order Summary
+            const couponDiscountRow = document.getElementById('summary-discount');
+            if (couponDiscountRow) {
+                couponDiscountRow.style.transition = 'all 0.3s ease';
+                couponDiscountRow.style.opacity = '0';
+                setTimeout(() => {
+                    couponDiscountRow.remove();
+                }, 300);
+            }
+
+            // 2. Replace the "Coupon Applied" box with "Have a Coupon?" form
+            const couponForm = document.getElementById('coupon-applied-form');
+            if (couponForm) {
+                const couponContainer = couponForm.parentElement;
+                couponContainer.style.transition = 'all 0.3s ease';
+                couponContainer.style.opacity = '0';
+                
+                setTimeout(() => {
+                    couponContainer.innerHTML = `
+                        <form action="{{ route('coupon.apply') }}" method="POST" class="mb-6" id="coupon-apply-form" style="opacity: 0; transition: opacity 0.3s ease;">
+                            @csrf
+                            <label class="block text-sm font-bold text-gray-800 mb-2">Have a Coupon?</label>
+                            <div class="flex border-2 border-primary-600 rounded-xl overflow-hidden bg-white">
+                                <input type="text" name="coupon_code" placeholder="Enter coupon code"
+                                       class="w-full px-4 py-3 outline-none border-none text-sm text-gray-700 placeholder-gray-400"
+                                       value="{{ old('coupon_code') }}">
+                                <button type="submit" class="bg-primary-600 text-white font-bold px-6 py-3 border-l border-primary-600 hover:bg-primary-700 transition cursor-pointer">
+                                    Apply
+                                </button>
+                            </div>
+                        </form>
+                    `;
+                    
+                    // Fade in the new form
+                    setTimeout(() => {
+                        const newForm = couponContainer.querySelector('form');
+                        if (newForm) {
+                            newForm.style.opacity = '1';
+                        }
+                    }, 50);
+                }, 300);
+            }
+            
+            console.log('Coupon section removed successfully');
         }
     </script>
     @endpush
