@@ -62,16 +62,16 @@ class HomeController extends Controller
 
         // Search Filter - Case insensitive search through multi-language JSON names
         if ($request->filled('search')) {
-            $searchTerm = '%' . strtolower($request->search) . '%';
-            
+            $searchTerm = '%' . $request->search . '%';
+
             // Search through JSON name field (supports English, Khmer, Chinese)
             $query->where(function($q) use ($searchTerm) {
-                // Search in English name
-                $q->whereRaw('LOWER(JSON_EXTRACT(name, "$.en")) LIKE ?', [$searchTerm])
+                // Use JSON_UNQUOTE to extract text from JSON before comparison (Unicode-safe for Khmer/Chinese)
+                $q->whereRaw('LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, "$.en"))) LIKE LOWER(?)', [$searchTerm])
                   // Search in Khmer name
-                  ->orWhereRaw('LOWER(JSON_EXTRACT(name, "$.km")) LIKE ?', [$searchTerm])
+                  ->orWhereRaw('LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, "$.km"))) LIKE LOWER(?)', [$searchTerm])
                   // Search in Chinese name
-                  ->orWhereRaw('LOWER(JSON_EXTRACT(name, "$.zh")) LIKE ?', [$searchTerm]);
+                  ->orWhereRaw('LOWER(JSON_UNQUOTE(JSON_EXTRACT(name, "$.zh"))) LIKE LOWER(?)', [$searchTerm]);
             });
         }
 

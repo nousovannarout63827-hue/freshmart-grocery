@@ -154,9 +154,14 @@
                             'unpaid' => 'bg-amber-100 text-amber-700',
                             'pending' => 'bg-gray-100 text-gray-700',
                         ];
+                        // For COD orders, if order is delivered, treat as paid
+                        $displayPaymentStatus = $order->payment_status;
+                        if ($order->payment_method === 'cash' && $order->status === 'delivered') {
+                            $displayPaymentStatus = 'paid';
+                        }
                     @endphp
-                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase {{ $paymentStatusColors[$order->payment_status] ?? 'bg-gray-100 text-gray-700' }} mt-1">
-                        {{ ucfirst($order->payment_status) }}
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase {{ $paymentStatusColors[$displayPaymentStatus] ?? 'bg-gray-100 text-gray-700' }} mt-1">
+                        {{ ucfirst($displayPaymentStatus) }}
                     </span>
                 </div>
             </div>
