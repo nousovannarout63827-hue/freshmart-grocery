@@ -36,13 +36,60 @@ class CouponController extends Controller
         // Calculate cart subtotal from session
         $cart = session()->get('cart', []);
         $subtotal = 0;
+        $productIds = [];
+        $categoryIds = [];
+        
         foreach ($cart as $item) {
             $subtotal += $item['price'] * $item['quantity'];
+            $productIds[] = $item['id'];
+            if (isset($item['category_id'])) {
+                $categoryIds[] = $item['category_id'];
+            }
         }
 
         // Check if cart is empty
         if (empty($cart)) {
             return back()->with('error', 'Your cart is empty. Add items before applying a coupon.');
+        }
+
+        // Check if coupon is applicable to products in cart
+        if ($coupon->scope === 'specific_products' && !empty($coupon->product_ids)) {
+            $couponProductIds = is_array($coupon->product_ids) 
+                ? $coupon->product_ids 
+                : json_decode($coupon->product_ids, true) ?? [];
+            
+            // Check if ANY product in cart matches the coupon's product IDs
+            $hasApplicableProduct = false;
+            foreach ($productIds as $pid) {
+                if (in_array($pid, $couponProductIds)) {
+                    $hasApplicableProduct = true;
+                    break;
+                }
+            }
+            
+            if (!$hasApplicableProduct) {
+                return back()->with('error', 'This coupon is only valid for specific products. Your cart does not contain any eligible products.');
+            }
+        }
+
+        // Check if coupon is applicable to categories in cart
+        if ($coupon->scope === 'specific_categories' && !empty($coupon->category_ids)) {
+            $couponCategoryIds = is_array($coupon->category_ids) 
+                ? $coupon->category_ids 
+                : json_decode($coupon->category_ids, true) ?? [];
+            
+            // Check if ANY product in cart matches the coupon's category IDs
+            $hasApplicableCategory = false;
+            foreach ($categoryIds as $cid) {
+                if (in_array($cid, $couponCategoryIds)) {
+                    $hasApplicableCategory = true;
+                    break;
+                }
+            }
+            
+            if (!$hasApplicableCategory) {
+                return back()->with('error', 'This coupon is only valid for specific categories. Your cart does not contain any eligible products.');
+            }
         }
 
         // Check minimum purchase requirement BEFORE calculating discount

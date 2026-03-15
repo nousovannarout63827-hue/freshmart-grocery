@@ -59,56 +59,49 @@ class Product extends Model
         parent::boot();
 
         static::creating(function ($product) {
-            // Generate unique slug from English name or name array
-            if (empty($product->slug)) {
-                $name = is_array($product->name) ? ($product->name['en'] ?? '') : $product->name;
-                $product->slug = self::generateUniqueSlug($name);
+            \Log::info('Product boot creating called', ['name' => $product->name, 'slug' => $product->slug ?? 'null']);
+            
+            // Generate unique slug from English name
+            $name = is_array($product->name) ? ($product->name['en'] ?? 'product') : $product->name;
+            $slug = Str::slug($name);
+            $originalSlug = $slug;
+            $count = 1;
+
+            \Log::info('Checking slug existence', ['base_slug' => $slug]);
+
+            // Check if slug exists (including soft deleted) and append number until unique
+            while (static::withTrashed()->where('slug', $slug)->exists()) {
+                \Log::info('Slug exists, incrementing', ['current' => $slug, 'next' => "{$originalSlug}-{$count}"]);
+                $slug = "{$originalSlug}-{$count}";
+                $count++;
             }
+
+            $product->slug = $slug;
+            \Log::info('Final slug assigned', ['slug' => $slug]);
+
+            // Generate SKU if not provided
             if (empty($product->sku)) {
                 $product->sku = 'PRD-' . strtoupper(Str::random(8));
             }
         });
 
         static::updating(function ($product) {
-            // Ensure slug remains unique when updating
-            if (!empty($product->name) && empty($product->slug)) {
-                $name = is_array($product->name) ? ($product->name['en'] ?? '') : $product->name;
-                $product->slug = self::generateUniqueSlug($name, $product->id);
+            // Regenerate slug only if name changed
+            if ($product->isDirty('name')) {
+                $name = is_array($product->name) ? ($product->name['en'] ?? 'product') : $product->name;
+                $slug = Str::slug($name);
+                $originalSlug = $slug;
+                $count = 1;
+
+                // Check if slug exists (excluding current product and soft deleted) and append number until unique
+                while (static::withTrashed()->where('slug', $slug)->where('id', '!=', $product->id)->exists()) {
+                    $slug = "{$originalSlug}-{$count}";
+                    $count++;
+                }
+
+                $product->slug = $slug;
             }
         });
-    }
-
-    /**
-     * Generate a unique slug by appending a number if necessary.
-     */
-    private static function generateUniqueSlug(string $name, ?int $excludeId = null): string
-    {
-        $slug = Str::slug($name);
-        $originalSlug = $slug;
-        $count = 1;
-
-        // Keep incrementing until we find a unique slug
-        while (self::slugExists($slug, $excludeId)) {
-            $count++;
-            $slug = $originalSlug . '-' . $count;
-        }
-
-        return $slug;
-    }
-
-    /**
-     * Check if a slug already exists in the database.
-     */
-    private static function slugExists(string $slug, ?int $excludeId = null): bool
-    {
-        $query = self::where('slug', $slug);
-        
-        // If updating, exclude the current product
-        if ($excludeId) {
-            $query->where('id', '!=', $excludeId);
-        }
-        
-        return $query->exists();
     }
 
     /**

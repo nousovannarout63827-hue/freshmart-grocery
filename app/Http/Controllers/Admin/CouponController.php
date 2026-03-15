@@ -61,19 +61,45 @@ class CouponController extends Controller
     {
         $request->validate([
             'code' => 'required|string|max:50|unique:coupons,code',
-            'type' => 'required|in:fixed,percent',
+            'name' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'type' => 'required|in:fixed,percent,percentage,free_delivery',
             'value' => 'required|numeric|min:0|max:999999.99',
+            'scope' => 'nullable|in:all_products,specific_products,specific_categories',
+            'category_ids' => 'nullable|array',
+            'product_ids' => 'nullable|array',
+            'target_type' => 'nullable|in:all_customers,specific_customers',
+            'customer_ids' => 'nullable|array',
+            'valid_from' => 'nullable|date',
+            'valid_until' => 'nullable|date|after:valid_from',
+            'usage_limit' => 'nullable|integer|min:0',
             'min_purchase' => 'nullable|numeric|min:0|max:999999.99',
             'status' => 'required|boolean',
+            'auto_apply' => 'nullable|boolean',
             'expires_at' => 'nullable|date|after:today',
         ]);
 
+        // Normalize 'percentage' to 'percent' for database
+        $type = $request->type === 'percentage' ? 'percent' : $request->type;
+
         Coupon::create([
             'code' => strtoupper(trim($request->code)),
-            'type' => $request->type,
+            'name' => $request->name,
+            'description' => $request->description,
+            'type' => $type,
             'value' => $request->value,
+            'scope' => $request->scope ?? 'all_products',
+            'category_ids' => $request->category_ids,
+            'product_ids' => $request->product_ids,
+            'target_type' => $request->target_type ?? 'all_customers',
+            'customer_ids' => $request->customer_ids,
+            'valid_from' => $request->valid_from ? Carbon::parse($request->valid_from) : null,
+            'valid_until' => $request->valid_until ? Carbon::parse($request->valid_until) : null,
+            'usage_limit' => $request->usage_limit ?? 0,
             'min_purchase' => $request->min_purchase ?? 0,
             'status' => $request->status,
+            'auto_apply' => $request->auto_apply ?? false,
+            'created_by' => auth()->id(),
             'expires_at' => $request->expires_at ? Carbon::parse($request->expires_at) : null,
         ]);
 
@@ -98,19 +124,44 @@ class CouponController extends Controller
 
         $request->validate([
             'code' => 'required|string|max:50|unique:coupons,code,' . $id,
-            'type' => 'required|in:fixed,percent',
+            'name' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'type' => 'required|in:fixed,percent,percentage,free_delivery',
             'value' => 'required|numeric|min:0|max:999999.99',
+            'scope' => 'nullable|in:all_products,specific_products,specific_categories',
+            'category_ids' => 'nullable|array',
+            'product_ids' => 'nullable|array',
+            'target_type' => 'nullable|in:all_customers,specific_customers',
+            'customer_ids' => 'nullable|array',
+            'valid_from' => 'nullable|date',
+            'valid_until' => 'nullable|date|after:valid_from',
+            'usage_limit' => 'nullable|integer|min:0',
             'min_purchase' => 'nullable|numeric|min:0|max:999999.99',
             'status' => 'required|boolean',
+            'auto_apply' => 'nullable|boolean',
             'expires_at' => 'nullable|date|after:today',
         ]);
 
+        // Normalize 'percentage' to 'percent' for database
+        $type = $request->type === 'percentage' ? 'percent' : $request->type;
+
         $coupon->update([
             'code' => strtoupper(trim($request->code)),
-            'type' => $request->type,
+            'name' => $request->name,
+            'description' => $request->description,
+            'type' => $type,
             'value' => $request->value,
+            'scope' => $request->scope ?? 'all_products',
+            'category_ids' => $request->category_ids,
+            'product_ids' => $request->product_ids,
+            'target_type' => $request->target_type ?? 'all_customers',
+            'customer_ids' => $request->customer_ids,
+            'valid_from' => $request->valid_from ? Carbon::parse($request->valid_from) : null,
+            'valid_until' => $request->valid_until ? Carbon::parse($request->valid_until) : null,
+            'usage_limit' => $request->usage_limit ?? 0,
             'min_purchase' => $request->min_purchase ?? 0,
             'status' => $request->status,
+            'auto_apply' => $request->auto_apply ?? false,
             'expires_at' => $request->expires_at ? Carbon::parse($request->expires_at) : null,
         ]);
 

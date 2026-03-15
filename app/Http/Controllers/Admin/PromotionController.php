@@ -87,30 +87,88 @@ class PromotionController extends Controller
             'auto_apply' => 'boolean',
         ]);
 
-        $validated['product_ids'] = $validated['scope'] === 'specific_products' 
-            ? json_encode($request->product_ids ?? []) 
+        // Normalize 'percentage' to 'percent' for database
+        if ($validated['type'] === 'percentage') {
+            $validated['type'] = 'percent';
+        }
+
+        $validated['product_ids'] = $validated['scope'] === 'specific_products'
+            ? json_encode($request->product_ids ?? [])
             : null;
 
-        $validated['category_ids'] = $validated['scope'] === 'specific_categories' 
-            ? json_encode($request->category_ids ?? []) 
+        $validated['category_ids'] = $validated['scope'] === 'specific_categories'
+            ? json_encode($request->category_ids ?? [])
             : null;
 
-        $validated['customer_ids'] = $validated['target_type'] === 'specific_customers' 
-            ? json_encode($request->customer_ids ?? []) 
+        $validated['customer_ids'] = $validated['target_type'] === 'specific_customers'
+            ? json_encode($request->customer_ids ?? [])
             : null;
 
         $validated['status'] = $request->has('status');
         $validated['auto_apply'] = $request->has('auto_apply');
         $validated['created_by'] = auth()->id();
-        
+
         // Map new fields to existing database columns
         $validated['min_purchase'] = $validated['min_purchase_amount'] ?? 0;
         $validated['expires_at'] = $validated['valid_until'] ?? null;
 
-        Coupon::create($validated);
+        // Remove min_purchase_amount as it's not a database column
+        unset($validated['min_purchase_amount']);
+
+        $coupon = Coupon::create($validated);
+
+        // Send notification to all customers if target_type is 'all_customers'
+        if ($validated['target_type'] === 'all_customers' && $validated['status']) {
+            $this->notifyAllCustomers($coupon);
+        }
 
         return redirect()->route('admin.promotions.index')
-            ->with('success', 'Promotion created successfully!');
+            ->with('success', 'Promotion created successfully!' . ($validated['target_type'] === 'all_customers' ? ' All customers have been notified.' : ''));
+    }
+
+    /**
+     * Send notification to all customers about a new promotion.
+     */
+    private function notifyAllCustomers(Coupon $coupon): void
+    {
+        $customers = User::where('role', 'customer')->get();
+        
+        foreach ($customers as $customer) {
+            \DB::table('notifications')->insert([
+                'id' => \Str::uuid(),
+                'type' => 'promotion',
+                'notifiable_type' => 'App\\Models\\User',
+                'notifiable_id' => $customer->id,
+                'data' => json_encode([
+                    'title' => '🎉 New Promotion Available!',
+                    'message' => "Use code {$coupon->code} - {$coupon->name}. " . $this->getDiscountDescription($coupon),
+                    'coupon_id' => $coupon->id,
+                    'coupon_code' => $coupon->code,
+                    'discount_value' => $coupon->value,
+                    'discount_type' => $coupon->type,
+                    'expires_at' => $coupon->expires_at?->toDateTimeString(),
+                    'expires_formatted' => $coupon->expires_at?->format('M d, Y \a\t g:i A') ?? 'No expiry',
+                ]),
+                'read_at' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+    }
+
+    /**
+     * Get discount description for notification.
+     */
+    private function getDiscountDescription(Coupon $coupon): string
+    {
+        if ($coupon->type === 'percent') {
+            return "Get {$coupon->value}% OFF your order!";
+        } elseif ($coupon->type === 'fixed') {
+            return "Get \${$coupon->value} OFF your order!";
+        } elseif ($coupon->type === 'free_delivery') {
+            return "Enjoy FREE DELIVERY on your order!";
+        }
+        return '';
     }
 
     /**
@@ -166,26 +224,54 @@ class PromotionController extends Controller
             'auto_apply' => 'boolean',
         ]);
 
-        $validated['product_ids'] = $validated['scope'] === 'specific_products' 
-            ? json_encode($request->product_ids ?? []) 
+        // Normalize 'percentage' to 'percent' for database
+        if ($validated['type'] === 'percentage') {
+            $validated['type'] = 'percent';
+        }
+
+        $validated['product_ids'] = $validated['scope'] === 'specific_products'
+            ? json_encode($request->product_ids ?? [])
             : null;
 
-        $validated['category_ids'] = $validated['scope'] === 'specific_categories' 
-            ? json_encode($request->category_ids ?? []) 
+        $validated['category_ids'] = $validated['scope'] === 'specific_categories'
+            ? json_encode($request->category_ids ?? [])
             : null;
 
-        $validated['customer_ids'] = $validated['target_type'] === 'specific_customers' 
-            ? json_encode($request->customer_ids ?? []) 
+        $validated['customer_ids'] = $validated['target_type'] === 'specific_customers'
+            ? json_encode($request->customer_ids ?? [])
             : null;
 
         $validated['status'] = $request->has('status');
         $validated['auto_apply'] = $request->has('auto_apply');
-        
+
         // Map new fields to existing database columns
         $validated['min_purchase'] = $validated['min_purchase_amount'] ?? 0;
         $validated['expires_at'] = $validated['valid_until'] ?? null;
 
+        // Remove min_purchase_amount as it's not a database column
+        unset($validated['min_purchase_amount']);
+
+        // Check if target_type changed to 'all_customers' and status is active
+        $wasAllCustomers = $coupon->target_type === 'all_customers';
+        $isAllCustomers = $validated['target_type'] === 'all_customers';
+        $wasActive = $coupon->status;
+        $isActive = $request->has('status');
+
         $coupon->update($validated);
+
+        // Send notification if changed to all customers and is active
+        if (!$wasAllCustomers && $isAllCustomers && $isActive) {
+            $this->notifyAllCustomers($coupon);
+            return redirect()->route('admin.promotions.index')
+                ->with('success', 'Promotion updated successfully! All customers have been notified.');
+        }
+
+        // Send notification if promotion was inactive and is now active for all customers
+        if ($wasAllCustomers && $isAllCustomers && !$wasActive && $isActive) {
+            $this->notifyAllCustomers($coupon);
+            return redirect()->route('admin.promotions.index')
+                ->with('success', 'Promotion updated successfully! All customers have been notified.');
+        }
 
         return redirect()->route('admin.promotions.index')
             ->with('success', 'Promotion updated successfully!');
@@ -285,14 +371,14 @@ class PromotionController extends Controller
                 'code' => 'FLASH_' . strtoupper(substr(md5(time()), 0, 8)),
                 'name' => $validated['name'],
                 'description' => "Flash Sale: {$validated['discount_percent']}% OFF for {$validated['duration_hours']} hours!",
-                'type' => 'percentage',
+                'type' => 'percent',
                 'value' => $validated['discount_percent'],
                 'scope' => $validated['scope'],
-                'product_ids' => $validated['scope'] === 'specific_products' 
-                    ? json_encode($validated['product_ids'] ?? []) 
+                'product_ids' => $validated['scope'] === 'specific_products'
+                    ? json_encode($validated['product_ids'] ?? [])
                     : null,
-                'category_ids' => $validated['scope'] === 'specific_categories' 
-                    ? json_encode($validated['category_ids'] ?? []) 
+                'category_ids' => $validated['scope'] === 'specific_categories'
+                    ? json_encode($validated['category_ids'] ?? [])
                     : null,
                 'target_type' => 'all_customers',
                 'customer_ids' => null,
@@ -300,8 +386,8 @@ class PromotionController extends Controller
                 'valid_until' => $validUntil,
                 'usage_limit' => 0, // Unlimited
                 'usage_count' => 0,
-                'min_purchase_amount' => $validated['min_purchase_amount'] ?? 0,
-                'is_active' => true,
+                'min_purchase' => $validated['min_purchase_amount'] ?? 0,
+                'status' => true,
                 'auto_apply' => false,
                 'created_by' => auth()->id(),
             ]);
