@@ -107,6 +107,21 @@
         </div>
     @endif
 
+    <!-- Session Error for Duplicate Product -->
+    @if(session('error'))
+        <div style="background: #fef2f2; border: 2px solid #ef4444; border-radius: 12px; padding: 20px; margin-bottom: 24px; color: #991b1b;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <svg style="width: 24px; height: 24px; color: #ef4444; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div style="flex: 1;">
+                    <p style="font-weight: 700; margin: 0 0 4px 0; font-size: 16px;">⚠️ Cannot Create Product</p>
+                    <p style="margin: 0; font-size: 14px;">{{ session('error') }}</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         
@@ -344,7 +359,7 @@ if (imageInput) {
 
 function updatePreview() {
     previewContainer.innerHTML = '';
-    
+
     selectedFiles.forEach((file, index) => {
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -363,6 +378,78 @@ function updatePreview() {
 function removeImage(index) {
     selectedFiles.splice(index, 1);
     updatePreview();
+}
+
+// 🔍 Real-time duplicate name checker
+let debounceTimer;
+const nameEnInput = document.querySelector('input[name="name_en"]');
+const nameKmInput = document.querySelector('input[name="name_km"]');
+
+// Create alert box for duplicate warning
+const duplicateAlert = document.createElement('div');
+duplicateAlert.id = 'duplicate-alert';
+duplicateAlert.style.cssText = 'display: none; background: #fef2f2; border: 2px solid #ef4444; border-radius: 8px; padding: 16px; margin-top: 16px; color: #991b1b;';
+duplicateAlert.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 12px;">
+        <svg style="width: 24px; height: 24px; color: #ef4444; flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div style="flex: 1;">
+            <p style="font-weight: 600; margin: 0 0 4px 0;">⚠️ Duplicate Product Name Detected!</p>
+            <p id="duplicate-message" style="margin: 0; font-size: 14px;"></p>
+        </div>
+    </div>
+`;
+
+// Insert alert after the name inputs
+const nameSection = document.querySelector('.form-grid').closest('div[style*="border-bottom"]');
+nameSection.parentNode.insertBefore(duplicateAlert, nameSection.nextSibling);
+
+function checkDuplicate() {
+    const nameEn = nameEnInput.value.trim();
+    const nameKm = nameKmInput.value.trim();
+    
+    if (!nameEn && !nameKm) {
+        duplicateAlert.style.display = 'none';
+        return;
+    }
+    
+    fetch("{{ route('admin.products.check-duplicate') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+        },
+        body: JSON.stringify({ name_en: nameEn, name_km: nameKm })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.exists) {
+            duplicateAlert.style.display = 'block';
+            document.getElementById('duplicate-message').innerHTML = 
+                `Product <strong>"${data.product_name}"</strong> (ID: #${data.product_id}) already exists with this name. Please use a different name.`;
+        } else {
+            duplicateAlert.style.display = 'none';
+        }
+    })
+    .catch(error => {
+        console.error('Error checking duplicate:', error);
+    });
+}
+
+// Add event listeners with debounce
+if (nameEnInput) {
+    nameEnInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(checkDuplicate, 500);
+    });
+}
+
+if (nameKmInput) {
+    nameKmInput.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(checkDuplicate, 500);
+    });
 }
 </script>
 @endsection

@@ -210,6 +210,9 @@ Route::group([
         Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
         Route::post('/products', [ProductController::class, 'store'])->name('products.store');
         
+        // AJAX route to check for duplicate product names
+        Route::post('/products/check-duplicate', [ProductController::class, 'checkDuplicateName'])->name('products.check-duplicate');
+
         // ⚠️ Image routes MUST come before /{id} routes to prevent conflicts!
         Route::delete('/products/images/{id}', [ProductController::class, 'destroyImage'])->name('products.images.destroy');
         Route::post('/products/images/{id}', [ProductController::class, 'destroyImage'])->name('products.images.destroy.post');

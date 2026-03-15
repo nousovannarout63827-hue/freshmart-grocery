@@ -80,6 +80,45 @@ class ProductController extends Controller
     }
 
     /**
+     * Check if a product name already exists (AJAX).
+     */
+    public function checkDuplicateName(Request $request)
+    {
+        $request->validate([
+            'name_en' => 'nullable|string|max:255',
+            'name_km' => 'nullable|string|max:255',
+        ]);
+
+        $nameEn = $request->name_en;
+        $nameKm = $request->name_km;
+
+        // Check for duplicates (case-insensitive)
+        $existingProduct = null;
+        
+        if ($nameEn) {
+            $existingProduct = Product::whereRaw('LOWER(JSON_EXTRACT(name, "$.en")) = LOWER(?)', [$nameEn])->first();
+        }
+        
+        if (!$existingProduct && $nameKm) {
+            $existingProduct = Product::whereRaw('LOWER(JSON_EXTRACT(name, "$.km")) = LOWER(?)', [$nameKm])->first();
+        }
+
+        if ($existingProduct) {
+            return response()->json([
+                'exists' => true,
+                'message' => 'A product with this name already exists!',
+                'product_id' => $existingProduct->id,
+                'product_name' => is_array($existingProduct->name) ? ($existingProduct->name['en'] ?? $existingProduct->name['km']) : $existingProduct->name,
+            ]);
+        }
+
+        return response()->json([
+            'exists' => false,
+            'message' => 'Product name is available',
+        ]);
+    }
+
+    /**
      * Store a newly created product in storage.
      */
     public function store(Request $request)
@@ -126,6 +165,17 @@ class ProductController extends Controller
             'images.*.image' => 'Each file must be an image.',
             'images.*.max' => 'Each image must be less than 2MB.',
         ]);
+
+        // 🔍 Check for duplicate product names (case-insensitive)
+        $existingProduct = Product::whereRaw('LOWER(JSON_EXTRACT(name, "$.en")) = LOWER(?)', [$validated['name_en']])
+            ->orWhereRaw('LOWER(JSON_EXTRACT(name, "$.km")) = LOWER(?)', [$validated['name_km']])
+            ->first();
+
+        if ($existingProduct) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'A product with this name already exists! Product ID: #' . $existingProduct->id . ' - "' . $existingProduct->name . '"');
+        }
 
         // SMART SKU LOGIC: If blank, generate one. If not, use what they scanned.
         $finalSku = $validated['sku'] ?? null;
