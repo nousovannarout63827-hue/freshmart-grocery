@@ -82,7 +82,7 @@
 
     <style>
         body { font-family: 'Poppins', sans-serif; }
-        body.font-khmer { font-family: 'Battambang', sans-serif; }
+        body.font-khmer { font-family: 'Poppins', 'Battambang', sans-serif; }
         
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
