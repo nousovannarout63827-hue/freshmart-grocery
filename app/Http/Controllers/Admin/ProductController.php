@@ -9,9 +9,44 @@ use App\Models\ProductImage;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
+    /**
+     * Generate a unique slug from a name.
+     * If slug exists, appends a number (e.g., chili, chili-2, chili-3).
+     */
+    private function generateUniqueSlug(string $name, ?int $excludeId = null): string
+    {
+        $slug = Str::slug($name);
+        $originalSlug = $slug;
+        $count = 1;
+
+        // Keep incrementing until we find a unique slug
+        while ($this->slugExists($slug, $excludeId)) {
+            $count++;
+            $slug = $originalSlug . '-' . $count;
+        }
+
+        return $slug;
+    }
+
+    /**
+     * Check if a slug already exists in the database.
+     */
+    private function slugExists(string $slug, ?int $excludeId = null): bool
+    {
+        $query = Product::where('slug', $slug);
+        
+        // If updating, exclude the current product
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+        
+        return $query->exists();
+    }
+
     /**
      * Display a listing of products.
      */
@@ -202,6 +237,9 @@ class ProductController extends Controller
             $discountPrice = $validated['price'] * (1 - $validated['discount_percent'] / 100);
         }
 
+        // Generate unique slug from English name
+        $slug = $this->generateUniqueSlug($validated['name_en']);
+
         // Create the product first
         $product = Product::create([
             'name' => $productName,
@@ -217,6 +255,7 @@ class ProductController extends Controller
             'stock' => $validated['stock'],
             'unit' => $validated['unit'],
             'sku' => $finalSku,
+            'slug' => $slug,
         ]);
 
         // Handle multiple image uploads
@@ -300,6 +339,9 @@ class ProductController extends Controller
             $discountPrice = $validated['price'] * (1 - $validated['discount_percent'] / 100);
         }
 
+        // Generate unique slug from English name (exclude current product ID)
+        $slug = $this->generateUniqueSlug($validated['name_en'], $product->id);
+
         // Check if adding new images would exceed the 4-image limit
         if ($request->hasFile('images')) {
             $currentImageCount = $product->productImages()->count();
@@ -337,6 +379,7 @@ class ProductController extends Controller
             'stock' => $validated['stock'],
             'unit' => $validated['unit'],
             'sku' => $finalSku,
+            'slug' => $slug,
         ]);
 
         // Log the activity

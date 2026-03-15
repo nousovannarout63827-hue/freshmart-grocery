@@ -52,22 +52,63 @@ class Product extends Model
     }
 
     /**
-     * Boot the model - auto-generate slug and SKU.
+     * Boot the model - auto-generate unique slug and SKU.
      */
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($product) {
-            // Generate slug from English name or name array
+            // Generate unique slug from English name or name array
             if (empty($product->slug)) {
                 $name = is_array($product->name) ? ($product->name['en'] ?? '') : $product->name;
-                $product->slug = Str::slug($name);
+                $product->slug = self::generateUniqueSlug($name);
             }
             if (empty($product->sku)) {
                 $product->sku = 'PRD-' . strtoupper(Str::random(8));
             }
         });
+
+        static::updating(function ($product) {
+            // Ensure slug remains unique when updating
+            if (!empty($product->name) && empty($product->slug)) {
+                $name = is_array($product->name) ? ($product->name['en'] ?? '') : $product->name;
+                $product->slug = self::generateUniqueSlug($name, $product->id);
+            }
+        });
+    }
+
+    /**
+     * Generate a unique slug by appending a number if necessary.
+     */
+    private static function generateUniqueSlug(string $name, ?int $excludeId = null): string
+    {
+        $slug = Str::slug($name);
+        $originalSlug = $slug;
+        $count = 1;
+
+        // Keep incrementing until we find a unique slug
+        while (self::slugExists($slug, $excludeId)) {
+            $count++;
+            $slug = $originalSlug . '-' . $count;
+        }
+
+        return $slug;
+    }
+
+    /**
+     * Check if a slug already exists in the database.
+     */
+    private static function slugExists(string $slug, ?int $excludeId = null): bool
+    {
+        $query = self::where('slug', $slug);
+        
+        // If updating, exclude the current product
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+        
+        return $query->exists();
     }
 
     /**
