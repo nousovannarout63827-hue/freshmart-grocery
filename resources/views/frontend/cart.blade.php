@@ -1,14 +1,14 @@
 @extends('frontend.layouts.app')
 
-@section('title', 'Shopping Cart - FreshMart')
+@section('title', __('messages.shopping_cart') . ' - FreshMart')
 
 @section('content')
     <div class="max-w-7xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
         <!-- Page Header -->
         <div class="bg-gradient-to-r from-primary-700 via-primary-600 to-emerald-600 text-white py-8 sm:py-12 rounded-2xl sm:rounded-3xl mb-6 sm:mb-8">
             <div class="text-center px-4">
-                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">🛒 Shopping Cart</h1>
-                <p class="text-sm sm:text-base text-green-100">Review your items before checkout</p>
+                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2">🛒 {{ __('messages.shopping_cart') }}</h1>
+                <p class="text-sm sm:text-base text-green-100">{{ __('messages.review_your_items') }}</p>
             </div>
         </div>
 
@@ -160,23 +160,23 @@
                                         <!-- Remove Button -->
                                         <button type="button" onclick="removeItemAjax({{ $productId }})"
                                                 class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition flex items-center gap-2"
-                                                title="Remove item">
+                                                title="{{ __('messages.remove') }}">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                             </svg>
-                                            <span class="text-xs sm:hidden">Remove</span>
+                                            <span class="text-xs sm:hidden">{{ __('messages.remove') }}</span>
                                         </button>
                                     </div>
                                 </div>
 
                                 <!-- Item Total -->
                                 <div class="text-right sm:mt-0">
-                                    <p class="text-xs sm:text-sm text-gray-500 mb-1">Total</p>
+                                    <p class="text-xs sm:text-sm text-gray-500 mb-1">{{ __('messages.total') }}</p>
                                     @if(isset($item['discount_percent']) && $item['discount_percent'] > 0)
                                         <p class="item-total text-lg sm:text-xl font-bold text-red-600" data-product-id="{{ $productId }}">${{ number_format($itemTotal, 2) }}</p>
                                         @if($item['quantity'] > 1)
                                             <p class="text-xs text-gray-400 line-through">
-                                                Was: ${{ number_format($item['price'] * $item['quantity'], 2) }}
+                                                {{ __('messages.was') }}: ${{ number_format($item['price'] * $item['quantity'], 2) }}
                                             </p>
                                         @endif
                                     @else
@@ -191,7 +191,7 @@
                 <!-- Order Summary -->
                 <div class="lg:col-span-1">
                     <div class="bg-white rounded-xl sm:rounded-2xl border border-gray-100 p-4 sm:p-6 lg:sticky lg:top-24 shadow-sm">
-                        <h2 class="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
+                        <h2 class="text-xl font-bold text-gray-900 mb-6">{{ __('messages.order_summary') }}</h2>
 
                         @php
                             // Store rules
@@ -213,7 +213,7 @@
 
                         <div class="space-y-4 mb-6">
                             <div class="flex justify-between text-gray-600">
-                                <span>Subtotal</span>
+                                <span>{{ __('messages.subtotal') }}</span>
                                 <span id="summary-subtotal" class="font-medium">${{ number_format($subtotal, 2) }}</span>
                             </div>
 
@@ -223,19 +223,19 @@
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
                                         </svg>
-                                        Product Discounts
+                                        {{ __('messages.product_discounts') }}
                                     </span>
                                     <span class="font-medium">-${{ number_format($totalDiscount, 2) }}</span>
                                 </div>
                             @endif
 
                             <div class="flex justify-between text-gray-600">
-                                <span>Delivery Fee</span>
+                                <span>{{ __('messages.delivery_fee') }}</span>
                                 <span id="summary-delivery" class="@if($deliveryFee > 0) font-medium text-gray-800 @else font-bold text-green-600 @endif">
                                     @if($deliveryFee > 0)
                                         ${{ number_format($deliveryFee, 2) }}
                                     @else
-                                        FREE
+                                        {{ __('messages.free') }}
                                     @endif
                                 </span>
                             </div>
@@ -246,14 +246,14 @@
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
                                         </svg>
-                                        Discount ({{ session()->get('coupon')['code'] }})
+                                        {{ __('messages.discount') }} ({{ session()->get('coupon')['code'] }})
                                     </span>
                                     <span class="font-medium">-${{ number_format($discount, 2) }}</span>
                                 </div>
                             @endif
 
                             <div class="border-t-2 border-gray-200 pt-4 flex justify-between text-xl font-bold text-gray-900">
-                                <span>Total</span>
+                                <span>{{ __('messages.total') }}</span>
                                 <span id="summary-total" class="text-primary-600">${{ number_format($finalTotal, 2) }}</span>
                             </div>
                         </div>
@@ -263,13 +263,13 @@
                             @if($amountNeededForFreeShipping > 0)
                                 <div id="shipping-progress" class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
                                     <p class="text-amber-800 text-sm">
-                                        <span class="font-semibold">💡 Tip:</span> Add ${{ number_format($amountNeededForFreeShipping, 2) }} more to get <strong>FREE delivery</strong>!
+                                        <span class="font-semibold">💡 {{ __('messages.tip') }}:</span> {{ __('messages.add_more_for_free_delivery', ['amount' => '$' . number_format($amountNeededForFreeShipping, 2)]) }}
                                     </p>
                                 </div>
                             @else
                                 <div id="shipping-progress" class="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
                                     <p class="text-green-800 text-sm">
-                                        <span class="font-semibold">🎉 Awesome!</span> You qualify for <strong>FREE standard delivery</strong>!
+                                        <span class="font-semibold">🎉 {{ __('messages.awesome') }}!</span> {{ __('messages.you_qualify_for_free_delivery') }}
                                     </p>
                                 </div>
                             @endif
@@ -279,13 +279,13 @@
                         @if(!session()->has('coupon'))
                             <form action="{{ route('coupon.apply') }}" method="POST" class="mb-6" id="coupon-apply-form">
                                 @csrf
-                                <label class="block text-sm font-bold text-gray-800 mb-2">Have a Coupon?</label>
+                                <label class="block text-sm font-bold text-gray-800 mb-2">{{ __('messages.have_a_coupon') }}</label>
                                 <div class="flex border-2 border-primary-600 rounded-xl overflow-hidden bg-white">
-                                    <input type="text" name="coupon_code" placeholder="Enter coupon code"
+                                    <input type="text" name="coupon_code" placeholder="{{ __('messages.enter_coupon_code') }}"
                                            class="w-full px-4 py-3 outline-none border-none text-sm text-gray-700 placeholder-gray-400"
                                            value="{{ old('coupon_code') }}">
                                     <button type="submit" class="bg-primary-600 text-white font-bold px-6 py-3 border-l border-primary-600 hover:bg-primary-700 transition cursor-pointer">
-                                        Apply
+                                        {{ __('messages.apply') }}
                                     </button>
                                 </div>
                             </form>
@@ -297,10 +297,10 @@
                                         <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                         </svg>
-                                        <span class="text-green-700 font-bold text-sm">Coupon Applied: {{ session()->get('coupon')['code'] }}</span>
+                                        <span class="text-green-700 font-bold text-sm">{{ __('messages.coupon_applied') }}: {{ session()->get('coupon')['code'] }}</span>
                                     </div>
                                     <button type="submit" class="text-red-500 hover:text-red-700 font-bold text-sm underline cursor-pointer">
-                                        Remove
+                                        {{ __('messages.remove') }}
                                     </button>
                                 </div>
                             </form>
@@ -312,12 +312,12 @@
                                 <svg class="w-4 h-4 sm:w-5 sm:h-5 inline-block -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                                 </svg>
-                                Secure Checkout
+                                {{ __('messages.secure_checkout') }}
                             </a>
                         @else
                             <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 sm:p-4 mb-6">
                                 <p class="text-blue-800 text-xs sm:text-sm">
-                                    <span class="font-semibold">🔐 Login Required:</span> Please sign in to complete your order.
+                                    <span class="font-semibold">🔐 {{ __('messages.login_required') }}:</span> {{ __('messages.please_sign_in') }}
                                 </p>
                             </div>
                             <a href="{{ route('customer.login') }}"
@@ -325,13 +325,13 @@
                                 <svg class="w-4 h-4 sm:w-5 sm:h-5 inline-block -mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
                                 </svg>
-                                Sign In to Checkout
+                                {{ __('messages.sign_in_to_checkout') }}
                             </a>
                         @endauth
 
                         <a href="{{ route('shop') }}"
                            class="w-full border-2 border-gray-200 text-gray-700 py-3 sm:py-4 rounded-xl hover:bg-gray-50 transition font-semibold text-center block text-sm sm:text-base">
-                            Continue Shopping
+                            {{ __('messages.continue_shopping') }}
                         </a>
 
                         <!-- Clear Cart -->
@@ -339,7 +339,7 @@
                             @csrf
                             <button type="submit"
                                     class="w-full text-red-500 hover:text-red-700 hover:bg-red-50 py-2 rounded-lg transition font-medium text-sm">
-                                Clear Cart
+                                {{ __('messages.clear_cart') }}
                             </button>
                         </form>
                     </div>
@@ -351,14 +351,14 @@
                 <div class="w-32 h-32 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mx-auto mb-8">
                     <span class="text-6xl">🛒</span>
                 </div>
-                <h2 class="text-3xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
-                <p class="text-gray-600 mb-8 max-w-md mx-auto">Looks like you haven't added anything to your cart yet. Start shopping and fill it up!</p>
-                <a href="{{ route('shop') }}" 
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">{{ __('messages.cart_empty') }}</h2>
+                <p class="text-gray-600 mb-8 max-w-md mx-auto">{{ __('messages.empty_cart_message') }}</p>
+                <a href="{{ route('shop') }}"
                    class="bg-gradient-to-r from-primary-600 to-primary-700 text-white px-8 py-4 rounded-full hover:from-primary-700 hover:to-primary-800 transition font-semibold inline-flex items-center gap-2 shadow-lg shadow-primary-500/30">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                     </svg>
-                    Start Shopping
+                    {{ __('messages.start_shopping') }}
                 </a>
             </div>
         @endif
@@ -475,6 +475,14 @@
                         updateCartTotalsImproved();
                     } catch (error) {
                         console.error('Error updating totals:', error);
+                    }
+
+                    // Update shipping progress message
+                    if (data.shipping_progress_html) {
+                        const shippingContainer = document.getElementById('shipping-progress-container');
+                        if (shippingContainer) {
+                            shippingContainer.innerHTML = data.shipping_progress_html;
+                        }
                     }
 
                     // 🛡️ Check if coupon was removed due to subtotal dropping below minimum
@@ -644,6 +652,14 @@
 
                     // Recalculate totals
                     updateCartTotalsImproved();
+
+                    // Update shipping progress message
+                    if (data.shipping_progress_html) {
+                        const shippingContainer = document.getElementById('shipping-progress-container');
+                        if (shippingContainer) {
+                            shippingContainer.innerHTML = data.shipping_progress_html;
+                        }
+                    }
 
                     // Check if cart is empty
                     const remainingItems = document.querySelectorAll('[id^="cart-item-"]');

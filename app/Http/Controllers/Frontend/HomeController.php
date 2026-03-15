@@ -241,9 +241,9 @@ class HomeController extends Controller
 
         if ($product->stock < $request->quantity) {
             if ($request->expectsJson()) {
-                return response()->json(['message' => 'Not enough stock available.'], 400);
+                return response()->json(['message' => __('messages.not_enough_stock')], 400);
             }
-            return redirect()->back()->with('error', 'Not enough stock available.');
+            return redirect()->back()->with('error', __('messages.not_enough_stock'));
         }
 
         $cart = session()->get('cart', []);
@@ -271,12 +271,12 @@ class HomeController extends Controller
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Product added to cart!',
+                'message' => __('messages.product_added'),
                 'cart_count' => count($cart)
             ]);
         }
 
-        return redirect()->back()->with('success', 'Product added to cart!');
+        return redirect()->back()->with('success', __('messages.product_added'));
     }
 
     /**
@@ -317,9 +317,9 @@ class HomeController extends Controller
 
             if ($request->quantity > $product->stock) {
                 if ($request->expectsJson()) {
-                    return response()->json(['message' => 'Not enough stock available.'], 400);
+                    return response()->json(['message' => __('messages.not_enough_stock')], 400);
                 }
-                return redirect()->back()->with('error', 'Not enough stock available.');
+                return redirect()->back()->with('error', __('messages.not_enough_stock'));
             }
 
             if ($request->quantity > 0) {
@@ -334,9 +334,9 @@ class HomeController extends Controller
         // 🛡️ COUPON WATCHDOG: Re-validate coupon after cart update
         $couponRemoved = $this->validateCouponForCart($cart);
 
-        $message = 'Cart updated!';
+        $message = __('messages.cart_updated');
         if ($couponRemoved) {
-            $message .= ' Coupon removed as subtotal is now below minimum requirement.';
+            $message .= ' ' . __('messages.coupon_removed_subtotal');
         }
 
         if ($request->expectsJson()) {
@@ -361,6 +361,30 @@ class HomeController extends Controller
                 $itemTotal = $itemPrice * $quantity;
             }
 
+            // Calculate subtotal for shipping progress
+            $subtotal = 0;
+            foreach ($cart as $item) {
+                $subtotal += $item['price'] * $item['quantity'];
+            }
+
+            // Calculate delivery fee and shipping progress
+            $deliveryThreshold = 50.00;
+            $amountNeededForFreeShipping = max(0, $deliveryThreshold - $subtotal);
+            $locale = app()->getLocale();
+
+            // Generate shipping progress HTML with translation
+            $shippingProgressHtml = '';
+            if ($amountNeededForFreeShipping > 0) {
+                $shippingProgressHtml = view('frontend.partials.shipping-progress', [
+                    'amountNeeded' => $amountNeededForFreeShipping,
+                    'locale' => $locale
+                ])->render();
+            } else {
+                $shippingProgressHtml = view('frontend.partials.shipping-progress-qualified', [
+                    'locale' => $locale
+                ])->render();
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => $message,
@@ -369,6 +393,7 @@ class HomeController extends Controller
                 'item_price' => $itemPrice,
                 'coupon_removed' => $couponRemoved,
                 'has_coupon' => session()->has('coupon'),
+                'shipping_progress_html' => $shippingProgressHtml,
             ]);
         }
 
@@ -389,25 +414,50 @@ class HomeController extends Controller
             // 🛡️ COUPON WATCHDOG: Re-validate coupon after removal
             $couponRemoved = $this->validateCouponForCart($cart);
 
-            $message = 'Item removed from cart!';
+            $message = __('messages.item_removed_from_cart');
             if ($couponRemoved) {
-                $message .= ' Coupon removed as subtotal is now below minimum requirement.';
+                $message .= ' ' . __('messages.coupon_removed_subtotal');
             }
 
             if (request()->expectsJson()) {
+                // Calculate subtotal for shipping progress
+                $subtotal = 0;
+                foreach ($cart as $item) {
+                    $subtotal += $item['price'] * $item['quantity'];
+                }
+
+                // Calculate delivery fee and shipping progress
+                $deliveryThreshold = 50.00;
+                $amountNeededForFreeShipping = max(0, $deliveryThreshold - $subtotal);
+                $locale = app()->getLocale();
+
+                // Generate shipping progress HTML with translation
+                $shippingProgressHtml = '';
+                if ($amountNeededForFreeShipping > 0) {
+                    $shippingProgressHtml = view('frontend.partials.shipping-progress', [
+                        'amountNeeded' => $amountNeededForFreeShipping,
+                        'locale' => $locale
+                    ])->render();
+                } else {
+                    $shippingProgressHtml = view('frontend.partials.shipping-progress-qualified', [
+                        'locale' => $locale
+                    ])->render();
+                }
+
                 return response()->json([
                     'success' => true,
                     'message' => $message,
                     'cart_count' => count($cart),
                     'coupon_removed' => $couponRemoved,
                     'has_coupon' => session()->has('coupon'),
+                    'shipping_progress_html' => $shippingProgressHtml,
                 ]);
             }
 
             return redirect()->back()->with($couponRemoved ? 'warning' : 'success', $message);
         }
 
-        $message = 'Item not found in cart.';
+        $message = __('messages.item_not_found_in_cart');
         if (request()->expectsJson()) {
             return response()->json(['message' => $message], 400);
         }
@@ -423,7 +473,7 @@ class HomeController extends Controller
         session()->forget('cart');
         // 🛡️ COUPON WATCHDOG: Remove coupon when cart is cleared
         session()->forget('coupon');
-        return redirect()->back()->with('success', 'Cart cleared!');
+        return redirect()->back()->with('success', __('messages.cart_cleared'));
     }
 
     /**
