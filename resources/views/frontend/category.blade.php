@@ -95,16 +95,19 @@
 <!-- SweetAlert2 CDN -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
     // Add to Cart AJAX Functionality
-    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+    const addToCartButtons = document.querySelectorAll('.add-to-cart-btn');
+
+    addToCartButtons.forEach(button => {
         button.addEventListener('click', async function(e) {
             e.preventDefault();
 
             const productId = this.dataset.productId;
             const productName = this.dataset.productName;
-            const originalText = this.innerHTML;
 
             // Disable button and show loading state
+            const originalText = this.innerHTML;
             this.disabled = true;
             this.innerHTML = '<svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Adding...';
 
@@ -122,9 +125,15 @@
                     })
                 });
 
-                const data = await response.json();
+                if (response.ok) {
+                    const data = await response.json();
 
-                if (data.success) {
+                    // Show success animation
+                    this.style.transform = 'scale(1.05)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 200);
+
                     // Show SweetAlert2 toast notification
                     Swal.fire({
                         icon: 'success',
@@ -140,15 +149,18 @@
                         color: '#166534'
                     });
 
-                    // Update cart count with animation
+                    // Update cart count immediately with the count from response
                     if (data.cart_count !== undefined) {
                         updateCartCountDisplay(data.cart_count);
+                    } else {
+                        updateCartCount();
                     }
                 } else {
+                    const error = await response.json();
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops!',
-                        text: data.message || 'Failed to add to cart',
+                        text: error.message || 'Failed to add to cart',
                         iconColor: '#dc2626',
                         confirmButtonColor: '#16a34a'
                     });
@@ -170,9 +182,34 @@
         });
     });
 
+    // Update cart count function (fetch from server)
+    async function updateCartCount() {
+        try {
+            const response = await fetch('{{ route("cart.count") }}', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                updateCartCountDisplay(data.count);
+            }
+        } catch (error) {
+            console.error('Error fetching cart count:', error);
+        }
+    }
+
     // Update cart count display with animation
     function updateCartCountDisplay(count) {
-        const cartCountElements = document.querySelectorAll('.cart-count');
+        const cartCountElements = document.querySelectorAll('#cart-count, .cart-count');
+        console.log('Updating cart count to:', count, 'Found elements:', cartCountElements.length);
+
+        if (cartCountElements.length === 0) {
+            console.warn('No cart count element found!');
+            return;
+        }
+
         cartCountElements.forEach(el => {
             // Animate the badge
             el.style.transition = 'all 0.3s ease';
@@ -180,6 +217,7 @@
             setTimeout(() => {
                 el.textContent = count;
                 el.style.transform = 'scale(1)';
+                el.classList.remove('hidden');
             }, 150);
         });
     }
@@ -274,6 +312,7 @@
             }
         });
     });
+});
 </script>
 @endpush
 
