@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 02, 2026 at 11:32 AM
+-- Generation Time: Mar 17, 2026 at 08:48 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -591,7 +591,97 @@ INSERT INTO `activity_logs` (`id`, `user_id`, `action`, `module`, `description`,
 (546, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-02-28 13:47:48', '2026-02-28 13:47:48'),
 (547, 2, 'Logged Out', 'Auth', 'Delivery Driver logged out', '2026-02-28 13:54:41', '2026-02-28 13:54:41'),
 (548, 2, 'Logged Out', 'Auth', 'Delivery Driver logged out', '2026-03-01 05:37:46', '2026-03-01 05:37:46'),
-(549, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-01 06:06:09', '2026-03-01 06:06:09');
+(549, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-01 06:06:09', '2026-03-01 06:06:09'),
+(550, 13, 'order_placed', 'Orders', 'Customer placed order #28', '2026-03-05 06:48:27', '2026-03-05 06:48:27'),
+(551, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-05 06:57:30', '2026-03-05 06:57:30'),
+(552, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-05 07:18:38', '2026-03-05 07:18:38'),
+(553, 2, 'Logged Out', 'Auth', 'Delivery Driver logged out', '2026-03-05 07:19:41', '2026-03-05 07:19:41'),
+(554, 2, 'Accepted Order', 'Delivery', 'Driver Delivery Driver accepted Order #28 for delivery', '2026-03-05 07:24:22', '2026-03-05 07:24:22'),
+(555, 2, 'Requested Directions', 'Delivery', 'Driver Delivery Driver requested directions for Order #28', '2026-03-05 07:25:46', '2026-03-05 07:25:46'),
+(556, 2, 'Requested Directions', 'Delivery', 'Driver Delivery Driver requested directions for Order #28', '2026-03-05 07:29:49', '2026-03-05 07:29:49'),
+(557, 2, 'Logged Out', 'Auth', 'Delivery Driver logged out', '2026-03-05 07:37:59', '2026-03-05 07:37:59'),
+(558, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-05 07:43:57', '2026-03-05 07:43:57'),
+(559, 2, 'Status Updated', 'Delivery', 'Driver Delivery Driver marked Order #28 as Delivered', '2026-03-05 07:44:45', '2026-03-05 07:44:45'),
+(560, 2, 'Accepted Order', 'Delivery', 'Driver Delivery Driver accepted Order #23 for delivery', '2026-03-05 07:45:32', '2026-03-05 07:45:32'),
+(561, 2, 'Logged Out', 'Auth', 'Delivery Driver logged out', '2026-03-05 07:45:46', '2026-03-05 07:45:46'),
+(562, 13, 'order_placed', 'Orders', 'Customer placed order #29', '2026-03-05 07:47:44', '2026-03-05 07:47:44'),
+(563, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-05 07:47:58', '2026-03-05 07:47:58'),
+(564, 2, 'Picked Up Order', 'Delivery', 'Driver Delivery Driver picked up Order #28 from store', '2026-03-05 07:48:13', '2026-03-05 07:48:13'),
+(565, 2, 'Picked Up Order', 'Delivery', 'Driver Delivery Driver picked up Order #27 from store', '2026-03-05 07:48:16', '2026-03-05 07:48:16'),
+(566, 2, 'Arrived at Customer', 'Delivery', 'Driver Delivery Driver arrived at customer location for Order #23', '2026-03-05 07:48:21', '2026-03-05 07:48:21'),
+(567, 2, 'Arrived at Customer', 'Delivery', 'Driver Delivery Driver arrived at customer location for Order #27', '2026-03-05 07:48:22', '2026-03-05 07:48:22'),
+(568, 2, 'Delivered Order', 'Delivery', 'Driver Delivery Driver completed delivery of Order #27 - $7.00 (Pre-paid)', '2026-03-05 07:48:33', '2026-03-05 07:48:33'),
+(569, 2, 'Logged Out', 'Auth', 'Delivery Driver logged out', '2026-03-05 07:56:35', '2026-03-05 07:56:35'),
+(570, 7, 'profile_photo_updated', 'Profile', 'Updated profile photo', '2026-03-05 07:58:33', '2026-03-05 07:58:33'),
+(571, 7, 'profile_updated', 'Profile', 'Updated profile information', '2026-03-05 07:58:39', '2026-03-05 07:58:39'),
+(572, 7, 'Logged Out', 'Auth', 'Meng Love logged out', '2026-03-05 08:00:07', '2026-03-05 08:00:07'),
+(573, 1, 'Updated', 'Staff', 'Updated profile information for: Store Staff', '2026-03-05 08:02:04', '2026-03-05 08:02:04'),
+(574, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-05 08:02:18', '2026-03-05 08:02:18'),
+(575, 3, 'Logged Out', 'Auth', 'Store Staff logged out', '2026-03-05 08:04:04', '2026-03-05 08:04:04'),
+(576, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-05 08:04:57', '2026-03-05 08:04:57'),
+(577, 3, 'Logged Out', 'Auth', 'Store Staff logged out', '2026-03-05 08:08:04', '2026-03-05 08:08:04'),
+(578, 3, 'Logged Out', 'Auth', 'Store Staff logged out', '2026-03-05 10:12:41', '2026-03-05 10:12:41'),
+(579, 1, 'Updated', 'Staff', 'Updated profile information for: Store Staff', '2026-03-05 10:13:25', '2026-03-05 10:13:25'),
+(580, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-05 10:13:27', '2026-03-05 10:13:27'),
+(581, 3, 'Logged Out', 'Auth', 'Store Staff logged out', '2026-03-05 14:19:07', '2026-03-05 14:19:07'),
+(582, 1, 'Updated', 'Staff', 'Updated profile information for: Store Staff', '2026-03-05 14:20:05', '2026-03-05 14:20:05'),
+(583, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-05 14:20:10', '2026-03-05 14:20:10'),
+(584, 3, 'Logged Out', 'Auth', 'Store Staff logged out', '2026-03-05 14:20:40', '2026-03-05 14:20:40'),
+(585, 3, 'Logged Out', 'Auth', 'Store Staff logged out', '2026-03-05 14:21:03', '2026-03-05 14:21:03'),
+(586, 1, 'Updated', 'Staff', 'Updated profile information for: Store Staff', '2026-03-05 14:21:34', '2026-03-05 14:21:34'),
+(587, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-05 14:21:37', '2026-03-05 14:21:37'),
+(588, 3, 'Logged Out', 'Auth', 'Store Staff logged out', '2026-03-05 15:04:40', '2026-03-05 15:04:40'),
+(589, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-05 16:26:34', '2026-03-05 16:26:34'),
+(590, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-11 17:12:05', '2026-03-11 17:12:05'),
+(591, 1, 'Updated', 'Inventory', 'Updated product: 44 Custard apple (ID: 230)', '2026-03-12 05:18:43', '2026-03-12 05:18:43'),
+(592, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-12 05:18:48', '2026-03-12 05:18:48'),
+(593, 1, 'Updated', 'Inventory', 'Updated product: 17 Apricot (ID: 203)', '2026-03-12 05:22:44', '2026-03-12 05:22:44'),
+(594, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-12 05:30:14', '2026-03-12 05:30:14'),
+(595, 13, 'Logged Out', 'Auth', 'Makara logged out', '2026-03-12 07:06:33', '2026-03-12 07:06:33'),
+(596, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-12 09:46:16', '2026-03-12 09:46:16'),
+(597, 13, 'order_placed', 'Orders', 'Customer placed order #30', '2026-03-12 09:49:02', '2026-03-12 09:49:02'),
+(598, 13, 'order_placed', 'Orders', 'Customer placed order #31', '2026-03-12 09:51:41', '2026-03-12 09:51:41'),
+(599, 13, 'order_placed', 'Orders', 'Customer placed order #32', '2026-03-12 10:03:13', '2026-03-12 10:03:13'),
+(600, 1, 'Created', 'Inventory', 'Added a new product: Chili (ID: 279)', '2026-03-13 10:10:53', '2026-03-13 10:10:53'),
+(601, 1, 'Updated', 'Inventory', 'Updated product: Chili green (ID: 279)', '2026-03-13 10:13:17', '2026-03-13 10:13:17'),
+(602, 1, 'Updated', 'Inventory', 'Updated product: Chili green (ID: 279)', '2026-03-13 10:14:12', '2026-03-13 10:14:12'),
+(603, 1, 'Updated', 'Inventory', 'Updated product: Chili (ID: 279)', '2026-03-13 10:19:00', '2026-03-13 10:19:00'),
+(604, 1, 'Deleted', 'Inventory', 'Deleted product: Chili (ID: 279)', '2026-03-15 05:15:20', '2026-03-15 05:15:20'),
+(605, 1, 'Created', 'Inventory', 'Added a new product: Chili (ID: 280)', '2026-03-15 05:16:15', '2026-03-15 05:16:15'),
+(606, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-15 06:56:20', '2026-03-15 06:56:20'),
+(607, 13, 'order_placed', 'Orders', 'Customer placed order #33', '2026-03-15 07:33:53', '2026-03-15 07:33:53'),
+(608, 2, 'Accepted Order', 'Delivery', 'Driver Delivery Driver accepted Order #33 for delivery', '2026-03-15 07:52:55', '2026-03-15 07:52:55'),
+(609, 2, 'Requested Directions', 'Delivery', 'Driver Delivery Driver requested directions for Order #33', '2026-03-15 07:53:12', '2026-03-15 07:53:12'),
+(610, 2, 'Arrived at Customer', 'Delivery', 'Driver Delivery Driver arrived at customer location for Order #28', '2026-03-15 07:56:17', '2026-03-15 07:56:17'),
+(611, 2, 'Delivered Order', 'Delivery', 'Driver Delivery Driver completed delivery of Order #28 - $6.50 (Pre-paid)', '2026-03-15 07:56:26', '2026-03-15 07:56:26'),
+(612, 2, 'Delivered Order', 'Delivery', 'Driver Delivery Driver completed delivery of Order #23 - $7.00 (Pre-paid)', '2026-03-15 07:56:31', '2026-03-15 07:56:31'),
+(613, 2, 'Arrived at Customer', 'Delivery', 'Driver Delivery Driver arrived at customer location for Order #33', '2026-03-15 07:59:09', '2026-03-15 07:59:09'),
+(614, 2, 'Delivered Order', 'Delivery', 'Driver Delivery Driver completed delivery of Order #33 - $50.00 (Pre-paid)', '2026-03-15 07:59:46', '2026-03-15 07:59:46'),
+(615, 1, 'Updated', 'Inventory', 'Updated product: Chili (ID: 280)', '2026-03-15 08:10:42', '2026-03-15 08:10:42'),
+(616, 1, 'Created', 'Inventory', 'Added a new product: Chili (ID: 285)', '2026-03-15 08:20:53', '2026-03-15 08:20:53'),
+(617, 1, 'Deleted', 'Inventory', 'Deleted product: Chili (ID: 285)', '2026-03-15 08:21:22', '2026-03-15 08:21:22'),
+(618, 1, 'Created', 'Inventory', 'Added a new product: Chili (ID: 290)', '2026-03-15 08:40:36', '2026-03-15 08:40:36'),
+(619, 1, 'RESTORED', 'Inventory', 'Restored product: Chili (ID: 285)', '2026-03-15 08:40:44', '2026-03-15 08:40:44'),
+(620, 1, 'Created', 'Inventory', 'Added a new product: Chili (ID: 291)', '2026-03-15 08:41:28', '2026-03-15 08:41:28'),
+(621, 1, 'Deleted', 'Inventory', 'Deleted product: Chili (ID: 291)', '2026-03-15 08:42:15', '2026-03-15 08:42:15'),
+(622, 1, 'Deleted', 'Inventory', 'Deleted product: Chili (ID: 290)', '2026-03-15 08:42:18', '2026-03-15 08:42:18'),
+(623, 1, 'Deleted', 'Inventory', 'Deleted product: Chili (ID: 285)', '2026-03-15 08:42:21', '2026-03-15 08:42:21'),
+(624, 1, 'DELETED', 'Inventory', 'Bulk force deleted 5 products', '2026-03-15 08:42:30', '2026-03-15 08:42:30'),
+(625, 1, 'Created', 'Inventory', 'Added a new product: Chili Pepper (ID: 292)', '2026-03-15 08:44:49', '2026-03-15 08:44:49'),
+(626, 1, 'Updated', 'Inventory', 'Updated product: Chili Pepper (ID: 292)', '2026-03-15 08:45:11', '2026-03-15 08:45:11'),
+(627, 1, 'Review Moderation', 'Reviews', 'Banned review #7 by Makara. Reason: មតិមិនល្អ', '2026-03-15 08:48:43', '2026-03-15 08:48:43'),
+(628, 1, 'Review Moderation', 'Reviews', 'Unbanned review #7', '2026-03-15 08:49:31', '2026-03-15 08:49:31'),
+(629, 1, 'Review Moderation', 'Reviews', 'Approved review #7 by Makara', '2026-03-15 08:50:16', '2026-03-15 08:50:16'),
+(630, 1, 'Created', 'Staff', 'Created new account for: Staff 1', '2026-03-15 08:53:47', '2026-03-15 08:53:47'),
+(631, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-15 08:54:10', '2026-03-15 08:54:10'),
+(632, 15, 'Logged Out', 'Auth', 'Staff 1 logged out', '2026-03-15 08:56:57', '2026-03-15 08:56:57'),
+(633, 1, 'Updated', 'Staff', 'Deactivated account for: Staff 1', '2026-03-15 08:58:05', '2026-03-15 08:58:05'),
+(634, 1, 'Updated', 'Staff', 'Reactivated account for: Staff 1', '2026-03-15 08:58:11', '2026-03-15 08:58:11'),
+(635, 1, 'customer_status_change', 'Customer Management', 'Suspended customer account: makara@gmail.com', '2026-03-15 09:04:19', '2026-03-15 09:04:19'),
+(636, 1, 'customer_status_change', 'Customer Management', 'Activated customer account: makara@gmail.com', '2026-03-15 09:04:50', '2026-03-15 09:04:50'),
+(637, 13, 'Logged Out', 'Auth', 'Makara logged out', '2026-03-15 15:32:22', '2026-03-15 15:32:22'),
+(638, 13, 'Logged Out', 'Auth', 'Makara logged out', '2026-03-17 06:44:03', '2026-03-17 06:44:03'),
+(639, 1, 'Logged Out', 'Auth', 'Super Admin logged out', '2026-03-17 07:05:35', '2026-03-17 07:05:35');
 
 -- --------------------------------------------------------
 
@@ -660,10 +750,23 @@ INSERT INTO `categories` (`id`, `name`, `slug`, `description`, `image`, `is_acti
 CREATE TABLE `coupons` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `code` varchar(255) NOT NULL,
-  `type` enum('fixed','percent') NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `type` enum('fixed','percent','free_delivery') NOT NULL,
   `value` decimal(8,2) NOT NULL,
+  `scope` enum('all_products','specific_products','specific_categories') NOT NULL DEFAULT 'all_products',
+  `product_ids` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`product_ids`)),
+  `category_ids` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`category_ids`)),
+  `target_type` enum('all_customers','specific_customers') NOT NULL DEFAULT 'all_customers',
+  `customer_ids` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`customer_ids`)),
+  `valid_from` timestamp NULL DEFAULT NULL,
+  `valid_until` timestamp NULL DEFAULT NULL,
+  `usage_limit` int(11) NOT NULL DEFAULT 0,
+  `usage_count` int(11) NOT NULL DEFAULT 0,
   `min_purchase` decimal(8,2) NOT NULL DEFAULT 0.00,
   `status` tinyint(1) NOT NULL DEFAULT 1,
+  `auto_apply` tinyint(1) NOT NULL DEFAULT 0,
+  `created_by` bigint(20) UNSIGNED DEFAULT NULL,
   `expires_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
@@ -673,14 +776,14 @@ CREATE TABLE `coupons` (
 -- Dumping data for table `coupons`
 --
 
-INSERT INTO `coupons` (`id`, `code`, `type`, `value`, `min_purchase`, `status`, `expires_at`, `created_at`, `updated_at`) VALUES
-(1, 'WELCOME10', 'fixed', 10.00, 30.00, 1, NULL, '2026-02-22 09:09:42', '2026-02-22 09:09:42'),
-(2, 'FRESH20', 'percent', 20.00, 50.00, 1, '2026-05-22 09:09:42', '2026-02-22 09:09:42', '2026-02-22 09:09:42'),
-(3, 'SAVE5', 'fixed', 5.00, 20.00, 1, NULL, '2026-02-22 09:09:42', '2026-02-22 09:09:42'),
-(4, 'HALF50', 'percent', 50.00, 100.00, 1, '2026-03-22 09:09:42', '2026-02-22 09:09:42', '2026-02-22 09:09:42'),
-(5, 'EXPIRED', 'percent', 30.00, 0.00, 1, '2026-02-15 09:09:42', '2026-02-22 09:09:42', '2026-02-22 09:09:42'),
-(6, 'DISABLED', 'fixed', 15.00, 0.00, 0, NULL, '2026-02-22 09:09:42', '2026-02-22 09:09:42'),
-(7, 'FREEDELIVERY', 'fixed', 6.00, 0.00, 1, NULL, '2026-02-22 11:55:02', '2026-02-22 11:57:13');
+INSERT INTO `coupons` (`id`, `code`, `name`, `description`, `type`, `value`, `scope`, `product_ids`, `category_ids`, `target_type`, `customer_ids`, `valid_from`, `valid_until`, `usage_limit`, `usage_count`, `min_purchase`, `status`, `auto_apply`, `created_by`, `expires_at`, `created_at`, `updated_at`) VALUES
+(1, 'WELCOME10', NULL, NULL, 'fixed', 10.00, 'all_products', NULL, NULL, 'all_customers', NULL, NULL, NULL, 0, 0, 30.00, 1, 0, NULL, NULL, '2026-02-22 09:09:42', '2026-02-22 09:09:42'),
+(2, 'FRESH20', NULL, NULL, 'percent', 20.00, 'all_products', NULL, NULL, 'all_customers', NULL, NULL, NULL, 0, 0, 50.00, 1, 0, NULL, '2026-05-30 17:00:00', '2026-02-22 09:09:42', '2026-03-12 09:47:43'),
+(3, 'SAVE5', NULL, NULL, 'fixed', 5.00, 'all_products', NULL, NULL, 'all_customers', NULL, NULL, NULL, 0, 0, 20.00, 1, 0, NULL, NULL, '2026-02-22 09:09:42', '2026-02-22 09:09:42'),
+(4, 'HALF50', NULL, NULL, 'percent', 50.00, 'all_products', NULL, NULL, 'all_customers', NULL, NULL, NULL, 0, 0, 100.00, 1, 0, NULL, '2026-03-22 09:09:42', '2026-02-22 09:09:42', '2026-02-22 09:09:42'),
+(5, 'EXPIRED', NULL, NULL, 'percent', 30.00, 'all_products', NULL, NULL, 'all_customers', NULL, NULL, NULL, 0, 0, 0.00, 1, 0, NULL, '2026-02-15 09:09:42', '2026-02-22 09:09:42', '2026-02-22 09:09:42'),
+(6, 'DISABLED', NULL, NULL, 'fixed', 15.00, 'all_products', NULL, NULL, 'all_customers', NULL, NULL, NULL, 0, 0, 0.00, 0, 0, NULL, NULL, '2026-02-22 09:09:42', '2026-02-22 09:09:42'),
+(7, 'FREEDELIVERY', NULL, NULL, 'fixed', 6.00, 'all_products', NULL, NULL, 'all_customers', NULL, NULL, NULL, 0, 0, 0.00, 1, 0, NULL, NULL, '2026-02-22 11:55:02', '2026-02-22 11:57:13');
 
 -- --------------------------------------------------------
 
@@ -804,7 +907,10 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (45, '2026_02_27_112714_add_multilingual_support_to_products_table', 30),
 (46, '2026_02_27_151224_add_location_fields_to_users_table', 31),
 (47, '2026_02_28_111510_add_discount_fields_to_products_table', 32),
-(48, '2026_02_26_000004_create_notifications_table', 33);
+(48, '2026_02_26_000004_create_notifications_table', 33),
+(49, '2026_03_15_122301_fix_duplicate_product_slugs', 34),
+(50, '2026_03_15_160354_add_missing_columns_to_coupons_table', 35),
+(51, '2026_03_15_161729_update_coupons_type_enum', 36);
 
 -- --------------------------------------------------------
 
@@ -829,7 +935,12 @@ CREATE TABLE `notifications` (
 
 INSERT INTO `notifications` (`id`, `type`, `notifiable_type`, `notifiable_id`, `data`, `read_at`, `created_at`, `updated_at`) VALUES
 ('2037f235-58c6-470f-8984-25106c760d35', 'promotion', 'App\\Models\\User', 13, '{\"title\":\"\\ud83c\\udf89 Special Discount Just for You!\",\"message\":\"We offer you a promotion 10$ off\",\"coupon_id\":1,\"coupon_code\":\"WELCOME10\",\"discount_value\":\"10.00\",\"discount_type\":\"fixed\"}', '2026-02-28 07:01:46', '2026-02-28 06:41:46', '2026-02-28 07:01:46'),
-('a1301ca6-b22d-4017-a0ab-e1a95166c616', 'order_cancelled', 'App\\Models\\User', 13, '{\"title\":\"Order Cancelled\",\"message\":\"Your order #23 has been cancelled by our staff.\",\"reason\":\"\\u17a2\\u178f\\u17b7\\u1790\\u17b7\\u1787\\u1793 \\u1798\\u17b7\\u1793\\u179b\\u17be\\u1780\\u1791\\u17bc\\u179a\\u179f\\u17d0\\u1796\\u17d2\\u1791\",\"order_id\":23,\"cancelled_by\":\"Super Admin\"}', '2026-02-28 12:27:08', '2026-02-28 12:01:52', '2026-02-28 12:27:08');
+('5f0f94f0-9f80-4040-a98f-48e4bcf44bf3', 'promotion', 'App\\Models\\User', 11, '{\"title\":\"\\ud83c\\udf89 New Promotion Available!\",\"message\":\"Use code 123 - Berry. Get $10.00 OFF your order!\",\"coupon_id\":9,\"coupon_code\":\"123\",\"discount_value\":\"10.00\",\"discount_type\":\"fixed\",\"expires_at\":\"2026-03-16 17:40:00\",\"expires_formatted\":\"Mar 16, 2026 at 5:40 PM\"}', NULL, '2026-03-15 10:40:57', '2026-03-15 10:40:57'),
+('a1301ca6-b22d-4017-a0ab-e1a95166c616', 'order_cancelled', 'App\\Models\\User', 13, '{\"title\":\"Order Cancelled\",\"message\":\"Your order #23 has been cancelled by our staff.\",\"reason\":\"\\u17a2\\u178f\\u17b7\\u1790\\u17b7\\u1787\\u1793 \\u1798\\u17b7\\u1793\\u179b\\u17be\\u1780\\u1791\\u17bc\\u179a\\u179f\\u17d0\\u1796\\u17d2\\u1791\",\"order_id\":23,\"cancelled_by\":\"Super Admin\"}', '2026-02-28 12:27:08', '2026-02-28 12:01:52', '2026-02-28 12:27:08'),
+('a1481150-a0f4-40b9-8f95-6fe5a6c2fa44', 'order_cancelled', 'App\\Models\\User', 13, '{\"title\":\"Order Cancelled\",\"message\":\"Your order #30 has been cancelled successfully.\",\"reason\":\"Cancel\",\"order_id\":30,\"cancelled_by\":\"You\"}', NULL, '2026-03-12 09:50:02', '2026-03-12 09:50:02'),
+('a3e77c1f-b561-4203-8434-66fa0b30d893', 'promotion', 'App\\Models\\User', 13, '{\"title\":\"\\ud83c\\udf89 New Promotion Available!\",\"message\":\"Use code 123 - Berry. Get $10.00 OFF your order!\",\"coupon_id\":9,\"coupon_code\":\"123\",\"discount_value\":\"10.00\",\"discount_type\":\"fixed\",\"expires_at\":\"2026-03-16 17:40:00\",\"expires_formatted\":\"Mar 16, 2026 at 5:40 PM\"}', NULL, '2026-03-15 10:40:57', '2026-03-15 10:40:57'),
+('bfb825da-689b-47c9-b8ba-c08f32eaf1de', 'promotion', 'App\\Models\\User', 12, '{\"title\":\"\\ud83c\\udf89 New Promotion Available!\",\"message\":\"Use code 123 - Berry. Get $10.00 OFF your order!\",\"coupon_id\":9,\"coupon_code\":\"123\",\"discount_value\":\"10.00\",\"discount_type\":\"fixed\",\"expires_at\":\"2026-03-16 17:40:00\",\"expires_formatted\":\"Mar 16, 2026 at 5:40 PM\"}', NULL, '2026-03-15 10:40:57', '2026-03-15 10:40:57'),
+('cb2ea64f-120f-4429-a3c4-73c19bedb2c4', 'promotion', 'App\\Models\\User', 13, '{\"title\":\"\\ud83c\\udf89 Special Discount Just for You!\",\"message\":\"Free Coupon\",\"coupon_id\":1,\"coupon_code\":\"WELCOME10\",\"discount_value\":\"10.00\",\"discount_type\":\"fixed\",\"expires_at\":\"2026-03-15T18:59\",\"expires_formatted\":\"Mar 15, 2026 at 6:59 PM\"}', NULL, '2026-03-15 08:59:24', '2026-03-15 08:59:24');
 
 -- --------------------------------------------------------
 
@@ -876,11 +987,17 @@ INSERT INTO `orders` (`id`, `customer_id`, `driver_id`, `total_amount`, `phone`,
 (20, 13, 2, 7.00, '015868608', 'Cambodia, Phnom Penh 123235463', NULL, NULL, 'Cambodia, Phnom Penh 123235463', 'delivered', NULL, 'cash', 'Standard Delivery', 'unpaid', 'egg', '2026-02-26 09:41:57', '2026-02-27 08:06:15'),
 (21, 13, NULL, 7.00, '015868608', 'Chamkar Doung, Dangkor, Phnom Penh 1234455', 11.54913649, 104.91813541, 'Chamkar Doung, Dangkor, Phnom Penh 1234455', 'cancelled', 'No response call from customer', 'cash', 'Standard Delivery', 'unpaid', 'សូមមកពេលល្ងា​ច ព្រោះខ្ញុំនៅផ្ទះ', '2026-02-27 05:48:21', '2026-02-28 11:50:09'),
 (22, 13, NULL, 7.00, '015868608', 'Chamkar Doung, Dangkor, Phnom Penh 123123321', 11.51243805, 104.88872517, 'Chamkar Doung, Dangkor, Phnom Penh 123123321', 'cancelled', 'No response call from customer', 'cash', 'Standard Delivery', 'unpaid', 'Please Delivery at evening if possible', '2026-02-27 05:49:20', '2026-02-28 11:50:17'),
-(23, 13, NULL, 7.00, '015868608', 'Chamkar Doung, Dangkor, Phnom Penh 123123321', 11.51327900, 104.88916800, 'Chamkar Doung, Dangkor, Phnom Penh 123123321', 'ready_for_pickup', NULL, 'cash', 'Standard Delivery', 'unpaid', 'Please delivery at evening', '2026-02-27 05:50:01', '2026-02-28 13:33:03'),
+(23, 13, 2, 7.00, '015868608', 'Chamkar Doung, Dangkor, Phnom Penh 123123321', 11.51327900, 104.88916800, 'Chamkar Doung, Dangkor, Phnom Penh 123123321', 'delivered', NULL, 'cash', 'Standard Delivery', 'unpaid', 'Please delivery at evening', '2026-02-27 05:50:01', '2026-03-15 07:56:31'),
 (24, 13, NULL, 7.00, '015868608', 'Chamkar Doung, Dangkor, Phnom Penh 123123321', 11.51327900, 104.88916800, 'Chamkar Doung, Dangkor, Phnom Penh 123123321', 'cancelled', 'No response call from from store', 'cash', 'Standard Delivery', 'unpaid', NULL, '2026-02-27 05:50:29', '2026-02-28 11:50:59'),
 (25, 13, 2, 7.00, '015868608', 'Chamkar Doung, Dangkor, Phnom Penh 123123321', 11.51255370, 104.88870641, 'Chamkar Doung, Dangkor, Phnom Penh 123123321', 'delivered', NULL, 'cash', 'Standard Delivery', 'paid', '3rd Floor', '2026-02-27 05:54:03', '2026-02-27 10:38:15'),
 (26, 13, 2, 32.50, '015868608', 'Cambodia, Phnom Penh 123235463', 11.51938705, 104.89600071, 'Cambodia, Phnom Penh 123235463', 'delivered', NULL, 'cash', 'Express Delivery (6 hours)', 'paid', '3rd floor', '2026-02-28 12:39:49', '2026-02-28 13:34:53'),
-(27, 13, 2, 7.00, '015868608', 'Cambodia, Phnom Penh 123235463', 11.51133419, 104.89428438, 'Cambodia, Phnom Penh 123235463', 'ready_for_pickup', NULL, 'cash', 'Standard Delivery', 'paid', '2nd Floor', '2026-02-28 13:29:00', '2026-02-28 13:47:40');
+(27, 13, 2, 7.00, '015868608', 'Cambodia, Phnom Penh 123235463', 11.51133419, 104.89428438, 'Cambodia, Phnom Penh 123235463', 'delivered', NULL, 'cash', 'Standard Delivery', 'paid', '2nd Floor', '2026-02-28 13:29:00', '2026-03-05 07:48:33'),
+(28, 13, 2, 6.50, '015868608', 'Chamkar Doung, Dangkor, Phnom Penh 123123321', 11.51232241, 104.88967159, 'Chamkar Doung, Dangkor, Phnom Penh 123123321', 'delivered', NULL, 'cash', 'Standard Delivery', 'paid', NULL, '2026-03-05 06:48:27', '2026-03-15 07:56:26'),
+(29, 13, NULL, 7.00, '015868608', 'Cambodia, Phnom Penh asdasd', 11.51276396, 104.89164484, 'Cambodia, Phnom Penh asdasd', 'ready_for_pickup', NULL, 'cash', 'Standard Delivery', 'unpaid', '3rd floor', '2026-03-05 07:47:44', '2026-03-05 07:47:55'),
+(30, 13, NULL, 50.00, '015868608', 'Cambodia, Phnom Penh 123235463', 11.51327900, 104.88916800, 'Cambodia, Phnom Penh 123235463', 'cancelled', 'Cancel', 'cash', 'Standard Delivery', 'unpaid', NULL, '2026-03-12 09:49:02', '2026-03-12 09:50:01'),
+(31, 13, NULL, 7.00, '015868608', 'Cambodia, Phnom Penh 123235463', 11.51143932, 104.88900667, 'Cambodia, Phnom Penh 123235463', 'pending', NULL, 'cash', 'Standard Delivery', 'unpaid', NULL, '2026-03-12 09:51:41', '2026-03-12 09:51:41'),
+(32, 13, NULL, 51.00, '015868608', 'Cambodia, Phnom Penh 123235463', 11.51327900, 104.88916800, 'Cambodia, Phnom Penh 123235463', 'pending', NULL, 'cash', 'Standard Delivery', 'unpaid', NULL, '2026-03-12 10:03:13', '2026-03-12 10:03:13'),
+(33, 13, 2, 50.00, '015868608', 'នៅសាលាដង្កា, Phnom Penh 123235463', 11.51038013, 104.89176896, 'នៅសាលាដង្កា, Phnom Penh 123235463', 'delivered', NULL, 'cash', 'Standard Delivery', 'unpaid', 'ជាន់ទី៣', '2026-03-15 07:33:53', '2026-03-15 07:59:46');
 
 -- --------------------------------------------------------
 
@@ -924,7 +1041,13 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `quantity`, `price`, 
 (36, 26, 278, 30, 1.00, 30.00, '2026-02-28 12:39:49', '2026-02-28 12:39:49'),
 (37, 26, 276, 1, 2.00, 2.00, '2026-02-28 12:39:49', '2026-02-28 12:39:49'),
 (38, 26, 275, 1, 0.50, 0.50, '2026-02-28 12:39:49', '2026-02-28 12:39:49'),
-(39, 27, 278, 1, 1.00, 1.00, '2026-02-28 13:29:00', '2026-02-28 13:29:00');
+(39, 27, 278, 1, 1.00, 1.00, '2026-02-28 13:29:00', '2026-02-28 13:29:00'),
+(40, 28, 275, 1, 0.50, 0.50, '2026-03-05 06:48:27', '2026-03-05 06:48:27'),
+(41, 29, 278, 1, 1.00, 1.00, '2026-03-05 07:47:44', '2026-03-05 07:47:44'),
+(42, 30, 278, 50, 1.00, 50.00, '2026-03-12 09:49:02', '2026-03-12 09:49:02'),
+(43, 31, 278, 1, 1.00, 1.00, '2026-03-12 09:51:41', '2026-03-12 09:51:41'),
+(44, 32, 278, 45, 1.00, 45.00, '2026-03-12 10:03:13', '2026-03-12 10:03:13'),
+(45, 33, 278, 50, 1.00, 50.00, '2026-03-15 07:33:53', '2026-03-15 07:33:53');
 
 -- --------------------------------------------------------
 
@@ -995,8 +1118,6 @@ CREATE TABLE `products` (
 INSERT INTO `products` (`id`, `category_id`, `name`, `slug`, `sku`, `images`, `price`, `discount_percent`, `discount_price`, `discount_start`, `discount_end`, `is_on_sale`, `sale_label`, `stock`, `image`, `description`, `is_active`, `unit`, `min_stock_level`, `created_at`, `updated_at`, `deleted_at`) VALUES
 (69, 2, '{\"en\":\"Banana\",\"km\":\"\\u1785\\u17c1\\u1780\",\"zh\":\"\\u9999\\u8549\"}', 'banana', 'PRD-XCJWOJOV', NULL, 11.00, 20.00, 8.80, '2026-02-27 11:45:00', '2026-03-28 11:32:00', 1, 'Flash Sale', 993, NULL, '{\"en\":\"This banana from the farmer.\",\"km\":\"This banana from the farmer.\",\"zh\":\"This banana from the farmer.\"}', 1, 'box', 5, '2026-02-21 15:17:04', '2026-02-28 04:59:57', NULL),
 (75, 3, '{\"en\":\"Beef\",\"km\":\"\\u179f\\u17b6\\u1785\\u17cb\\u1782\\u17c4\",\"zh\":\"\\u725b\\u8089\"}', 'beef', 'PRD-TPQWQBFA', NULL, 10.00, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 07:42:26', '2026-02-28 07:42:26', NULL),
-(76, 3, '{\"en\":\"Beefasda\",\"km\":\"\\u179f\\u17b6\\u1785\\u17cb\\u1782\\u17c4\",\"zh\":\"\\u725b\\u8089\"}', 'beef', 'PRD-HA1RJYO8', NULL, 10.00, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 07:42:27', '2026-02-28 07:49:17', '2026-02-28 07:49:17'),
-(77, 3, '{\"en\":\"adsas\",\"km\":\"sad\",\"zh\":\"asd\"}', 'adsas', 'PRD-JL0LOCUI', NULL, 12.00, 0.00, NULL, NULL, NULL, 0, NULL, 1231, NULL, NULL, 1, 'kg', 5, '2026-02-28 07:45:21', '2026-02-28 07:49:14', '2026-02-28 07:49:14'),
 (78, 3, '{\"en\":\"Pork\",\"km\":\"\\u179f\\u17b6\\u1785\\u17cb\\u1787\\u17d2\\u179a\\u17bc\\u1780\",\"zh\":\"\\u732a\\u8089\"}', 'pork', 'PRD-JZC2JGGP', NULL, 5.00, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 07:50:38', '2026-02-28 07:50:38', NULL),
 (79, 3, '{\"en\":\"Chicken\",\"km\":\"\\u179f\\u17b6\\u1785\\u17cb\\u1798\\u17b6\\u1793\\u17cb\",\"zh\":\"\\u9e21\"}', 'chicken', 'PRD-KHERGVYR', NULL, 2.50, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 07:52:32', '2026-02-28 07:52:32', NULL),
 (80, 3, '{\"en\":\"Duck\",\"km\":\"\\u179f\\u17b6\\u1785\\u17cb\\u1791\\u17b6\",\"zh\":\"\\u9e2d\\u5b50\"}', 'duck', 'PRD-K6DUNQFG', NULL, 3.00, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 07:53:17', '2026-02-28 07:53:17', NULL),
@@ -1177,15 +1298,14 @@ INSERT INTO `products` (`id`, `category_id`, `name`, `slug`, `sku`, `images`, `p
 (255, 1, '{\"en\":\"Broccoli\",\"km\":\"\\u1795\\u17d2\\u1780\\u17b6\\u1781\\u17b6\\u178f\\u17cb\\u178e\\u17b6\\u1794\\u17c3\\u178f\\u1784\",\"zh\":\"\\u897f\\u5170\\u82b1\"}', 'broccoli', 'PRD-MB3TPFDX', NULL, 2.00, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:10:37', '2026-02-28 10:10:37', NULL),
 (256, 1, '{\"en\":\"Cauliflower\",\"km\":\"\\u1795\\u17d2\\u1780\\u17b6\\u1781\\u17b6\\u178f\\u17cb\\u178e\\u17b6\",\"zh\":\"\\u83dc\\u82b1\"}', 'cauliflower', 'PRD-LNBPON8Q', NULL, 1.60, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:11:18', '2026-02-28 10:11:18', NULL),
 (257, 1, '{\"en\":\"Chinese kale\",\"km\":\"\\u179f\\u17d2\\u1796\\u17c3\\u1785\\u17b7\\u1793\",\"zh\":\"\\u82a5\\u84dd\"}', 'chinese-kale', 'PRD-TXQOO9JY', NULL, 1.00, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:11:55', '2026-02-28 10:11:55', NULL),
-(258, 1, '{\"en\":\"Chili\",\"km\":\"\\u1798\\u17d2\\u1791\\u17c1\\u179f\",\"zh\":\"\\u8fa3\\u6912\"}', 'chili', 'PRD-OFI1FQP0', NULL, 0.30, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:12:43', '2026-02-28 10:12:43', NULL),
 (259, 1, '{\"en\":\"Red Onion\",\"km\":\"\\u1781\\u17d2\\u1791\\u17b9\\u1798\\u1794\\u17b6\\u179a\\u17b6\\u17c6\\u1784\\u1780\\u17d2\\u179a\\u17a0\\u1798\",\"zh\":\"\\u7ea2\\u6d0b\\u8471\"}', 'red-onion', 'PRD-SDB4GKDZ', NULL, 1.10, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:13:26', '2026-02-28 10:13:26', NULL),
 (260, 1, '{\"en\":\"Garlic\",\"km\":\"\\u1781\\u17d2\\u1791\\u17b9\\u1798\\u179f\",\"zh\":\"\\u849c\"}', 'garlic', 'PRD-MAOR91RX', NULL, 0.50, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:14:04', '2026-02-28 10:14:04', NULL),
 (261, 1, '{\"en\":\"Lemongrass\",\"km\":\"\\u179f\\u17d2\\u179b\\u17b9\\u1780\\u1782\\u17d2\\u179a\\u17c3\",\"zh\":\"\\u9999\\u8305\"}', 'lemongrass', 'PRD-BEUJNKD8', NULL, 0.60, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:14:48', '2026-02-28 10:14:48', NULL),
 (262, 1, '{\"en\":\"Basil\",\"km\":\"\\u1787\\u17b8\\u17a2\\u1784\\u17d2\\u1780\\u17b6\\u1798\",\"zh\":\"\\u7f57\\u52d2\"}', 'basil', 'PRD-SZGVSEKP', NULL, 0.50, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:15:29', '2026-02-28 10:15:29', NULL),
-(263, 1, '{\"en\":\"Kaffir lime leaf\",\"km\":\"\\u179f\\u17d2\\u179b\\u17b9\\u1780\\u1780\\u17d2\\u179a\\u17bc\\u1785\\u1786\\u17d2\\u1798\\u17b6\\u179a Kaffir\",\"zh\":\"\\u5361\\u83f2\\u5c14\\u9178\\u6a59\\u53f6\"}', 'kaffir-lime-leaf', 'PRD-OWVGHIR0', NULL, 0.30, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:16:15', '2026-02-28 10:16:15', NULL);
-INSERT INTO `products` (`id`, `category_id`, `name`, `slug`, `sku`, `images`, `price`, `discount_percent`, `discount_price`, `discount_start`, `discount_end`, `is_on_sale`, `sale_label`, `stock`, `image`, `description`, `is_active`, `unit`, `min_stock_level`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(263, 1, '{\"en\":\"Kaffir lime leaf\",\"km\":\"\\u179f\\u17d2\\u179b\\u17b9\\u1780\\u1780\\u17d2\\u179a\\u17bc\\u1785\\u1786\\u17d2\\u1798\\u17b6\\u179a Kaffir\",\"zh\":\"\\u5361\\u83f2\\u5c14\\u9178\\u6a59\\u53f6\"}', 'kaffir-lime-leaf', 'PRD-OWVGHIR0', NULL, 0.30, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:16:15', '2026-02-28 10:16:15', NULL),
 (264, 1, '{\"en\":\"Green bean\",\"km\":\"\\u179f\\u178e\\u17d2\\u178f\\u17c2\\u1780\\u1794\\u17c3\\u178f\\u1784\",\"zh\":\"\\u56db\\u5b63\\u8c46\"}', 'green-bean', 'PRD-P67T9IN8', NULL, 1.00, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:17:03', '2026-02-28 10:17:03', NULL),
-(265, 1, '{\"en\":\"Water mimosa\",\"km\":\"\\u1780\\u1789\\u17d2\\u1786\\u17c2\\u1780\",\"zh\":\"\\u6c34\\u542b\\u7f9e\\u8349\"}', 'water-mimosa', 'PRD-YZAMRON7', NULL, 0.70, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:18:05', '2026-02-28 10:18:05', NULL),
+(265, 1, '{\"en\":\"Water mimosa\",\"km\":\"\\u1780\\u1789\\u17d2\\u1786\\u17c2\\u1780\",\"zh\":\"\\u6c34\\u542b\\u7f9e\\u8349\"}', 'water-mimosa', 'PRD-YZAMRON7', NULL, 0.70, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:18:05', '2026-02-28 10:18:05', NULL);
+INSERT INTO `products` (`id`, `category_id`, `name`, `slug`, `sku`, `images`, `price`, `discount_percent`, `discount_price`, `discount_start`, `discount_end`, `is_on_sale`, `sale_label`, `stock`, `image`, `description`, `is_active`, `unit`, `min_stock_level`, `created_at`, `updated_at`, `deleted_at`) VALUES
 (266, 1, '{\"en\":\"Potato\",\"km\":\"\\u178a\\u17c6\\u17a1\\u17bc\\u1784\\u1794\\u17b6\\u179a\\u17b6\\u17c6\\u1784\",\"zh\":\"\\u571f\\u8c46\"}', 'potato', 'PRD-D4Y3OSDA', NULL, 1.00, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:18:46', '2026-02-28 10:18:46', NULL),
 (267, 1, '{\"en\":\"Sweet potato\",\"km\":\"\\u178a\\u17c6\\u17a1\\u17bc\\u1784\\u1787\\u17d2\\u179c\\u17b6\",\"zh\":\"\\u7518\\u85af\"}', 'sweet-potato', 'PRD-PRO7HPUS', NULL, 1.20, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:19:29', '2026-02-28 10:19:29', NULL),
 (268, 1, '{\"en\":\"Cassava\",\"km\":\"\\u178a\\u17c6\\u17a1\\u17bc\\u1784\\u1798\\u17b8\",\"zh\":\"\\u6728\\u85af\"}', 'cassava', 'PRD-DUPAQGSC', NULL, 0.90, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:20:17', '2026-02-28 10:20:17', NULL),
@@ -1195,10 +1315,12 @@ INSERT INTO `products` (`id`, `category_id`, `name`, `slug`, `sku`, `images`, `p
 (272, 1, '{\"en\":\"Kale\",\"km\":\"\\u179f\\u17d2\\u1796\\u17c3\\u1781\\u17d2\\u1798\\u17c5\",\"zh\":\"\\u7fbd\\u8863\\u7518\\u84dd\"}', 'kale', 'PRD-PTGMVF9K', NULL, 1.00, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:23:38', '2026-02-28 10:23:38', NULL),
 (273, 1, '{\"en\":\"Mustard greens\",\"km\":\"\\u179f\\u17d2\\u1796\\u17c3\\u1794\\u17c3\\u178f\\u1784\",\"zh\":\"\\u82a5\\u83dc\"}', 'mustard-greens', 'PRD-0DDOIEJY', NULL, 1.10, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:24:17', '2026-02-28 10:24:17', NULL),
 (274, 1, '{\"en\":\"Khmer eggplant\",\"km\":\"\\u178f\\u17d2\\u179a\\u1794\\u17cb\\u1798\\u17bc\\u179b\",\"zh\":\"\\u8304\\u5b50\"}', 'khmer-eggplant', 'PRD-0SSJNASX', NULL, 0.40, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:25:24', '2026-02-28 10:25:24', NULL),
-(275, 1, '{\"en\":\"Mung bean (sprout)\",\"km\":\"\\u179f\\u178e\\u17d2\\u178a\\u17c2\\u1780\\u1794\\u178e\\u17d2\\u178a\\u17bb\\u17c7\",\"zh\":\"\\u7eff\\u8c46\\uff08\\u82bd\\uff09\"}', 'mung-bean-sprout', 'PRD-K3ERJQUS', NULL, 0.50, 10.00, 0.45, NULL, NULL, 1, '10% OFF', 99, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:26:19', '2026-02-28 12:39:49', NULL),
+(275, 1, '{\"en\":\"Mung bean (sprout)\",\"km\":\"\\u179f\\u178e\\u17d2\\u178a\\u17c2\\u1780\\u1794\\u178e\\u17d2\\u178a\\u17bb\\u17c7\",\"zh\":\"\\u7eff\\u8c46\\uff08\\u82bd\\uff09\"}', 'mung-bean-sprout', 'PRD-K3ERJQUS', NULL, 0.50, 10.00, 0.45, NULL, NULL, 1, '10% OFF', 98, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:26:19', '2026-03-05 06:48:27', NULL),
 (276, 1, '{\"en\":\"Soybean\",\"km\":\"\\u179f\\u178e\\u17d2\\u178a\\u17c2\\u1780\\u179f\\u17c0\\u1784\",\"zh\":\"\\u5927\\u8c46\"}', 'soybean', 'PRD-GDUFSBXV', NULL, 2.00, 0.00, NULL, NULL, NULL, 0, NULL, 4, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:27:04', '2026-02-28 12:39:49', NULL),
 (277, 1, '{\"en\":\"Pea\",\"km\":\"\\u179f\\u178e\\u17d2\\u178f\\u17c2\\u1780\\u1794\\u17b6\\u179a\\u17b6\\u17c6\\u1784\",\"zh\":\"\\u8c4c\\u8c46\"}', 'pea', 'PRD-TLCYEPNH', NULL, 1.00, 0.00, NULL, NULL, NULL, 0, NULL, 0, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:27:45', '2026-02-28 11:48:11', NULL),
-(278, 1, '{\"en\":\"Galangal\",\"km\":\"\\u1781\\u17d2\\u1789\\u17b8\",\"zh\":\"\\u9ad8\\u826f\\u59dc\"}', 'galangal', 'PRD-JLA6GLQE', NULL, 1.00, 0.00, NULL, NULL, NULL, 0, NULL, 699, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:29:21', '2026-02-28 13:29:00', NULL);
+(278, 1, '{\"en\":\"Galangal\",\"km\":\"\\u1781\\u17d2\\u1789\\u17b8\",\"zh\":\"\\u9ad8\\u826f\\u59dc\"}', 'galangal', 'PRD-JLA6GLQE', NULL, 1.00, 0.00, NULL, NULL, NULL, 0, NULL, 552, NULL, NULL, 1, 'kg', 5, '2026-02-28 10:29:21', '2026-03-15 07:33:53', NULL),
+(280, 1, '{\"en\":\"Chili\",\"km\":\"\\u1798\\u17d2\\u1791\\u17c1\\u179f\\u1781\\u17c0\\u179c\",\"zh\":\"\\u1798\\u17d2\\u1791\\u17c1\\u179f\\u1781\\u17c0\\u179c\"}', 'chili-2', 'PRD-VLDZ0TMK', NULL, 0.10, 10.00, 0.09, '2026-03-15 15:10:00', '2026-03-16 15:10:00', 1, '10% OFF', 100, NULL, NULL, 1, 'g', 5, '2026-03-15 05:16:14', '2026-03-15 08:10:42', NULL),
+(292, 1, '{\"en\":\"Chili Pepper\",\"km\":\"\\u1798\\u17d2\\u1791\\u17c1\\u179f\\u1781\\u17c0\\u179c \\u1798\\u17d2\\u1791\\u17c1\\u179f\\u1795\\u17d2\\u179b\\u17c4\\u1780\",\"zh\":\"\\u1798\\u17d2\\u1791\\u17c1\\u179f\\u1781\\u17c0\\u179c \\u1798\\u17d2\\u1791\\u17c1\\u179f\\u1795\\u17d2\\u179b\\u17c4\\u1780\"}', 'chili-pepper', 'PRD-QIVHI1QU', NULL, 1.00, 0.00, NULL, NULL, NULL, 0, NULL, 100, NULL, NULL, 1, 'kg', 5, '2026-03-15 08:44:49', '2026-03-15 08:44:49', NULL);
 
 -- --------------------------------------------------------
 
@@ -1222,8 +1344,6 @@ CREATE TABLE `product_images` (
 INSERT INTO `product_images` (`id`, `product_id`, `image_path`, `sort_order`, `created_at`, `updated_at`) VALUES
 (39, 69, 'products/WXwwwu8olrScQ1CaHNrRfbqdkgrrUdLxGwxzWcKg.jpg', 0, '2026-02-21 15:17:05', '2026-02-21 15:17:05'),
 (70, 75, 'products/ARnLUrWqtFGXZvbR9ZBOGWdyM1swRDZZPbtsdIfK.jpg', 0, '2026-02-28 07:42:27', '2026-02-28 07:42:27'),
-(71, 76, 'products/dfdR5DQJ3xsDw8sxLEywmEKAJ9YbJWuEYhuXjNFH.jpg', 0, '2026-02-28 07:42:27', '2026-02-28 07:42:27'),
-(72, 77, 'products/F4jA4kp1qgggGwBm5QIsz4lY1KaL44E7fSCgPmpE.jpg', 0, '2026-02-28 07:45:21', '2026-02-28 07:45:21'),
 (73, 78, 'products/wmumjdFYIgpzg3vzqsC9NqHcOJkz8Rp4NjhHBhIp.jpg', 0, '2026-02-28 07:50:38', '2026-02-28 07:50:38'),
 (74, 79, 'products/ghNMNttIWexrXZmIXl6tQCSB4y4Mmg13pj1ebDvh.jpg', 0, '2026-02-28 07:52:32', '2026-02-28 07:52:32'),
 (75, 80, 'products/Cwvo6qetqJk0sFwhW3Tknq1diCxINisbiKRVUILJ.jpg', 0, '2026-02-28 07:53:17', '2026-02-28 07:53:17'),
@@ -1402,7 +1522,6 @@ INSERT INTO `product_images` (`id`, `product_id`, `image_path`, `sort_order`, `c
 (248, 255, 'products/dWvbHfCTKMh67WF46se1PXEqVKZkOSEd44Mai8ma.jpg', 0, '2026-02-28 10:10:37', '2026-02-28 10:10:37'),
 (249, 256, 'products/YTxurICw0FXOeXDlsal74SGUx1pzMfKRQNjZgTKt.jpg', 0, '2026-02-28 10:11:18', '2026-02-28 10:11:18'),
 (250, 257, 'products/D1E8LdmrIfgG1qTQVE2udUIHEq6F3k0XXrTr0uP8.jpg', 0, '2026-02-28 10:11:55', '2026-02-28 10:11:55'),
-(251, 258, 'products/OeVJ9nMsRDt3V57Q8pFqgbxvDxtbAQldzp3KVPhp.jpg', 0, '2026-02-28 10:12:43', '2026-02-28 10:12:43'),
 (252, 259, 'products/8PNradKjpkS7YRmJH9uq7ERQMtAeqEHHSkq8NaIM.jpg', 0, '2026-02-28 10:13:26', '2026-02-28 10:13:26'),
 (253, 260, 'products/9naBNM9POWZeHS6nbftlUnImBkLlM9Sg8qHyWFpR.jpg', 0, '2026-02-28 10:14:04', '2026-02-28 10:14:04'),
 (254, 261, 'products/PZh9QyB5ktVLRHwtqX5GVKOiunFNnngj8eNnM1Cn.png', 0, '2026-02-28 10:14:48', '2026-02-28 10:14:48'),
@@ -1422,7 +1541,12 @@ INSERT INTO `product_images` (`id`, `product_id`, `image_path`, `sort_order`, `c
 (268, 275, 'products/to0qhgH0HscPNxQCzAocowxgiILnBdwvFV9cR7h3.jpg', 0, '2026-02-28 10:26:19', '2026-02-28 10:26:19'),
 (269, 276, 'products/M73iP5axLwj2fRreKivSun93x772hsyQtN05lvPW.jpg', 0, '2026-02-28 10:27:04', '2026-02-28 10:27:04'),
 (270, 277, 'products/xAok9ftQUKOASB6uSIwvv6xTGKzO9gHOGwpmiO8F.jpg', 0, '2026-02-28 10:27:45', '2026-02-28 10:27:45'),
-(271, 278, 'products/8uag9jxsbowW4jXKc9c70sIJPVhLiggfzBKmpDVx.jpg', 0, '2026-02-28 10:29:38', '2026-02-28 10:29:38');
+(271, 278, 'products/8uag9jxsbowW4jXKc9c70sIJPVhLiggfzBKmpDVx.jpg', 0, '2026-02-28 10:29:38', '2026-02-28 10:29:38'),
+(272, 230, 'products/gkS6ebgaIiP3wTNvpI1JdWpKdA1XRCDJmVIMiLB9.jpg', 0, '2026-03-12 05:18:43', '2026-03-12 05:18:43'),
+(273, 203, 'products/35zB4N8W2GHaB8arIx7e0C5Zp1NYtGlKQ8bYGlGV.jpg', 0, '2026-03-12 05:22:44', '2026-03-12 05:22:44'),
+(275, 280, 'products/PjJ3mMsu6OGARDwa2LWJqi5bGgfiKIz5xPqrMVB5.jpg', 0, '2026-03-15 05:16:15', '2026-03-15 05:16:15'),
+(279, 292, 'products/HylCpG0hGHPNLNNr8Wn7HJ4EkT1qX0wzpyJsLvMO.jpg', 0, '2026-03-15 08:44:49', '2026-03-15 08:44:49'),
+(280, 292, 'products/HoPo4q6PUSdU9o4us4hRHdlPjP5oEljlVP6Ai46h.jpg', 1, '2026-03-15 08:45:11', '2026-03-15 08:45:11');
 
 -- --------------------------------------------------------
 
@@ -1459,7 +1583,8 @@ INSERT INTO `reviews` (`id`, `product_id`, `user_id`, `order_id`, `rating`, `com
 (3, 278, 13, NULL, 5, 'ខ្ញីនេះទំនងដាំទឹកផឹកណាស់ បើយកទៅឆាក៏ឆ្ងាញ់ដែរ', '[\"reviews\\/90i9fmYp3XpEtWs0SmKwpcwOjmCaZcYg88xAMQ0K.jpg\"]', 1, 0, 0, NULL, NULL, NULL, 1, '2026-02-28 11:57:35', '2026-02-28 11:58:10'),
 (4, 276, 13, NULL, 4, 'សណ្ដែកសៀងនេះ ទំនងយកទៅធ្វើទឹកសណ្ដែក', NULL, 1, 0, 0, NULL, NULL, NULL, 0, '2026-02-28 11:59:08', '2026-02-28 11:59:08'),
 (5, 275, 13, NULL, 3, 'ជិតអស់ស្តុកហើយបង ដាក់ថែមឲ្យច្រើនៗមក', NULL, 1, 0, 0, NULL, NULL, NULL, 0, '2026-02-28 11:59:43', '2026-02-28 11:59:43'),
-(6, 274, 13, NULL, 2, 'ខ្ញុំអត់ចូលចិត្តញ៉ាំត្រប់ទេ', NULL, 1, 0, 0, NULL, NULL, NULL, 0, '2026-02-28 12:00:15', '2026-02-28 12:00:15');
+(6, 274, 13, NULL, 2, 'ខ្ញុំអត់ចូលចិត្តញ៉ាំត្រប់ទេ', NULL, 1, 0, 0, NULL, NULL, NULL, 0, '2026-02-28 12:00:15', '2026-02-28 12:00:15'),
+(7, 292, 13, NULL, 5, 'ម្ទេសនេះ ហឹរល្មម ល្អណាស់', NULL, 1, 0, 0, NULL, NULL, NULL, 1, '2026-03-15 08:46:13', '2026-03-15 08:50:34');
 
 -- --------------------------------------------------------
 
@@ -1484,7 +1609,8 @@ INSERT INTO `review_helpful` (`id`, `review_id`, `user_id`, `created_at`, `updat
 (7, 2, 11, '2026-02-25 18:08:26', '2026-02-25 18:08:26'),
 (8, 1, 1, '2026-02-25 19:03:39', '2026-02-25 19:03:39'),
 (10, 1, 13, '2026-02-26 05:36:10', '2026-02-26 05:36:10'),
-(11, 3, 13, '2026-02-28 11:58:10', '2026-02-28 11:58:10');
+(11, 3, 13, '2026-02-28 11:58:10', '2026-02-28 11:58:10'),
+(12, 7, 13, '2026-03-15 08:50:34', '2026-03-15 08:50:34');
 
 -- --------------------------------------------------------
 
@@ -1536,7 +1662,8 @@ CREATE TABLE `role_histories` (
 INSERT INTO `role_histories` (`id`, `user_id`, `changed_by`, `old_role`, `new_role`, `reason`, `created_at`, `updated_at`) VALUES
 (1, 4, 1, 'staff', 'driver', NULL, '2026-02-21 03:20:32', '2026-02-21 03:20:32'),
 (2, 4, 1, 'driver', 'staff', NULL, '2026-02-21 03:21:01', '2026-02-21 03:21:01'),
-(3, 6, 1, 'staff', 'driver', 'ប្ដូរគាត់ទៅជាអ្នកដឹកជញ្ជូនវិញ ដោយសារគាត់ ពូកែ', '2026-02-21 12:25:02', '2026-02-21 12:25:02');
+(3, 6, 1, 'staff', 'driver', 'ប្ដូរគាត់ទៅជាអ្នកដឹកជញ្ជូនវិញ ដោយសារគាត់ ពូកែ', '2026-02-21 12:25:02', '2026-02-21 12:25:02'),
+(4, 15, 1, 'staff', 'driver', 'kljsadkfjkl', '2026-03-15 08:57:20', '2026-03-15 08:57:20');
 
 -- --------------------------------------------------------
 
@@ -1601,17 +1728,18 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `name`, `email`, `phone_number`, `gender`, `dob`, `pob`, `current_address`, `latitude`, `longitude`, `location_updated_at`, `bio`, `profile_photo_path`, `role`, `status`, `permissions`, `avatar`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
 (1, 'Super Admin', 'admin@grocery.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'profile-photos/SkWDyOznC2Dk57XQvitrnb6y08PgMyyJvThlyWeV.png', 'admin', 'active', NULL, 'profile-photos/SkWDyOznC2Dk57XQvitrnb6y08PgMyyJvThlyWeV.png', NULL, '$2y$12$W/1ClW/ZYkTf8lYX2A03suhU1nEeNrwte3Me8.MTc6vDDySWIP/w2', NULL, '2026-02-20 00:57:34', '2026-02-23 09:22:06'),
-(2, 'Delivery Driver', 'driver@grocery.com', '01234545465', NULL, NULL, NULL, NULL, 11.51327900, 104.88916800, '2026-03-01 05:37:37', NULL, 'profile-photos/NdARXECREhZUN7CXdSZ9DtVzU0UuR8hXkM2fh9xs.jpg', 'driver', 'active', '[]', NULL, NULL, '$2y$12$hWtix2NM4Tu.Y0AvfHXYn.HIhQtYfw6.GRmmuG/6UI8j8f60a7i96', NULL, '2026-02-20 00:57:34', '2026-03-01 05:37:37'),
-(3, 'Store Staff', 'staff@grocery.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'profile-photos/pSdU1ozHEjT6zXQwddOEGtAAvQd3FpS7vy8GVAj8.png', 'staff', 'active', '[\"manage_inventory\",\"manage_staff\"]', NULL, NULL, '$2y$12$jE3fRDtuZT2Q/rz6zg.SYOMPn4hzAdnBZTuccMbZY4iFpiNGYCbCC', NULL, '2026-02-20 22:22:45', '2026-02-21 03:32:26'),
+(2, 'Delivery Driver', 'driver@grocery.com', '01234545465', NULL, NULL, NULL, NULL, 11.51327900, 104.88916800, '2026-03-17 07:46:32', NULL, 'profile-photos/NdARXECREhZUN7CXdSZ9DtVzU0UuR8hXkM2fh9xs.jpg', 'driver', 'active', '[]', NULL, NULL, '$2y$12$hWtix2NM4Tu.Y0AvfHXYn.HIhQtYfw6.GRmmuG/6UI8j8f60a7i96', NULL, '2026-02-20 00:57:34', '2026-03-17 07:46:32'),
+(3, 'Store Staff', 'staff@grocery.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'profile-photos/pSdU1ozHEjT6zXQwddOEGtAAvQd3FpS7vy8GVAj8.png', 'staff', 'active', '[\"manage_inventory\",\"manage_orders\",\"process_orders\"]', NULL, NULL, '$2y$12$jE3fRDtuZT2Q/rz6zg.SYOMPn4hzAdnBZTuccMbZY4iFpiNGYCbCC', NULL, '2026-02-20 22:22:45', '2026-03-05 14:21:34'),
 (4, 'Supervisor', 'spv@123.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'profile-photos/ARsA8kxdBIFd6r2FaMXV4OrjIl8EbUImbIAyZLno.jpg', 'staff', 'active', '[\"manage_inventory\",\"manage_categories\",\"manage_staff\"]', NULL, NULL, '$2y$12$eEU/BtsjaeIzwYVl5xA28OOOo05GzPTpBhrcKSOifVrWmfgk.9dte', NULL, '2026-02-21 02:55:10', '2026-02-21 03:21:01'),
 (6, 'Berry', 'bb@123.com', '01234545465', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'profile-photos/Njk8zSA4uz8bU6gfBoMQwP13PzxcSaWKfv9FxDU8.jpg', 'driver', 'active', '[]', 'profile-photos/Njk8zSA4uz8bU6gfBoMQwP13PzxcSaWKfv9FxDU8.jpg', NULL, '$2y$12$kPk5Df3yqbtQ5pc64FEAeOClkTw4K/kh8o1nJE2sHArqQLQf8y.9q', NULL, '2026-02-21 12:11:33', '2026-02-24 10:41:45'),
-(7, 'Meng Love', 'mm@123.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'staff', 'active', '[\"manage_inventory\",\"manage_categories\"]', NULL, NULL, '$2y$12$ZPLA.E1fOwFi14LBT8klDOGW6c8heTzXTmi/vaD/zuMM4MdmPANQ6', NULL, '2026-02-21 12:19:26', '2026-02-21 12:19:26'),
+(7, 'Meng Love', 'mm@123.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'profile-photos/yQu32OLKE7vMWoA4Wn8hatW3xFdorF3tsM62gGKn.png', 'staff', 'active', '[\"manage_inventory\",\"manage_categories\"]', 'profile-photos/yQu32OLKE7vMWoA4Wn8hatW3xFdorF3tsM62gGKn.png', NULL, '$2y$12$ZPLA.E1fOwFi14LBT8klDOGW6c8heTzXTmi/vaD/zuMM4MdmPANQ6', NULL, '2026-02-21 12:19:26', '2026-03-05 07:58:33'),
 (8, 'Mineral Water', 'Min@123.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'profile-photos/K20wtjZLWMw6P62BbLjkYWV16oXVMNHR5jy12yVr.jpg', 'staff', 'active', '[\"manage_inventory\",\"manage_categories\"]', 'profile-photos/K20wtjZLWMw6P62BbLjkYWV16oXVMNHR5jy12yVr.jpg', NULL, '$2y$12$rXl.yU7lcnpWa1iT99uTUuiUJbqYxwUlf8S0Kk2SichBk7YS6rDeu', NULL, '2026-02-21 12:19:54', '2026-02-23 08:15:16'),
 (10, 'Berry1', 'bb1@123.com', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'profile-photos/Suu342gw2VpcJNbcVAwG7CqnGeOzcu4BfrRLRO9p.jpg', 'staff', 'disabled', '[\"manage_orders\"]', NULL, NULL, '$2y$12$qCMyI0BcK777zYOh4WPRl.iFtxsXdM5DzVMj0yhAc8Ux.sS/exCcS', NULL, '2026-02-21 12:46:41', '2026-02-22 14:39:37'),
 (11, 'Sovannarout', 'nou.sovannarout63827@gmail.com', '015868608', NULL, NULL, NULL, 'Cambodia', NULL, NULL, NULL, NULL, NULL, 'customer', 'active', NULL, 'profile-photos/J63wVXClSezEZapGEvxXgeBwldZbWMEInT8yaVRr.jpg', NULL, '$2y$12$P4Hi8PXjtU5eyG.qPQqhJO57BS/8cgCEzBhdOa0Q6r5CsRio1PUUS', NULL, '2026-02-22 03:21:04', '2026-02-25 17:46:43'),
 (12, 'Sovannarout1', 'nou.sovannarout@gmail.com', '015868608', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'customer', 'active', NULL, 'profile-photos/UbT0CmPPRLoTjw9L8RgHD7SX7hi0lanbKrhsYloS.jpg', NULL, '$2y$12$5pJDVN2YaXx8Vve/ew.94eMV2Vz/FUmIpIGGxfamjxkAMhZvISK.u', 'kdSRWbWYSD5UGvPAWyeiy3Ju0FMSYKsEl5HGUMWf1wIV2cExBkdqHT9nmFPA', '2026-02-22 03:22:59', '2026-02-22 06:31:18'),
-(13, 'Makara', 'makara@gmail.com', '123456667', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'customer', 'active', NULL, 'profile-photos/BnTMQNGY9sC7Hbfw40m6UAAnTUbWIvfV7p3m3mar.jpg', NULL, '$2y$12$il4vgWsJHnWFfXMv.eUHLemdNl0ioJpQj10g/JvNgmZsr4ICv8sl6', NULL, '2026-02-22 05:20:18', '2026-02-23 08:03:11'),
-(14, 'Super Admin1', 'admin1@grocery.com', '01234545465', 'Male', '2019-06-04', 'Cambodia', 'Phnom Penh', NULL, NULL, NULL, 'Admin', 'profile-photos/Z0c4Kyahbx7cuAYn05o4icQLsV8s22BTZPCrkpBW.jpg', 'admin', 'active', '[]', 'profile-photos/Z0c4Kyahbx7cuAYn05o4icQLsV8s22BTZPCrkpBW.jpg', NULL, '$2y$12$DfFIKZhHBe1Y/.tV/GYJQOTxgIGq6aELUzQIMoFNCCfBjSZoDaZZi', NULL, '2026-02-23 08:38:32', '2026-02-23 08:38:32');
+(13, 'Makara', 'makara@gmail.com', '123456667', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'customer', 'active', NULL, 'profile-photos/BnTMQNGY9sC7Hbfw40m6UAAnTUbWIvfV7p3m3mar.jpg', NULL, '$2y$12$il4vgWsJHnWFfXMv.eUHLemdNl0ioJpQj10g/JvNgmZsr4ICv8sl6', NULL, '2026-02-22 05:20:18', '2026-03-15 09:04:50'),
+(14, 'Super Admin1', 'admin1@grocery.com', '01234545465', 'Male', '2019-06-04', 'Cambodia', 'Phnom Penh', NULL, NULL, NULL, 'Admin', 'profile-photos/Z0c4Kyahbx7cuAYn05o4icQLsV8s22BTZPCrkpBW.jpg', 'admin', 'active', '[]', 'profile-photos/Z0c4Kyahbx7cuAYn05o4icQLsV8s22BTZPCrkpBW.jpg', NULL, '$2y$12$DfFIKZhHBe1Y/.tV/GYJQOTxgIGq6aELUzQIMoFNCCfBjSZoDaZZi', NULL, '2026-02-23 08:38:32', '2026-02-23 08:38:32'),
+(15, 'Staff 1', 'staff1@gmail.com', '015868608', 'Male', '2017-03-02', 'Cambodia', 'Chamkar Doung, Dangkor', NULL, NULL, NULL, 'aksjdkl;', 'profile-photos/bqZet07sdV8gnIBDkMNkEGZHJTrHI2xP143Xpqrz.jpg', 'driver', 'active', '[\"manage_inventory\",\"manage_orders\",\"process_orders\"]', 'profile-photos/bqZet07sdV8gnIBDkMNkEGZHJTrHI2xP143Xpqrz.jpg', NULL, '$2y$12$QMA2hJ0Osni1OYiLw0bFouAB7gHu9iP/YYIsCtSKh.g1mxgDrzK.C', NULL, '2026-03-15 08:53:47', '2026-03-15 08:58:11');
 
 -- --------------------------------------------------------
 
@@ -1641,7 +1769,8 @@ INSERT INTO `wishlists` (`id`, `user_id`, `product_id`, `created_at`, `updated_a
 (27, 13, 273, '2026-02-28 11:56:44', '2026-02-28 11:56:44'),
 (28, 13, 271, '2026-02-28 11:56:46', '2026-02-28 11:56:46'),
 (29, 13, 269, '2026-02-28 11:56:48', '2026-02-28 11:56:48'),
-(30, 13, 266, '2026-02-28 11:58:29', '2026-02-28 11:58:29');
+(30, 13, 266, '2026-02-28 11:58:29', '2026-02-28 11:58:29'),
+(31, 13, 280, '2026-03-15 07:27:19', '2026-03-15 07:27:19');
 
 --
 -- Indexes for dumped tables
@@ -1686,7 +1815,8 @@ ALTER TABLE `categories`
 ALTER TABLE `coupons`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `coupons_code_unique` (`code`),
-  ADD KEY `coupons_status_idx` (`status`);
+  ADD KEY `coupons_status_idx` (`status`),
+  ADD KEY `coupons_created_by_foreign` (`created_by`);
 
 --
 -- Indexes for table `failed_jobs`
@@ -1771,6 +1901,7 @@ ALTER TABLE `personal_access_tokens`
 --
 ALTER TABLE `products`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `products_slug_unique` (`slug`),
   ADD KEY `products_slug_index` (`slug`),
   ADD KEY `products_category_id_index` (`category_id`),
   ADD KEY `products_stock_index` (`stock`),
@@ -1867,7 +1998,7 @@ ALTER TABLE `wishlists`
 -- AUTO_INCREMENT for table `activity_logs`
 --
 ALTER TABLE `activity_logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=550;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=640;
 
 --
 -- AUTO_INCREMENT for table `categories`
@@ -1879,7 +2010,7 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `coupons`
 --
 ALTER TABLE `coupons`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `failed_jobs`
@@ -1897,19 +2028,19 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `personal_access_tokens`
@@ -1921,25 +2052,25 @@ ALTER TABLE `personal_access_tokens`
 -- AUTO_INCREMENT for table `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=279;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=293;
 
 --
 -- AUTO_INCREMENT for table `product_images`
 --
 ALTER TABLE `product_images`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=272;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=281;
 
 --
 -- AUTO_INCREMENT for table `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `review_helpful`
 --
 ALTER TABLE `review_helpful`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `review_replies`
@@ -1951,19 +2082,19 @@ ALTER TABLE `review_replies`
 -- AUTO_INCREMENT for table `role_histories`
 --
 ALTER TABLE `role_histories`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `wishlists`
 --
 ALTER TABLE `wishlists`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- Constraints for dumped tables
@@ -1974,6 +2105,12 @@ ALTER TABLE `wishlists`
 --
 ALTER TABLE `activity_logs`
   ADD CONSTRAINT `activity_logs_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `coupons`
+--
+ALTER TABLE `coupons`
+  ADD CONSTRAINT `coupons_created_by_foreign` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `orders`
